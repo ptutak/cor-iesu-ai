@@ -1,7 +1,5 @@
-from django.contrib.admin import ModelAdmin
 from django.contrib.auth.models import User
 from django.db import models
-from django.http import HttpRequest
 
 # Create your models here.
 
