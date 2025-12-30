@@ -14,9 +14,7 @@ from .models import (
 
 
 @admin.action(description="Generate standard hour periods")
-def generate_standard_hour_periods(
-    modeladmin: ModelAdmin, request: HttpRequest, queryset: models.QuerySet
-) -> None:
+def generate_standard_hour_periods(modeladmin: ModelAdmin, request: HttpRequest, queryset: models.QuerySet) -> None:
     for hour in range(0, 24):
         Period.objects.get_or_create(name=f"{hour:02}:00 - {hour + 1:02}:00")
 
