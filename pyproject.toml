@@ -1,0 +1,77 @@
+[project]
+name = "cor-iesu-ai"
+version = "0.1.0"
+description = "Package for managing adoration of Most Holy Sacrament"
+requires-python = ">=3.13"
+dependencies = ["django>=6.0"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = [
+    "E203",
+    "D100",  # public module
+    "D104",  # public package
+    "D105",  # magic methods
+    "DCO010", # duplicate of public method
+    "DCO060", # public attributes - they're already documented if it is a property.
+]
+exclude = [
+    "build",
+    "tests",
+]
+convention = "google"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+strict = true
+addopts = ["-vv", "-s"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 85
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.mypy]
+packages = ["src"]
+exclude = [
+    "tests",
+    "src/manage.py",
+    "src/cor_iesu",
+    "src/adoration/migrations",
+]
+ignore_missing_imports = true
+warn_unused_ignores = false
+strict = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "flake8-black",
+    "django-stubs[compatible-mypy]",
+    "django-stubs-ext",
+]
