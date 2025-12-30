@@ -18,3 +18,12 @@ check-hooks:
 	@echo "Checking pre-commit hooks..."
 	@pre-commit run --all-files
 	@echo "Done."
+
+.PHONY: run-dev
+run-dev:
+	python src/manage.py runserver
+
+.PHONY: migrations
+migrations:
+	python src/manage.py makemigrations
+	python src/manage.py migrate
