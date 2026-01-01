@@ -99,9 +99,7 @@ class PeriodAssignment(models.Model):
     attendant_name = models.CharField(max_length=100, blank=False)
     attendant_email = models.CharField(max_length=80, blank=False, null=False)
     attendant_phone_number = models.CharField(max_length=15, blank=True, null=True)
-    deletion_token = models.CharField(
-        max_length=128, unique=True, blank=True, null=True
-    )
+    deletion_token = models.CharField(max_length=128, unique=True, blank=True, null=True)
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.deletion_token:

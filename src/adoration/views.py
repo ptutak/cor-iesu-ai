@@ -25,32 +25,24 @@ def registration_view(request: HttpRequest) -> HttpResponse:
             send_mail(
                 subject=f"Registration Confirmation - {assignment.period_collection.collection.name}",
                 message=f"Dear {assignment.attendant_name},\n\nYour registration is confirmed.\n\nCollection: {assignment.period_collection.collection.name}\nPeriod: {assignment.period_collection.period.name}\n\nDeletion link: {request.build_absolute_uri('/delete/' + assignment.deletion_token + '/')}\n\nBest regards",
-                from_email=get_email_config(
-                    "DEFAULT_FROM_EMAIL", "noreply@example.com"
-                ),
+                from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com"),
                 recipient_list=[assignment.attendant_email],
                 fail_silently=True,
             )
 
             # Send maintainer notification
-            maintainers = CollectionMaintainer.objects.filter(
-                collection=assignment.period_collection.collection
-            )
+            maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
             if maintainers.exists():
                 maintainer_emails = [m.maintainer.user.email for m in maintainers]
                 send_mail(
                     subject=f"New Registration - {assignment.period_collection.collection.name}",
                     message=f"New participant registered:\n\nName: {assignment.attendant_name}\nEmail: {assignment.attendant_email}\nCollection: {assignment.period_collection.collection.name}\nPeriod: {assignment.period_collection.period.name}",
-                    from_email=get_email_config(
-                        "DEFAULT_FROM_EMAIL", "noreply@example.com"
-                    ),
+                    from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com"),
                     recipient_list=maintainer_emails,
                     fail_silently=True,
                 )
 
-            messages.success(
-                request, "Registration successful! Check your email for confirmation."
-            )
+            messages.success(request, "Registration successful! Check your email for confirmation.")
             return redirect("registration")
     else:
         form = PeriodAssignmentForm()
@@ -62,16 +54,12 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
     """AJAX endpoint to get periods for a specific collection"""
     try:
         collection = get_object_or_404(Collection, id=collection_id, enabled=True)
-        period_collections = PeriodCollection.objects.filter(
-            collection=collection
-        ).select_related("period")
+        period_collections = PeriodCollection.objects.filter(collection=collection).select_related("period")
 
         periods_data = []
         for pc in period_collections:
             # Get current assignment count
-            current_count = PeriodAssignment.objects.filter(
-                period_collection=pc
-            ).count()
+            current_count = PeriodAssignment.objects.filter(period_collection=pc).count()
 
             periods_data.append(
                 {
@@ -99,9 +87,7 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
     return render(request, "adoration/delete_confirm.html", {"assignment": assignment})
 
 
-def get_email_config(
-    config_name: str, default_value: Optional[str] = None
-) -> Optional[str]:
+def get_email_config(config_name: str, default_value: str | None = None) -> str | None:
     try:
         config = Config.objects.get(name=config_name)
         return config.value
