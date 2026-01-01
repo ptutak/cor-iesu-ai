@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Cancel Registration</title>
+    </head>
+    <body>
+        <h1>Cancel Registration</h1>
+
+        <p>
+            <strong>Are you sure you want to cancel your registration?</strong>
+        </p>
+
+        <div
+            style="
+                background-color: #f8f9fa;
+                border-left: 4px solid #dc3545;
+                padding: 15px;
+                margin: 20px 0;
+            "
+        >
+            <p><strong>Registration Details:</strong></p>
+            <p>
+                Collection: {{ assignment.period_collection.collection.name }}
+            </p>
+            <p>Period: {{ assignment.period_collection.period.name }}</p>
+            <p>Name: {{ assignment.attendant_name }}</p>
+            <p>Email: {{ assignment.attendant_email }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button
+                type="submit"
+                style="
+                    background-color: #dc3545;
+                    color: white;
+                    padding: 10px 20px;
+                    border: none;
+                "
+            >
+                Yes, Cancel Registration
+            </button>
+            <a href="/" style="margin-left: 10px">Keep Registration</a>
+        </form>
+
+        <p><small>This action cannot be undone.</small></p>
+    </body>
+</html>

@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Period Registration - Adoration</title>
+
+        <!-- Bootstrap 5.3.8 CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+
+        <!-- Bootstrap Icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        />
+
+        <style>
+            .hero-section {
+                background: linear-gradient(135deg, #0d6efd 0%, #198754 100%);
+                color: white;
+                padding: 4rem 0;
+                margin-bottom: 3rem;
+            }
+
+            .form-container {
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                padding: 4rem 3rem;
+                margin-bottom: 4rem;
+                max-width: 900px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .form-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0 25px;
+            }
+
+            .form-table td {
+                padding: 15px 20px;
+                vertical-align: top;
+            }
+
+            .form-label-cell {
+                width: 30%;
+                text-align: right;
+                padding-right: 25px;
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 1.1rem;
+            }
+
+            .form-input-cell {
+                width: 70%;
+                padding-left: 25px;
+            }
+
+            .form-control, .form-select {
+                font-size: 1.1rem;
+                padding: 15px 20px;
+                border: 2px solid #dee2e6;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                height: auto;
+            }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+                transform: translateY(-1px);
+            }
+
+            .form-label-icon {
+                font-size: 1.3rem;
+                margin-right: 10px;
+                color: #0d6efd;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #0d6efd 0%, #198754 100%);
+                border: none;
+                padding: 18px 40px;
+                font-weight: 600;
+                font-size: 1.2rem;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                min-width: 250px;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(13, 110, 253, 0.4);
+            }
+
+            .alert {
+                border-radius: 12px;
+                border: none;
+                padding: 20px;
+                font-size: 1rem;
+            }
+
+            .period-info {
+                background: linear-gradient(135deg, #e7f3ff 0%, #f0fff4 100%);
+                border-left: 5px solid #0d6efd;
+                border-radius: 12px;
+                padding: 20px;
+                margin-top: 15px;
+                animation: fadeIn 0.4s ease-in-out;
+            }
+
+            .loading-spinner {
+                display: none;
+            }
+
+            .loading .loading-spinner {
+                display: inline-block;
+            }
+
+            .info-card {
+                background: #f8f9fa;
+                border-left: 5px solid #0d6efd;
+                border-radius: 12px;
+                padding: 25px;
+            }
+
+            .error-message {
+                color: #dc3545;
+                font-size: 0.95rem;
+                margin-top: 8px;
+                padding: 8px 12px;
+                background-color: #fff5f5;
+                border-radius: 8px;
+                border-left: 3px solid #dc3545;
+            }
+
+            .section-header {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 25px;
+                text-align: center;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                margin: 0;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body class="bg-light">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-4 fw-bold mb-3">
+                            <i class="bi bi-calendar-heart me-3"></i>
+                            Period Assignment Registration
+                        </h1>
+                        <p class="lead mb-0">
+                            Sign up for your adoration period and join our
+                            community of faith
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Messages -->
+            {% if messages %} {% for message in messages %}
+            <div
+                class="alert alert-success alert-dismissible fade show"
+                role="alert"
+            >
+                <i class="bi bi-check-circle me-2"></i>
+                {{ message }}
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                ></button>
+            </div>
+            {% endfor %} {% endif %}
+
+            <div class="container-fluid py-5" style="background-color: #f8f9fa">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="form-container">
+                            <form method="post" id="registrationForm">
+                                {% csrf_token %}
+
+                                <!-- Service Information Section -->
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        <i class="bi bi-calendar-heart me-3"></i>
+                                        Service Information
+                                    </h3>
+                                </div>
+
+                                <table class="form-table">
+                                    <tr>
+                                        <td class="form-label-cell">
+                                            <i class="bi bi-collection form-label-icon"></i>
+                                            Collection *
+                                        </td>
+                                        <td class="form-input-cell">
+                                            {{ form.collection }}
+                                            {% if form.collection.errors %}
+                                            <div class="error-message">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                {{ form.collection.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                            <div id="theme-info"></div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="form-label-cell">
+                                            <i class="bi bi-clock form-label-icon"></i>
+                                            Period *
+                                        </td>
+                                        <td class="form-input-cell">
+                                            {{ form.period_collection }}
+                                            <div class="loading-spinner text-center mt-3">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <small class="text-muted ms-2">Loading periods...</small>
+                                            </div>
+                                            {% if form.period_collection.errors %}
+                                            <div class="error-message">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                {{ form.period_collection.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Personal Information Section -->
+                                <div class="section-header">
+                                    <h3 class="section-title">
+                                        <i class="bi bi-person-badge me-3"></i>
+                                        Personal Information
+                                    </h3>
+                                </div>
+
+                                <table class="form-table">
+                                    <tr>
+                                        <td class="form-label-cell">
+                                            <i class="bi bi-person form-label-icon"></i>
+                                            {{ form.attendant_name.label }}
+                                        </td>
+                                        <td class="form-input-cell">
+                                            {{ form.attendant_name }}
+                                            {% if form.attendant_name.errors %}
+                                            <div class="error-message">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                {{ form.attendant_name.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="form-label-cell">
+                                            <i class="bi bi-envelope form-label-icon"></i>
+                                            {{ form.attendant_email.label }}
+                                        </td>
+                                        <td class="form-input-cell">
+                                            {{ form.attendant_email }}
+                                            {% if form.attendant_email.errors %}
+                                            <div class="error-message">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                {{ form.attendant_email.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="form-label-cell">
+                                            <i class="bi bi-telephone form-label-icon"></i>
+                                            {{ form.attendant_phone_number.label }}
+                                        </td>
+                                        <td class="form-input-cell">
+                                            {{ form.attendant_phone_number }}
+                                            {% if form.attendant_phone_number.errors %}
+                                            <div class="error-message">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                {{ form.attendant_phone_number.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Form-wide errors -->
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger mt-4">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Submit Button -->
+                                <div class="text-center mt-5">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-check-circle me-3"></i>
+                                        Complete Registration
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                    <!-- Info Card -->
+                    <div class="info-card mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i
+                                    class="bi bi-info-circle-fill text-primary fs-3"
+                                ></i>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1 fw-bold">
+                                    Important Information
+                                </h6>
+                                <p class="mb-0 small text-muted">
+                                    <strong
+                                        >Required fields are marked with
+                                        *</strong
+                                    ><br />
+                                    You will receive a confirmation email with
+                                    your registration details and a cancellation
+                                    link.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap 5.3.8 JS -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+
+        <script>
+            function updatePeriods() {
+                const collectionSelect =
+                    document.getElementById("id_collection");
+                const periodSelect = document.getElementById(
+                    "id_period_collection",
+                );
+                const themeInfo = document.getElementById("theme-info");
+                const form = document.getElementById("registrationForm");
+
+                if (collectionSelect.value) {
+                    // Show loading state
+                    form.classList.add("loading");
+                    periodSelect.disabled = true;
+                    periodSelect.innerHTML =
+                        '<option value="">Loading periods...</option>';
+
+                    // Make AJAX call to get periods
+                    fetch(`/api/collection/${collectionSelect.value}/periods/`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            periodSelect.innerHTML =
+                                '<option value="">Select a period</option>';
+
+                            if (data.periods && data.periods.length > 0) {
+                                data.periods.forEach((period) => {
+                                    const option =
+                                        document.createElement("option");
+                                    option.value = period.id;
+                                    option.textContent = period.name;
+                                    if (period.current_count > 0) {
+                                        option.textContent += ` (${period.current_count} registered)`;
+                                    }
+                                    periodSelect.appendChild(option);
+                                });
+                                periodSelect.disabled = false;
+                            } else {
+                                periodSelect.innerHTML =
+                                    '<option value="">No periods available</option>';
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                            periodSelect.innerHTML =
+                                '<option value="">Error loading periods</option>';
+
+                            // Show error message
+                            const errorAlert = document.createElement("div");
+                            errorAlert.className =
+                                "alert alert-warning alert-dismissible fade show mt-2";
+                            errorAlert.innerHTML = `
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Unable to load periods. Please refresh the page and try again.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                            collectionSelect.parentNode.appendChild(errorAlert);
+                        })
+                        .finally(() => {
+                            form.classList.remove("loading");
+                        });
+                } else {
+                    periodSelect.disabled = true;
+                    periodSelect.innerHTML =
+                        '<option value="">First select a collection</option>';
+                    if (themeInfo) themeInfo.innerHTML = "";
+                }
+            }
+
+            function showPeriodInfo() {
+                const periodSelect = document.getElementById(
+                    "id_period_collection",
+                );
+                const collectionSelect =
+                    document.getElementById("id_collection");
+                const themeInfo = document.getElementById("theme-info");
+
+                if (periodSelect.value && collectionSelect.value) {
+                    fetch(`/api/collection/${collectionSelect.value}/periods/`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const selectedPeriod = data.periods.find(
+                                (p) => p.id == periodSelect.value,
+                            );
+                            if (selectedPeriod && themeInfo) {
+                                let infoHtml = '<div class="period-info">';
+                                infoHtml +=
+                                    '<div class="d-flex align-items-center mb-2">';
+                                infoHtml +=
+                                    '<i class="bi bi-info-circle-fill text-primary me-2"></i>';
+                                infoHtml +=
+                                    "<strong>Period Information</strong>";
+                                infoHtml += "</div>";
+
+                                if (selectedPeriod.description) {
+                                    infoHtml += `<p class="mb-2"><strong>Description:</strong> ${selectedPeriod.description}</p>`;
+                                }
+
+                                infoHtml += '<div class="row">';
+                                infoHtml += '<div class="col-auto">';
+                                infoHtml +=
+                                    '<i class="bi bi-people-fill text-success me-1"></i>';
+                                infoHtml += `<strong>Current registrations:</strong> ${selectedPeriod.current_count}`;
+                                infoHtml += "</div>";
+                                infoHtml += "</div>";
+                                infoHtml += "</div>";
+
+                                themeInfo.innerHTML = infoHtml;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error loading period info:", error);
+                        });
+                } else if (themeInfo) {
+                    themeInfo.innerHTML = "";
+                }
+            }
+
+            // Initialize the form
+            document.addEventListener("DOMContentLoaded", function () {
+                const collectionSelect =
+                    document.getElementById("id_collection");
+                const periodSelect = document.getElementById(
+                    "id_period_collection",
+                );
+
+                // Add Bootstrap classes to form elements
+                collectionSelect.className = "form-select";
+                periodSelect.className = "form-select";
+
+                document.getElementById("id_attendant_name").className =
+                    "form-control";
+                document.getElementById("id_attendant_email").className =
+                    "form-control";
+                document.getElementById("id_attendant_phone_number").className =
+                    "form-control";
+
+                // Add event listeners
+                collectionSelect.addEventListener("change", updatePeriods);
+                periodSelect.addEventListener("change", showPeriodInfo);
+
+                // Set initial state
+                updatePeriods();
+
+                // Add smooth scroll behavior
+                document.documentElement.style.scrollBehavior = "smooth";
+            });
+
+            // Form submission enhancement
+            document
+                .getElementById("registrationForm")
+                .addEventListener("submit", function (e) {
+                    const submitBtn = this.querySelector(
+                        'button[type="submit"]',
+                    );
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing...';
+                    submitBtn.disabled = true;
+
+                    // Re-enable button after 10 seconds as fallback
+                    setTimeout(() => {
+                        if (submitBtn.disabled) {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }
+                    }, 10000);
+                });
+        </script>
+    </body>
+</html>
