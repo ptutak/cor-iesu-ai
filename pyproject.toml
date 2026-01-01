@@ -51,7 +51,6 @@ packages = ["src"]
 exclude = [
     "tests",
     "src/manage.py",
-    "src/cor_iesu",
     "src/adoration/migrations",
 ]
 ignore_missing_imports = true

@@ -6,6 +6,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """Initial migration for adoration app models."""
 
     initial = True
 
@@ -17,16 +18,35 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Collection",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, unique=True)),
-                ("description", models.CharField(blank=True, max_length=600, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=600, null=True),
+                ),
                 ("enabled", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
             name="Config",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, unique=True)),
                 ("value", models.CharField(max_length=255)),
                 ("description", models.CharField(max_length=600)),
@@ -35,44 +55,97 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Period",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, unique=True)),
-                ("description", models.CharField(blank=True, max_length=600, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=600, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="Maintainer",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("phone_number", models.CharField(blank=True, max_length=15)),
                 ("country", models.CharField(max_length=30)),
                 (
                     "user",
-                    models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
                 ),
             ],
         ),
         migrations.CreateModel(
             name="PeriodCollection",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "collection",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="adoration.collection"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="adoration.collection",
+                    ),
                 ),
-                ("period", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="adoration.period")),
+                (
+                    "period",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="adoration.period",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="PeriodAssignment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("attendant_name", models.CharField(max_length=100)),
                 ("attendant_email", models.CharField(max_length=80)),
-                ("attendant_phone_number", models.CharField(blank=True, max_length=15, null=True)),
+                (
+                    "attendant_phone_number",
+                    models.CharField(blank=True, max_length=15, null=True),
+                ),
                 (
                     "period_collection",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="adoration.periodcollection"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="adoration.periodcollection",
+                    ),
                 ),
             ],
         ),
@@ -84,25 +157,49 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CollectionConfig",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(choices=[("ASSIGNMENT_LIMIT", "Assignment Limit")], max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        choices=[("ASSIGNMENT_LIMIT", "Assignment Limit")],
+                        max_length=100,
+                    ),
+                ),
                 ("value", models.CharField(max_length=255)),
-                ("description", models.CharField(blank=True, max_length=600, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=600, null=True),
+                ),
                 (
                     "collection",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="adoration.collection"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="adoration.collection",
+                    ),
                 ),
             ],
             options={
                 "constraints": [
-                    models.UniqueConstraint(fields=("collection", "name"), name="collection_config_unique_constraint")
+                    models.UniqueConstraint(
+                        fields=("collection", "name"),
+                        name="collection_config_unique_constraint",
+                    )
                 ],
             },
         ),
         migrations.AddConstraint(
             model_name="periodcollection",
             constraint=models.UniqueConstraint(
-                fields=("period", "collection"), name="period_collection_unique_constraint"
+                fields=("period", "collection"),
+                name="period_collection_unique_constraint",
             ),
         ),
     ]

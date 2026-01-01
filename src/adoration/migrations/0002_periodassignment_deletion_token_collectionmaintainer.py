@@ -5,6 +5,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """Migration to add deletion token to PeriodAssignment and create CollectionMaintainer model."""
+
     dependencies = [
         ("adoration", "0001_initial"),
     ]

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any
 
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -16,6 +16,14 @@ from .models import (
 
 
 def registration_view(request: HttpRequest) -> HttpResponse:
+    """Handle period assignment registration form submission and display.
+
+    Args:
+        request: HTTP request object containing form data
+
+    Returns:
+        HttpResponse: Rendered registration form or redirect after successful submission
+    """
     if request.method == "POST":
         form = PeriodAssignmentForm(request.POST)
         if form.is_valid():
@@ -24,8 +32,16 @@ def registration_view(request: HttpRequest) -> HttpResponse:
             # Send user confirmation email
             send_mail(
                 subject=f"Registration Confirmation - {assignment.period_collection.collection.name}",
-                message=f"Dear {assignment.attendant_name},\n\nYour registration is confirmed.\n\nCollection: {assignment.period_collection.collection.name}\nPeriod: {assignment.period_collection.period.name}\n\nDeletion link: {request.build_absolute_uri('/delete/' + assignment.deletion_token + '/')}\n\nBest regards",
-                from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com"),
+                message=(
+                    f"Dear {assignment.attendant_name},\n\n"
+                    f"Your registration is confirmed.\n\n"
+                    f"Collection: {assignment.period_collection.collection.name}\n"
+                    f"Period: {assignment.period_collection.period.name}\n\n"
+                    f"Deletion link: "
+                    f"{request.build_absolute_uri('/delete/' + str(assignment.deletion_token) + '/')}\n\n"
+                    f"Best regards"
+                ),
+                from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
                 recipient_list=[assignment.attendant_email],
                 fail_silently=True,
             )
@@ -33,11 +49,17 @@ def registration_view(request: HttpRequest) -> HttpResponse:
             # Send maintainer notification
             maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
             if maintainers.exists():
-                maintainer_emails = [m.maintainer.user.email for m in maintainers]
+                maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
                 send_mail(
                     subject=f"New Registration - {assignment.period_collection.collection.name}",
-                    message=f"New participant registered:\n\nName: {assignment.attendant_name}\nEmail: {assignment.attendant_email}\nCollection: {assignment.period_collection.collection.name}\nPeriod: {assignment.period_collection.period.name}",
-                    from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com"),
+                    message=(
+                        f"New participant registered:\n\n"
+                        f"Name: {assignment.attendant_name}\n"
+                        f"Email: {assignment.attendant_email}\n"
+                        f"Collection: {assignment.period_collection.collection.name}\n"
+                        f"Period: {assignment.period_collection.period.name}"
+                    ),
+                    from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
                     recipient_list=maintainer_emails,
                     fail_silently=True,
                 )
@@ -51,15 +73,23 @@ def registration_view(request: HttpRequest) -> HttpResponse:
 
 
 def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResponse:
-    """AJAX endpoint to get periods for a specific collection"""
+    """AJAX endpoint to get periods for a specific collection.
+
+    Args:
+        request: HTTP request object
+        collection_id: ID of the collection to get periods for
+
+    Returns:
+        JsonResponse: JSON containing periods data or error message
+    """
     try:
         collection = get_object_or_404(Collection, id=collection_id, enabled=True)
         period_collections = PeriodCollection.objects.filter(collection=collection).select_related("period")
 
-        periods_data = []
+        periods_data: list[dict[str, Any]] = []
         for pc in period_collections:
             # Get current assignment count
-            current_count = PeriodAssignment.objects.filter(period_collection=pc).count()
+            current_count: int = PeriodAssignment.objects.filter(period_collection=pc).count()
 
             periods_data.append(
                 {
@@ -77,6 +107,15 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
 
 
 def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
+    """Handle deletion of period assignment using deletion token.
+
+    Args:
+        request: HTTP request object
+        token: Unique deletion token for the assignment
+
+    Returns:
+        HttpResponse: Confirmation page or redirect after deletion
+    """
     assignment = get_object_or_404(PeriodAssignment, deletion_token=token)
 
     if request.method == "POST":
@@ -88,8 +127,18 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
 
 
 def get_email_config(config_name: str, default_value: str | None = None) -> str | None:
+    """Get email configuration value from Config model.
+
+    Args:
+        config_name: Name of the configuration setting
+        default_value: Default value if config not found
+
+    Returns:
+        Configuration value or default value if not found
+    """
     try:
         config = Config.objects.get(name=config_name)
-        return config.value
+        value: str = config.value
+        return value
     except Config.DoesNotExist:
         return default_value
