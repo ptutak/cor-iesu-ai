@@ -61,6 +61,35 @@ class Collection(models.Model):
     enabled = models.BooleanField(blank=False, default=True)
     periods = models.ManyToManyField(Period, through="PeriodCollection")  # type: ignore
 
+    def clean(self) -> None:
+        """Validate that collection has at least one maintainer if enabled.
+
+        Raises:
+            ValidationError: If collection is enabled but has no maintainers
+        """
+        super().clean()
+        if self.enabled and hasattr(self, "pk") and self.pk:
+            # Only check for existing collections (with pk)
+            # Import here to avoid circular import
+            from django.core.exceptions import ValidationError
+
+            # Check if collection has maintainers using reverse foreign key lookup
+            if not hasattr(self, "_maintainers_checked"):
+                # Use string reference to avoid import issues
+                CollectionMaintainer = self.__class__._meta.apps.get_model("adoration", "CollectionMaintainer")
+                if not CollectionMaintainer.objects.filter(collection=self).exists():
+                    raise ValidationError("Collection must have at least one maintainer to be enabled.")
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        """Save the collection after validation.
+
+        Args:
+            args: Positional arguments for save method
+            kwargs: Keyword arguments for save method
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return self.name
 
@@ -128,10 +157,9 @@ class PeriodAssignment(models.Model):
     objects: models.Manager["PeriodAssignment"]
 
     period_collection = models.ForeignKey(PeriodCollection, on_delete=models.CASCADE)
-    attendant_name = models.CharField(max_length=100, blank=False)
-    attendant_email = models.CharField(max_length=80, blank=False, null=False)
-    attendant_phone_number = models.CharField(max_length=15, blank=True, null=True)
-    deletion_token = models.CharField(max_length=128, unique=True, blank=True, null=True)
+    email_hash = models.CharField(max_length=64, blank=False, null=False)
+    salt = models.CharField(max_length=32, blank=False, null=False)
+    deletion_token = models.CharField(max_length=128, unique=True, blank=False, null=False)
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         """Save the assignment and generate deletion token if needed.
@@ -142,6 +170,8 @@ class PeriodAssignment(models.Model):
         """
         if not self.deletion_token:
             self.deletion_token = self.generate_deletion_token()
+        if not self.salt:
+            self.salt = secrets.token_hex(16)  # 32 character hex string
         super().save(*args, **kwargs)
 
     def generate_deletion_token(self) -> str:
@@ -153,17 +183,59 @@ class PeriodAssignment(models.Model):
         # Generate a 64-character random token using secrets module
         random_token = secrets.token_urlsafe(48)  # 48 bytes = 64 base64url chars
 
-        # Add additional entropy by including assignment-specific data
-        entropy_data = f"{self.attendant_email}{self.attendant_name}"
-
         # Create a hash of the combined data for extra security
-        combined = f"{random_token}{entropy_data}"
-        token_hash = hashlib.sha256(combined.encode()).hexdigest()
+        token_hash = hashlib.sha256(random_token.encode()).hexdigest()
 
         return token_hash
 
+    @classmethod
+    def create_with_email(
+        cls, email: str, period_collection: Any, deletion_token: str | None = None
+    ) -> "PeriodAssignment":
+        """Create a new assignment with hashed email.
+
+        Args:
+            email: The plain text email address
+            period_collection: The period collection for this assignment
+            deletion_token: Optional deletion token, will be generated if not provided
+
+        Returns:
+            PeriodAssignment: The new assignment instance
+        """
+        salt = secrets.token_hex(16)  # 32 character hex string
+        # Hash email with salt and deletion token for extra security
+        combined_data = f"{email}{salt}{deletion_token or ''}"
+        email_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+
+        assignment = cls(
+            period_collection=period_collection,
+            email_hash=email_hash,
+            salt=salt,
+            deletion_token=deletion_token,
+        )
+        if not deletion_token:
+            assignment.deletion_token = assignment.generate_deletion_token()
+            # Regenerate hash with the actual deletion token
+            combined_data = f"{email}{salt}{assignment.deletion_token}"
+            assignment.email_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+
+        return assignment
+
+    def verify_email(self, email: str) -> bool:
+        """Verify if the provided email matches the stored hash.
+
+        Args:
+            email: The plain text email to verify
+
+        Returns:
+            bool: True if email matches, False otherwise
+        """
+        combined_data = f"{email}{self.salt}{self.deletion_token}"
+        expected_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+        return self.email_hash == expected_hash
+
     def __str__(self) -> str:
-        return f"{self.period_collection.collection.name}: {self.period_collection.period.name} - {self.attendant_name}"
+        return f"{self.period_collection.collection.name}: {self.period_collection.period.name} - [Hashed Email]"
 
 
 class Maintainer(models.Model):

@@ -76,4 +76,5 @@ dev = [
     "flake8-black",
     "django-stubs[compatible-mypy]",
     "django-stubs-ext",
+    "django-test>=0.4030",
 ]

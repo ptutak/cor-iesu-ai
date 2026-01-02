@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:8b68bdf332721e3ba6ca4ab2d06e113ed8d0e725b2b0feeae8081601d707c008"
+content_hash = "sha256:f99a88b6816c63363f28a2529bb364106cf7b7be9a0ceef811c081a15da976a3"
 
 [[metadata.targets]]
 requires_python = ">=3.13"
@@ -296,6 +296,15 @@ dependencies = [
 files = [
     {file = "django_stubs-5.2.8-py3-none-any.whl", hash = "sha256:a3c63119fd7062ac63d58869698d07c9e5ec0561295c4e700317c54e8d26716c"},
     {file = "django_stubs-5.2.8.tar.gz", hash = "sha256:9bba597c9a8ed8c025cae4696803d5c8be1cf55bfc7648a084cbf864187e2f8b"},
+]
+
+[[package]]
+name = "django-test"
+version = "0.4030"
+summary = ""
+groups = ["dev"]
+files = [
+    {file = "django-test-0.4030.tar.gz", hash = "sha256:68e91cb474da99b2c08e53959bc9df27e471a944e03102b9a145214f7e492a4f"},
 ]
 
 [[package]]

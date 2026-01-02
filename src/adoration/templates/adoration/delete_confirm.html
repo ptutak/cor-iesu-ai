@@ -23,12 +23,50 @@
                 Collection: {{ assignment.period_collection.collection.name }}
             </p>
             <p>Period: {{ assignment.period_collection.period.name }}</p>
-            <p>Name: {{ assignment.attendant_name }}</p>
-            <p>Email: {{ assignment.attendant_email }}</p>
+        </div>
+
+        <div
+            style="
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 15px;
+                margin: 20px 0;
+            "
+        >
+            <p><strong>Email Verification Required</strong></p>
+            <p>For privacy and security, please enter the email address used for registration to confirm deletion.</p>
         </div>
 
         <form method="post">
             {% csrf_token %}
+
+            <div style="margin: 20px 0;">
+                <label for="{{ form.email.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                    {{ form.email.label }}
+                </label>
+                {{ form.email }}
+                {% if form.email.help_text %}
+                    <small style="display: block; color: #666; margin-top: 5px;">
+                        {{ form.email.help_text }}
+                    </small>
+                {% endif %}
+                {% if form.email.errors %}
+                    <div style="color: #dc3545; margin-top: 5px;">
+                        {% for error in form.email.errors %}
+                            <small></small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div style="color: #dc3545; margin: 20px 0;">
+                    {% for error in form.non_field_errors %}
+                        <p></p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <button
                 type="submit"
                 style="
@@ -36,6 +74,7 @@
                     color: white;
                     padding: 10px 20px;
                     border: none;
+                    cursor: pointer;
                 "
             >
                 Yes, Cancel Registration

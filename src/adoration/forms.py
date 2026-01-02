@@ -12,7 +12,7 @@ from .models import (
 )
 
 
-class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
+class PeriodAssignmentForm(forms.Form):
     """Form for period assignment registration."""
 
     collection = forms.ModelChoiceField(
@@ -26,21 +26,23 @@ class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
         empty_label="Select a period",
     )
 
-    class Meta:
-        """Meta configuration for PeriodAssignmentForm."""
+    attendant_name = forms.CharField(
+        max_length=100,
+        label="Full Name *",
+        required=True,
+    )
 
-        model = PeriodAssignment
-        fields = [
-            "attendant_name",
-            "attendant_email",
-            "attendant_phone_number",
-            "period_collection",
-        ]
-        labels = {
-            "attendant_name": "Full Name *",
-            "attendant_email": "Email Address *",
-            "attendant_phone_number": "Phone Number (optional)",
-        }
+    attendant_email = forms.EmailField(
+        max_length=80,
+        label="Email Address *",
+        required=True,
+    )
+
+    attendant_phone_number = forms.CharField(
+        max_length=15,
+        label="Phone Number (optional)",
+        required=False,
+    )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize form with dynamic period queryset based on collection.
@@ -50,7 +52,17 @@ class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
             kwargs: Keyword arguments including instance and initial data
         """
         super().__init__(*args, **kwargs)
-        self.fields["attendant_phone_number"].required = False
+
+        # Filter collections to only show those with maintainers
+        from .models import CollectionMaintainer
+
+        collections_with_maintainers = Collection.objects.filter(
+            enabled=True,
+            id__in=CollectionMaintainer.objects.values_list("collection_id", flat=True),
+        )
+        collection_field = self.fields["collection"]
+        if isinstance(collection_field, forms.ModelChoiceField):
+            collection_field.queryset = collections_with_maintainers
 
         # Set up dynamic period queryset based on collection
         if "collection" in self.data:
@@ -58,23 +70,13 @@ class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
                 collection_data = self.data.get("collection")
                 if collection_data is not None:
                     collection_id = int(collection_data)
-                    period_field = cast(
-                        forms.ModelChoiceField[PeriodCollection],
-                        self.fields["period_collection"],
-                    )
-                    period_field.queryset = PeriodCollection.objects.filter(collection_id=collection_id).select_related(
-                        "period", "collection"
-                    )
+                    period_field = self.fields["period_collection"]
+                    if isinstance(period_field, forms.ModelChoiceField):
+                        period_field.queryset = PeriodCollection.objects.filter(
+                            collection_id=collection_id
+                        ).select_related("period", "collection")
             except (ValueError, TypeError):
                 pass
-        elif self.instance.pk:
-            period_field = cast(
-                forms.ModelChoiceField[PeriodCollection],
-                self.fields["period_collection"],
-            )
-            period_field.queryset = PeriodCollection.objects.filter(
-                collection=self.instance.period_collection.collection
-            ).select_related("period", "collection")
 
     def clean_period_collection(self) -> PeriodCollection | None:
         """Validate period collection selection and check assignment limits.
@@ -129,19 +131,18 @@ class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
         period_collection = cleaned_data.get("period_collection")
         attendant_email = cleaned_data.get("attendant_email")
 
-        # Check if user is already assigned to this period
+        # Check if user is already assigned to this period by checking all assignments
         if period_collection and attendant_email:
-            existing_assignment: bool = PeriodAssignment.objects.filter(
-                period_collection=period_collection, attendant_email=attendant_email
-            ).exists()
-
-            if existing_assignment:
-                raise ValidationError("You are already registered for this period.")
+            # Get all assignments for this period and check if any match the email
+            existing_assignments = PeriodAssignment.objects.filter(period_collection=period_collection)
+            for assignment in existing_assignments:
+                if assignment.verify_email(attendant_email):
+                    raise ValidationError("You are already registered for this period.")
 
         return cleaned_data
 
     def save(self, commit: bool = True) -> PeriodAssignment:
-        """Save the period assignment instance.
+        """Save the period assignment instance using hashed email.
 
         Args:
             commit: Whether to save the instance to database immediately
@@ -149,8 +150,49 @@ class PeriodAssignmentForm(forms.ModelForm[PeriodAssignment]):
         Returns:
             PeriodAssignment: The saved assignment instance
         """
-        instance = super().save(commit=False)
+        period_collection = self.cleaned_data["period_collection"]
+        attendant_email = self.cleaned_data["attendant_email"]
+
+        instance = PeriodAssignment.create_with_email(
+            email=attendant_email,
+            period_collection=period_collection,
+        )
 
         if commit:
             instance.save()
         return instance
+
+
+class DeletionConfirmForm(forms.Form):
+    """Form for confirming assignment deletion with email verification."""
+
+    email = forms.EmailField(
+        label="Email Address *",
+        help_text="Enter the email address used for registration to confirm deletion.",
+        required=True,
+    )
+
+    def __init__(self, assignment: PeriodAssignment, *args: Any, **kwargs: Any) -> None:
+        """Initialize form with assignment reference.
+
+        Args:
+            assignment: The assignment to be deleted
+            args: Positional arguments
+            kwargs: Keyword arguments
+        """
+        self.assignment = assignment
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self) -> str:
+        """Validate that the provided email matches the assignment.
+
+        Returns:
+            str: The validated email address
+
+        Raises:
+            ValidationError: If email doesn't match the assignment
+        """
+        email = self.cleaned_data.get("email")
+        if email and not self.assignment.verify_email(email):
+            raise ValidationError("Email address does not match the registration.")
+        return email or ""

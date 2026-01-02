@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import PeriodAssignmentForm
+from .forms import DeletionConfirmForm, PeriodAssignmentForm
 from .models import (
     Collection,
     CollectionMaintainer,
@@ -27,37 +27,45 @@ def registration_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = PeriodAssignmentForm(request.POST)
         if form.is_valid():
+            # Get form data before saving (since we're not storing personal data)
+            attendant_name = form.cleaned_data["attendant_name"]
+            attendant_email = form.cleaned_data["attendant_email"]
+            attendant_phone = form.cleaned_data.get("attendant_phone_number", "")
+
             assignment = form.save()
 
-            # Send user confirmation email
+            # Send user confirmation email (using form data, not stored data)
             send_mail(
                 subject=f"Registration Confirmation - {assignment.period_collection.collection.name}",
                 message=(
-                    f"Dear {assignment.attendant_name},\n\n"
+                    f"Dear {attendant_name},\n\n"
                     f"Your registration is confirmed.\n\n"
                     f"Collection: {assignment.period_collection.collection.name}\n"
                     f"Period: {assignment.period_collection.period.name}\n\n"
                     f"Deletion link: "
                     f"{request.build_absolute_uri('/delete/' + str(assignment.deletion_token) + '/')}\n\n"
+                    f"Important: You will need to provide your email address to confirm deletion.\n\n"
                     f"Best regards"
                 ),
                 from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
-                recipient_list=[assignment.attendant_email],
+                recipient_list=[attendant_email],
                 fail_silently=True,
             )
 
-            # Send maintainer notification
+            # Send maintainer notification (using form data, not stored data)
             maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
             if maintainers.exists():
                 maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
+                phone_info = f"\nPhone: {attendant_phone}" if attendant_phone else ""
                 send_mail(
                     subject=f"New Registration - {assignment.period_collection.collection.name}",
                     message=(
                         f"New participant registered:\n\n"
-                        f"Name: {assignment.attendant_name}\n"
-                        f"Email: {assignment.attendant_email}\n"
+                        f"Name: {attendant_name}\n"
+                        f"Email: {attendant_email}{phone_info}\n"
                         f"Collection: {assignment.period_collection.collection.name}\n"
-                        f"Period: {assignment.period_collection.period.name}"
+                        f"Period: {assignment.period_collection.period.name}\n\n"
+                        f"Note: Personal data is not stored in the system for privacy."
                     ),
                     from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
                     recipient_list=maintainer_emails,
@@ -107,7 +115,7 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
 
 
 def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
-    """Handle deletion of period assignment using deletion token.
+    """Handle deletion of period assignment using deletion token and email verification.
 
     Args:
         request: HTTP request object
@@ -119,11 +127,19 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
     assignment = get_object_or_404(PeriodAssignment, deletion_token=token)
 
     if request.method == "POST":
-        assignment.delete()
-        messages.success(request, "Registration cancelled successfully.")
-        return redirect("registration")
+        form = DeletionConfirmForm(assignment, request.POST)
+        if form.is_valid():
+            assignment.delete()
+            messages.success(request, "Registration cancelled successfully.")
+            return redirect("registration")
+    else:
+        form = DeletionConfirmForm(assignment)
 
-    return render(request, "adoration/delete_confirm.html", {"assignment": assignment})
+    return render(
+        request,
+        "adoration/delete_confirm.html",
+        {"assignment": assignment, "form": form},
+    )
 
 
 def get_email_config(config_name: str, default_value: str | None = None) -> str | None:

@@ -169,7 +169,67 @@ class CollectionMaintainerAdmin(admin.ModelAdmin[CollectionMaintainer]):
         return country
 
 
+@admin.register(PeriodAssignment)
+class PeriodAssignmentAdmin(admin.ModelAdmin[PeriodAssignment]):
+    """Admin configuration for PeriodAssignment model."""
+
+    list_display = ("period_collection", "get_email_status", "deletion_token_short")
+    list_filter = ("period_collection__collection", "period_collection__period")
+    search_fields = (
+        "period_collection__collection__name",
+        "period_collection__period__name",
+        "deletion_token",
+    )
+    readonly_fields = ("email_hash", "salt", "deletion_token")
+
+    @admin_display("Email Status")
+    def get_email_status(self, obj: PeriodAssignment) -> str:
+        """Show that email is hashed for privacy.
+
+        Args:
+            obj: The PeriodAssignment instance
+
+        Returns:
+            str: Status indicating email is hashed
+        """
+        return "Hashed for Privacy"
+
+    @admin_display("Token")
+    def deletion_token_short(self, obj: PeriodAssignment) -> str:
+        """Show shortened deletion token.
+
+        Args:
+            obj: The PeriodAssignment instance
+
+        Returns:
+            str: Shortened deletion token
+        """
+        return f"{obj.deletion_token[:8]}..." if obj.deletion_token else ""
+
+    def has_change_permission(self, request: Any, obj: Any = None) -> bool:
+        """Limit change permissions to protect privacy data.
+
+        Args:
+            request: The HTTP request object
+            obj: The model instance being changed (optional)
+
+        Returns:
+            bool: Always False to prevent changes
+        """
+        return False
+
+    def has_add_permission(self, request: Any) -> bool:
+        """Disable adding assignments through admin for privacy.
+
+        Args:
+            request: The HTTP request object
+
+        Returns:
+            bool: Always False to prevent additions
+        """
+        return False
+
+
 admin.site.register(Config)
 admin.site.register(Collection)
 admin.site.register(CollectionConfig)
-admin.site.register(PeriodAssignment)
