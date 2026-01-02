@@ -477,3 +477,75 @@ class TestFormIntegration:
         assignment = PeriodAssignment()  # Mock assignment for form init
         deletion_form = DeletionConfirmForm(assignment)
         assert deletion_form.fields["email"].label == "Email Address *"
+
+    def test_form_filters_maintainers_without_email(self, db):
+        """Test that form filters out collections with maintainers who have no email."""
+        from django.contrib.auth.models import User
+
+        from adoration.models import Collection, CollectionMaintainer, Maintainer
+
+        # Create collection and user with email
+        collection_with_email = Collection.objects.create(name="Collection with Email", enabled=True)
+        user_with_email = User.objects.create_user(
+            username="user_email",
+            email="user@example.com",
+            password="testpass123",
+        )
+        maintainer_with_email = Maintainer.objects.create(user=user_with_email, country="US")
+        CollectionMaintainer.objects.create(collection=collection_with_email, maintainer=maintainer_with_email)
+
+        # Create collection and user without email
+        collection_without_email = Collection.objects.create(name="Collection without Email", enabled=True)
+        user_without_email = User.objects.create_user(username="user_no_email", password="testpass123")
+        user_without_email.email = ""
+        user_without_email.save()
+
+        # Create maintainer without email validation (bypass clean method)
+        maintainer_without_email = Maintainer(user=user_without_email, country="US")
+        # Save without calling full_clean() to bypass validation
+        super(Maintainer, maintainer_without_email).save()
+        CollectionMaintainer.objects.create(collection=collection_without_email, maintainer=maintainer_without_email)
+
+        form = PeriodAssignmentForm()
+        collection_queryset = form.fields["collection"].queryset
+
+        # Should only show collection with valid maintainer email
+        assert collection_queryset.count() == 1
+        assert collection_with_email in collection_queryset
+        assert collection_without_email not in collection_queryset
+
+    def test_form_filters_maintainers_with_empty_email(self, db):
+        """Test that form filters out collections with maintainers who have empty email."""
+        from django.contrib.auth.models import User
+
+        from adoration.models import Collection, CollectionMaintainer, Maintainer
+
+        # Create collection and user with valid email
+        collection_valid = Collection.objects.create(name="Collection Valid", enabled=True)
+        user_valid = User.objects.create_user(
+            username="user_valid",
+            email="valid@example.com",
+            password="testpass123",
+        )
+        maintainer_valid = Maintainer.objects.create(user=user_valid, country="US")
+        CollectionMaintainer.objects.create(collection=collection_valid, maintainer=maintainer_valid)
+
+        # Create collection and user with whitespace-only email
+        collection_empty_email = Collection.objects.create(name="Collection Empty Email", enabled=True)
+        user_empty_email = User.objects.create_user(username="user_empty", password="testpass123")
+        user_empty_email.email = "   "  # Whitespace only
+        user_empty_email.save()
+
+        # Create maintainer with empty email (bypass clean method)
+        maintainer_empty_email = Maintainer(user=user_empty_email, country="US")
+        # Save without calling full_clean() to bypass validation
+        super(Maintainer, maintainer_empty_email).save()
+        CollectionMaintainer.objects.create(collection=collection_empty_email, maintainer=maintainer_empty_email)
+
+        form = PeriodAssignmentForm()
+        collection_queryset = form.fields["collection"].queryset
+
+        # Should only show collection with valid maintainer email
+        assert collection_queryset.count() == 1
+        assert collection_valid in collection_queryset
+        assert collection_empty_email not in collection_queryset

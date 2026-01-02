@@ -64,16 +64,20 @@ class PeriodAssignmentForm(forms.Form):
         """
         super().__init__(*args, **kwargs)
 
-        # Filter collections to only show those with maintainers
+        # Filter collections to only show those with maintainers who have email addresses
         from .models import CollectionMaintainer
 
-        collections_with_maintainers = Collection.objects.filter(
+        # Get collections that have at least one maintainer with a non-empty email
+        collections_with_valid_maintainers = Collection.objects.filter(
             enabled=True,
-            id__in=CollectionMaintainer.objects.values_list("collection_id", flat=True),
+            id__in=CollectionMaintainer.objects.filter(maintainer__user__email__isnull=False)
+            .exclude(maintainer__user__email="")
+            .exclude(maintainer__user__email__regex=r"^\s*$")  # Exclude whitespace-only
+            .values_list("collection_id", flat=True),
         )
         collection_field = self.fields["collection"]
         if isinstance(collection_field, forms.ModelChoiceField):
-            collection_field.queryset = collections_with_maintainers
+            collection_field.queryset = collections_with_valid_maintainers
 
         # Set up dynamic period queryset based on collection
         if "collection" in self.data:

@@ -149,6 +149,62 @@ class TestMaintainer:
         maintainer = Maintainer.objects.create(user=maintainer_user, country="Test Country")
         assert maintainer.phone_number == ""
 
+    def test_maintainer_email_validation_valid(self, db):
+        """Test that maintainer with valid email is accepted."""
+        user = User.objects.create_user(username="valid_user", email="valid@example.com", password="testpass123")
+        maintainer = Maintainer(user=user, country="Test Country")
+
+        # Should not raise validation error
+        maintainer.full_clean()
+        maintainer.save()
+        assert maintainer.id is not None
+
+    def test_maintainer_email_validation_no_email(self, db):
+        """Test that maintainer without email is rejected."""
+        from django.core.exceptions import ValidationError
+
+        user = User.objects.create_user(username="no_email_user", password="testpass123")
+        # Ensure no email is set
+        user.email = ""
+        user.save()
+
+        maintainer = Maintainer(user=user, country="Test Country")
+
+        with pytest.raises(ValidationError) as exc_info:
+            maintainer.full_clean()
+
+        assert "Maintainer user must have an email address" in str(exc_info.value)
+
+    def test_maintainer_email_validation_empty_email(self, db):
+        """Test that maintainer with empty email is rejected."""
+        from django.core.exceptions import ValidationError
+
+        user = User.objects.create_user(
+            username="empty_email_user",
+            email="   ",  # Whitespace only
+            password="testpass123",
+        )
+
+        maintainer = Maintainer(user=user, country="Test Country")
+
+        with pytest.raises(ValidationError) as exc_info:
+            maintainer.full_clean()
+
+        assert "Maintainer user must have an email address" in str(exc_info.value)
+
+    def test_maintainer_save_calls_validation(self, db):
+        """Test that save method calls validation."""
+        from django.core.exceptions import ValidationError
+
+        user = User.objects.create_user(username="no_email_save_test", password="testpass123")
+        user.email = ""  # Use empty string instead of None
+        user.save()
+
+        maintainer = Maintainer(user=user, country="Test Country")
+
+        with pytest.raises(ValidationError):
+            maintainer.save()
+
 
 class TestPeriodCollection:
     """Test cases for PeriodCollection model."""

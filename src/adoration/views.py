@@ -53,9 +53,18 @@ def registration_view(request: HttpRequest) -> HttpResponse:
             )
 
             # Send maintainer notification with user email as reply-to (using form data, not stored data)
-            maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
+            # Only include maintainers with valid email addresses
+            maintainers = CollectionMaintainer.objects.filter(
+                collection=assignment.period_collection.collection,
+                maintainer__user__email__isnull=False,
+                maintainer__user__email__gt="",
+            )
             if maintainers.exists():
-                maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
+                maintainer_emails: list[str] = [
+                    m.maintainer.user.email
+                    for m in maintainers
+                    if m.maintainer.user.email and m.maintainer.user.email.strip()
+                ]
                 phone_info = f"\nPhone: {attendant_phone}" if attendant_phone else ""
 
                 # Try to use user email as sender, fallback to system email
@@ -77,9 +86,11 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                     ),
                     from_email=from_email,
                     to=maintainer_emails,
-                    reply_to=[attendant_email] if from_email != attendant_email else None,
+                    reply_to=[attendant_email],
                 )
-                email_message.send(fail_silently=True)
+                # Only send if we have valid email addresses
+                if maintainer_emails:
+                    email_message.send(fail_silently=True)
 
             messages.success(request, "Registration successful! Check your email for confirmation.")
             return redirect("registration")
@@ -142,9 +153,18 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
             user_email = form.cleaned_data["email"]
 
             # Send maintainer notification about deletion
-            maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
+            # Only include maintainers with valid email addresses
+            maintainers = CollectionMaintainer.objects.filter(
+                collection=assignment.period_collection.collection,
+                maintainer__user__email__isnull=False,
+                maintainer__user__email__gt="",
+            )
             if maintainers.exists():
-                maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
+                maintainer_emails: list[str] = [
+                    m.maintainer.user.email
+                    for m in maintainers
+                    if m.maintainer.user.email and m.maintainer.user.email.strip()
+                ]
 
                 # Create email message for deletion notification
                 email_message = EmailMessage(
@@ -160,7 +180,9 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
                     to=maintainer_emails,
                     reply_to=[user_email],
                 )
-                email_message.send(fail_silently=True)
+                # Only send if we have valid email addresses
+                if maintainer_emails:
+                    email_message.send(fail_silently=True)
 
             assignment.delete()
             messages.success(request, "Registration cancelled successfully.")

@@ -247,6 +247,28 @@ class Maintainer(models.Model):
     phone_number = models.CharField(max_length=15, blank=True)
     country = models.CharField(max_length=30, blank=False)
 
+    def clean(self) -> None:
+        """Validate that the user has an email address.
+
+        Raises:
+            ValidationError: If user does not have an email address
+        """
+        super().clean()
+        if not self.user.email or not self.user.email.strip():
+            from django.core.exceptions import ValidationError
+
+            raise ValidationError("Maintainer user must have an email address.")
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        """Save the maintainer after validation.
+
+        Args:
+            args: Positional arguments for save method
+            kwargs: Keyword arguments for save method
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return f"{self.user.get_full_name() or self.user.username} ({self.user.email})"
 
