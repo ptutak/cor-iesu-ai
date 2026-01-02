@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -52,25 +52,34 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                 fail_silently=True,
             )
 
-            # Send maintainer notification (using form data, not stored data)
+            # Send maintainer notification with user email as reply-to (using form data, not stored data)
             maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
             if maintainers.exists():
                 maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
                 phone_info = f"\nPhone: {attendant_phone}" if attendant_phone else ""
-                send_mail(
+
+                # Try to use user email as sender, fallback to system email
+                from_email = attendant_email
+
+                # Create email message with reply-to functionality
+                email_message = EmailMessage(
                     subject=f"New Registration - {assignment.period_collection.collection.name}",
-                    message=(
+                    body=(
                         f"New participant registered:\n\n"
                         f"Name: {attendant_name}\n"
                         f"Email: {attendant_email}{phone_info}\n"
                         f"Collection: {assignment.period_collection.collection.name}\n"
                         f"Period: {assignment.period_collection.period.name}\n\n"
-                        f"Note: Personal data is not stored in the system for privacy."
+                        f"Registration Date: {assignment.period_collection.period.name}\n"
+                        f"Deletion Token: {assignment.deletion_token}\n\n"
+                        f"Note: Personal data is not stored in the system for privacy. "
+                        f"This email is sent directly from the user's email address."
                     ),
-                    from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
-                    recipient_list=maintainer_emails,
-                    fail_silently=True,
+                    from_email=from_email,
+                    to=maintainer_emails,
+                    reply_to=[attendant_email] if from_email != attendant_email else None,
                 )
+                email_message.send(fail_silently=True)
 
             messages.success(request, "Registration successful! Check your email for confirmation.")
             return redirect("registration")
@@ -129,6 +138,30 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
     if request.method == "POST":
         form = DeletionConfirmForm(assignment, request.POST)
         if form.is_valid():
+            # Get user email for notifications before deleting
+            user_email = form.cleaned_data["email"]
+
+            # Send maintainer notification about deletion
+            maintainers = CollectionMaintainer.objects.filter(collection=assignment.period_collection.collection)
+            if maintainers.exists():
+                maintainer_emails: list[str] = [m.maintainer.user.email for m in maintainers]
+
+                # Create email message for deletion notification
+                email_message = EmailMessage(
+                    subject=f"Registration Cancelled - {assignment.period_collection.collection.name}",
+                    body=(
+                        f"A participant has cancelled their registration:\n\n"
+                        f"Email: {user_email}\n"
+                        f"Collection: {assignment.period_collection.collection.name}\n"
+                        f"Period: {assignment.period_collection.period.name}\n\n"
+                        f"The participant voluntarily cancelled their registration using the deletion link."
+                    ),
+                    from_email=user_email,
+                    to=maintainer_emails,
+                    reply_to=[user_email],
+                )
+                email_message.send(fail_silently=True)
+
             assignment.delete()
             messages.success(request, "Registration cancelled successfully.")
             return redirect("registration")

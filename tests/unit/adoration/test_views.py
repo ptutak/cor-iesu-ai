@@ -44,6 +44,7 @@ class TestRegistrationView:
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
             "attendant_phone_number": "+1234567890",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -79,6 +80,7 @@ class TestRegistrationView:
         form_data = {
             "attendant_name": "",  # Missing required field
             "attendant_email": "invalid-email",  # Invalid email
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -103,6 +105,7 @@ class TestRegistrationView:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": email,
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -144,6 +147,7 @@ class TestRegistrationView:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -345,6 +349,7 @@ class TestRegistrationViewEmailIntegration:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -366,6 +371,7 @@ class TestRegistrationViewEmailIntegration:
             "period_collection": period_collection.id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -393,18 +399,25 @@ class TestRegistrationViewEmailIntegration:
 
         # Mock send_mail to succeed but track that it was called with fail_silently=True
         email_calls = []
+        email_message_calls = []
 
         def mock_send_mail(*args, **kwargs):
             email_calls.append(kwargs)
             return True  # Simulate successful email sending
 
+        def mock_email_message_send(self, fail_silently=False):
+            email_message_calls.append({"fail_silently": fail_silently})
+            return True
+
         monkeypatch.setattr("adoration.views.send_mail", mock_send_mail)
+        monkeypatch.setattr("adoration.views.EmailMessage.send", mock_email_message_send)
 
         form_data = {
             "collection": setup["collection"].id,
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
@@ -414,7 +427,12 @@ class TestRegistrationViewEmailIntegration:
         new_assignments = PeriodAssignment.objects.filter(period_collection=setup["period_collection"])
         assert new_assignments.exists()
 
-        # Verify that send_mail was called with fail_silently=True
-        assert len(email_calls) == 2  # One to user, one to maintainers
+        # Verify that send_mail was called with fail_silently=True (user confirmation)
+        assert len(email_calls) == 1  # User confirmation email
         for call_kwargs in email_calls:
+            assert call_kwargs.get("fail_silently") is True
+
+        # Verify that EmailMessage.send was called with fail_silently=True (maintainer notification)
+        assert len(email_message_calls) == 1  # Maintainer notification email
+        for call_kwargs in email_message_calls:
             assert call_kwargs.get("fail_silently") is True

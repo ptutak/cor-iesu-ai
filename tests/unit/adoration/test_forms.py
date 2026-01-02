@@ -85,6 +85,7 @@ class TestPeriodAssignmentForm:
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
             "attendant_phone_number": "+1234567890",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -98,7 +99,7 @@ class TestPeriodAssignmentForm:
 
         form_data = {
             "collection": setup["collection"].id,
-            # Missing period_collection, attendant_name, attendant_email
+            # Missing period_collection, attendant_name, attendant_email, privacy_accepted
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -116,6 +117,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "invalid-email",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -131,6 +133,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
             # No phone number provided
         }
 
@@ -143,6 +146,7 @@ class TestPeriodAssignmentForm:
         form_data = {
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -184,6 +188,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -221,6 +226,8 @@ class TestPeriodAssignmentForm:
             "period_collection": period_collection.id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "attendant_phone_number": "123-456-7890",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -241,6 +248,7 @@ class TestPeriodAssignmentForm:
             "period_collection": period_collection.id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -266,6 +274,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": email,
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -286,6 +295,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection2"].id,
             "attendant_name": "John Doe",
             "attendant_email": email,
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -301,6 +311,7 @@ class TestPeriodAssignmentForm:
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
             "attendant_phone_number": "+1234567890",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -322,6 +333,7 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "John Doe",
             "attendant_email": "john@example.com",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
@@ -433,6 +445,7 @@ class TestFormIntegration:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "Integration Test",
             "attendant_email": email,
+            "privacy_accepted": True,
         }
 
         creation_form = PeriodAssignmentForm(data=creation_form_data)

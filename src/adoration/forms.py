@@ -44,6 +44,17 @@ class PeriodAssignmentForm(forms.Form):
         required=False,
     )
 
+    privacy_accepted = forms.BooleanField(
+        required=True,
+        label="Privacy Agreement",
+        help_text=(
+            "I acknowledge that my email address will be sent directly to the collection "
+            "maintainer(s) for coordination purposes. I understand that no personal data "
+            "is stored in the system database - only a secure hash for verification. "
+            "I consent to receiving confirmation and coordination emails related to my registration."
+        ),
+    )
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize form with dynamic period queryset based on collection.
 

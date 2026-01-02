@@ -77,6 +77,7 @@ class TestAdorationUrls:
             "period_collection": setup["period_collection"].id,
             "attendant_name": "Test User",
             "attendant_email": "test@example.com",
+            "privacy_accepted": True,
         }
 
         response = test_client.post(reverse("registration"), form_data)
