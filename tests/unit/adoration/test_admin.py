@@ -417,3 +417,316 @@ class TestAdminIntegration:
 
         assert name_result != ""
         assert "@" in email_result
+
+
+class TestCollectionAdminForm:
+    """Test cases for CollectionAdminForm."""
+
+    def test_form_initialization_without_instance(self, db):
+        """Test form initialization without existing instance."""
+        from adoration.admin import CollectionAdminForm
+
+        form = CollectionAdminForm()
+
+        # Check that choices are set from settings.LANGUAGES
+        choices = form.fields["available_languages"].choices
+        assert len(choices) > 0
+        # Should contain language codes from Django settings
+        language_codes = [choice[0] for choice in choices]
+        assert "en" in language_codes  # English should be available
+
+    def test_form_initialization_with_existing_instance(self, db, collection, maintainer):
+        """Test form initialization with existing collection instance."""
+        from adoration.admin import CollectionAdminForm
+
+        # Add maintainer to collection so it can be enabled
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Set custom languages on the collection
+        collection.available_languages = ["en", "pl"]
+        collection.save()
+
+        form = CollectionAdminForm(instance=collection)
+
+        # Check that initial values are set from instance
+        assert form.fields["available_languages"].initial == ["en", "pl"]
+
+    def test_clean_available_languages_valid(self, db):
+        """Test clean_available_languages with valid language codes."""
+        from django.utils import translation
+
+        from adoration.admin import CollectionAdminForm
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en", "pl"],
+        }
+
+        with translation.override("en"):
+            form = CollectionAdminForm(data=form_data)
+            # Just test the clean method directly since full form validation is complex
+            form.cleaned_data = {"available_languages": ["en", "pl"]}
+            result = form.clean_available_languages()
+            assert result == ["en", "pl"]
+
+    def test_clean_available_languages_empty(self, db):
+        """Test clean_available_languages with empty list (should fail)."""
+        from django.core.exceptions import ValidationError
+
+        from adoration.admin import CollectionAdminForm
+
+        form = CollectionAdminForm()
+        form.cleaned_data = {"available_languages": []}
+
+        with pytest.raises(ValidationError) as exc_info:
+            form.clean_available_languages()
+
+        assert "At least one language must be selected" in str(exc_info.value)
+
+    def test_clean_available_languages_invalid_codes(self, db):
+        """Test clean_available_languages with invalid language codes."""
+        from django.core.exceptions import ValidationError
+
+        from adoration.admin import CollectionAdminForm
+
+        form = CollectionAdminForm()
+        form.cleaned_data = {"available_languages": ["en", "invalid_code", "another_invalid"]}
+
+        with pytest.raises(ValidationError) as exc_info:
+            form.clean_available_languages()
+
+        error_message = str(exc_info.value)
+        assert "Invalid language codes" in error_message
+        assert "invalid_code" in error_message
+        assert "another_invalid" in error_message
+
+
+class TestCollectionLanguageWidget:
+    """Test cases for CollectionLanguageWidget."""
+
+    def test_widget_initialization(self, db):
+        """Test that widget initializes with language choices."""
+        from django.conf import settings
+
+        from adoration.admin import CollectionLanguageWidget
+
+        widget = CollectionLanguageWidget()
+
+        # Check that choices are set from Django settings
+        expected_choices = [(code, name) for code, name in settings.LANGUAGES]
+        assert widget.choices == expected_choices
+
+
+class TestCollectionAdmin:
+    """Test cases for CollectionAdmin."""
+
+    def test_get_available_languages_display_with_languages(self, db, collection, maintainer):
+        """Test get_available_languages_display with languages set."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        # Add maintainer to collection so it can be enabled
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        collection.available_languages = ["en", "pl", "nl"]
+        collection.save()
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        result = admin.get_available_languages_display(collection)
+
+        assert "🇺🇸 English" in result
+        assert "🇵🇱 Polish" in result
+        assert "🇳🇱 Dutch" in result
+        assert "|" in result  # Should be joined with |
+
+    def test_get_available_languages_display_empty(self, db):
+        """Test get_available_languages_display with no languages."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        # Create a collection object without saving to avoid default language setting
+        collection = Collection(name="Test", description="Test", enabled=False)
+        collection.available_languages = []
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        result = admin.get_available_languages_display(collection)
+
+        assert result == "None"
+
+    def test_get_available_languages_display_unknown_language(self, db):
+        """Test get_available_languages_display with unknown language code."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        # Create a collection object without saving to avoid validation
+        collection = Collection(name="Test", description="Test", enabled=False)
+        collection.available_languages = ["xx"]
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        result = admin.get_available_languages_display(collection)
+
+        assert "🌐 XX" in result  # Should use default flag and uppercase code
+
+    def test_get_period_count(self, db, collection, period):
+        """Test get_period_count method."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        # Add period to collection
+        collection.periods.add(period)
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        result = admin.get_period_count(collection)
+
+        assert result == 1
+
+    def test_get_maintainer_count(self, db, collection, maintainer):
+        """Test get_maintainer_count method."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        # Add maintainer to collection
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        result = admin.get_maintainer_count(collection)
+
+        assert result == 1
+
+    def test_get_form_method(self, db):
+        """Test get_form method returns correct form class."""
+        from django.contrib.admin.sites import AdminSite
+        from django.test import RequestFactory
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+        request = RequestFactory().get("/admin/")
+
+        form_class = admin.get_form(request)
+
+        # Should return a form class
+        assert hasattr(form_class, "_meta")
+        assert form_class._meta.model == Collection
+
+    def test_list_display_configuration(self, db):
+        """Test that list_display is configured correctly."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+
+        expected_fields = [
+            "name",
+            "enabled",
+            "get_available_languages_display",
+            "get_period_count",
+            "get_maintainer_count",
+        ]
+
+        for field in expected_fields:
+            assert field in admin.list_display
+
+    def test_list_filter_configuration(self, db):
+        """Test that list_filter is configured correctly."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+
+        assert "enabled" in admin.list_filter
+        assert "available_languages" in admin.list_filter
+
+    def test_search_fields_configuration(self, db):
+        """Test that search_fields is configured correctly."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+
+        assert "name" in admin.search_fields
+        assert "description" in admin.search_fields
+
+    def test_fieldsets_configuration(self, db):
+        """Test that fieldsets are configured correctly."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+
+        assert admin.fieldsets is not None
+        assert len(admin.fieldsets) == 3  # Should have 3 fieldsets
+
+        # Check fieldset structure
+        fieldset_names = [fieldset[0] for fieldset in admin.fieldsets]
+        assert None in fieldset_names  # First fieldset has no name
+        assert "Languages" in fieldset_names
+        assert "Periods" in fieldset_names
+
+    def test_filter_horizontal_configuration(self, db):
+        """Test that filter_horizontal is configured correctly."""
+        from django.contrib.admin.sites import AdminSite
+
+        from adoration.admin import CollectionAdmin
+
+        admin = CollectionAdmin(Collection, AdminSite())
+
+        assert "periods" in admin.filter_horizontal
+
+
+class TestAdminDisplayDecorator:
+    """Test cases for admin_display decorator."""
+
+    def test_admin_display_decorator_function(self, db):
+        """Test that admin_display decorator works correctly."""
+        from adoration.admin import admin_display
+
+        @admin_display("Test Description")
+        def test_function():
+            return "test"
+
+        assert hasattr(test_function, "short_description")
+        assert test_function.short_description == "Test Description"
+        assert test_function() == "test"
+
+
+class TestAdminRegistration:
+    """Test cases for admin model registration."""
+
+    def test_models_are_registered(self, db):
+        """Test that all models are properly registered in admin."""
+        from django.contrib import admin
+
+        from adoration.models import (
+            Collection,
+            CollectionConfig,
+            CollectionMaintainer,
+            Config,
+            Maintainer,
+            Period,
+            PeriodAssignment,
+            PeriodCollection,
+        )
+
+        # Check that all models are registered
+        registered_models = admin.site._registry.keys()
+
+        assert Collection in registered_models
+        assert Config in registered_models
+        assert CollectionConfig in registered_models
+        assert Period in registered_models
+        assert PeriodCollection in registered_models
+        assert Maintainer in registered_models
+        assert CollectionMaintainer in registered_models
+        assert PeriodAssignment in registered_models

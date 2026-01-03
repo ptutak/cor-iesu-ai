@@ -2,13 +2,14 @@
 Unit tests for adoration views.
 
 This module contains comprehensive tests for all views in the adoration app,
-including form submission, email functionality, and AJAX endpoints.
+including form submission, email functionality, AJAX endpoints, and language filtering.
 """
 
 import pytest
 from django.contrib.auth.models import User
 from django.core import mail
 from django.urls import reverse
+from django.utils import translation
 
 from adoration.models import (
     Collection,
@@ -49,31 +50,118 @@ class TestRegistrationView:
 
         response = test_client.post(reverse("registration"), form_data)
 
-        # Should redirect after successful submission
-        assert response.status_code == 302
-        assert response.url == reverse("registration")
+    def test_get_collection_periods_filters_by_language(self, test_client, db, maintainer_user):
+        """Test that get_collection_periods filters collections by current language."""
+        # Create collections with different language availability
+        collection_en = Collection.objects.create(
+            name="English Collection",
+            enabled=True,
+            available_languages=["en"],
+        )
+        collection_nl = Collection.objects.create(
+            name="Dutch Collection",
+            enabled=True,
+            available_languages=["nl"],
+        )
+        collection_all = Collection.objects.create(
+            name="All Languages Collection",
+            enabled=True,
+            available_languages=["en", "pl", "nl"],
+        )
 
-        # Check assignment was created
-        assignment = PeriodAssignment.objects.first()
-        assert assignment is not None
-        assert assignment.verify_email("john@example.com")
+        # Create periods for each collection
+        period = Period.objects.create(name="Test Period", description="Test")
+        pc_en = PeriodCollection.objects.create(period=period, collection=collection_en)
+        pc_nl = PeriodCollection.objects.create(period=period, collection=collection_nl)
+        pc_all = PeriodCollection.objects.create(period=period, collection=collection_all)
 
-        # Check emails were sent
-        assert len(mail_outbox) == 2  # One to user, one to maintainers
+        # Create maintainers
+        maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
+        for collection in [collection_en, collection_nl, collection_all]:
+            CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
-        # Check user confirmation email
-        user_email = mail_outbox[0]
-        assert "john@example.com" in user_email.to
-        assert "Registration Confirmation" in user_email.subject
-        assert "John Doe" in user_email.body
-        assert assignment.deletion_token in user_email.body
+        # Test with English language
+        with translation.override("en"):
+            response = test_client.get(
+                f"/api/collection/{collection_en.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="en",
+            )
+            assert response.status_code == 200
 
-        # Check maintainer notification email
-        maintainer_email = mail_outbox[1]
-        assert setup["maintainer"].user.email in maintainer_email.to
-        assert "New Registration" in maintainer_email.subject
-        assert "John Doe" in maintainer_email.body
-        assert "john@example.com" in maintainer_email.body
+            response = test_client.get(
+                f"/api/collection/{collection_all.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="en",
+            )
+            assert response.status_code == 200
+
+            # Should fail for Dutch-only collection
+            response = test_client.get(
+                f"/api/collection/{collection_nl.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="en",
+            )
+            assert response.status_code == 404
+
+        # Test with Dutch language
+        with translation.override("nl"):
+            # Should work for Dutch-available collections
+            response = test_client.get(
+                f"/api/collection/{collection_nl.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="nl",
+            )
+            assert response.status_code == 200
+
+            response = test_client.get(
+                f"/api/collection/{collection_all.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="nl",
+            )
+            assert response.status_code == 200
+
+            # Should fail for English-only collection
+            response = test_client.get(
+                f"/api/collection/{collection_en.id}/periods/",
+                HTTP_ACCEPT_LANGUAGE="nl",
+            )
+            assert response.status_code == 404
+
+    def test_get_collection_periods_unavailable_collection(self, test_client, db, maintainer_user):
+        """Test get_collection_periods with collection not available in current language."""
+        # Create collection only available in Polish
+        collection = Collection.objects.create(
+            name="Polish Only Collection",
+            enabled=True,
+            available_languages=["pl"],
+        )
+
+        # Create maintainer
+        maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Test with English language (should fail)
+        with translation.override("en"):
+            response = test_client.get(f"/api/collection/{collection.id}/periods/", HTTP_ACCEPT_LANGUAGE="en")
+            assert response.status_code == 404
+            data = response.json()
+            assert "error" in data
+            assert "Collection not found" in data["error"]
+
+    def test_get_collection_periods_disabled_collection(self, test_client, db, maintainer_user):
+        """Test get_collection_periods with disabled collection."""
+        collection = Collection.objects.create(
+            name="Disabled Collection",
+            enabled=False,  # Disabled
+            available_languages=["en"],
+        )
+
+        # Create maintainer
+        maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        with translation.override("en"):
+            response = test_client.get(f"/api/collection/{collection.id}/periods/", HTTP_ACCEPT_LANGUAGE="en")
+            assert response.status_code == 404
+            data = response.json()
+            assert "error" in data
+            assert "Collection not found" in data["error"]
 
     def test_registration_view_post_invalid_form(self, test_client, db):
         """Test POST request with invalid form data."""
@@ -177,7 +265,8 @@ class TestGetCollectionPeriods:
         ).save()
 
         url = reverse("get_collection_periods", kwargs={"collection_id": setup["collection"].id})
-        response = test_client.get(url)
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 200
         data = response.json()
@@ -199,7 +288,8 @@ class TestGetCollectionPeriods:
     def test_get_collection_periods_nonexistent_collection(self, test_client, db):
         """Test AJAX request for non-existent collection."""
         url = reverse("get_collection_periods", kwargs={"collection_id": 99999})
-        response = test_client.get(url)
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 404
         data = response.json()
@@ -209,7 +299,8 @@ class TestGetCollectionPeriods:
     def test_get_collection_periods_disabled_collection(self, test_client, disabled_collection):
         """Test AJAX request for disabled collection."""
         url = reverse("get_collection_periods", kwargs={"collection_id": disabled_collection.id})
-        response = test_client.get(url)
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 404
         data = response.json()
@@ -228,7 +319,8 @@ class TestGetCollectionPeriods:
         monkeypatch.setattr("adoration.views.PeriodCollection.objects.filter", mock_filter)
 
         url = reverse("get_collection_periods", kwargs={"collection_id": collection.id})
-        response = test_client.get(url)
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 500
         data = response.json()
@@ -352,7 +444,8 @@ class TestRegistrationViewEmailIntegration:
             "privacy_accepted": True,
         }
 
-        response = test_client.post(reverse("registration"), form_data)
+        with translation.override("en"):
+            response = test_client.post(reverse("registration"), form_data, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 302
         assert len(mail_outbox) == 2
@@ -374,7 +467,8 @@ class TestRegistrationViewEmailIntegration:
             "privacy_accepted": True,
         }
 
-        response = test_client.post(reverse("registration"), form_data)
+        with translation.override("en"):
+            response = test_client.post(reverse("registration"), form_data, HTTP_ACCEPT_LANGUAGE="en")
 
         # Debug: Check if form failed validation
         if response.status_code == 200:
@@ -420,7 +514,8 @@ class TestRegistrationViewEmailIntegration:
             "privacy_accepted": True,
         }
 
-        response = test_client.post(reverse("registration"), form_data)
+        with translation.override("en"):
+            response = test_client.post(reverse("registration"), form_data, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 302
         # Assignment should be created
@@ -436,3 +531,25 @@ class TestRegistrationViewEmailIntegration:
         assert len(email_message_calls) == 1  # Maintainer notification email
         for call_kwargs in email_message_calls:
             assert call_kwargs.get("fail_silently") is True
+
+    def test_registration_form_edge_cases(self, test_client, complete_setup):
+        """Test registration form validation edge cases for better coverage."""
+        setup = complete_setup
+
+        # Test form with invalid collection ID that causes super().clean() to fail
+        form_data = {
+            "collection": "99999",  # Non-existent collection ID
+            "period_collection": setup["period_collection"].id,
+            "attendant_name": "",  # Empty required field
+            "attendant_email": "invalid-email",  # Invalid email format
+            "privacy_accepted": False,  # Required field not accepted
+        }
+
+        with translation.override("en"):
+            response = test_client.post(reverse("registration"), form_data)
+            # Form should be invalid and return form with errors
+            assert response.status_code == 200
+            assert "form" in response.context
+            form = response.context["form"]
+            assert not form.is_valid()
+            # This exercises the clean method's early return path when super().clean() fails

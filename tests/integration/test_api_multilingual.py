@@ -434,16 +434,17 @@ class APIErrorHandlingTests(TestCase):
     @patch("adoration.views.PeriodCollection.objects.filter")
     def test_api_database_error_handling(self, mock_filter):
         """Test API behavior when database errors occur."""
-        # Create a test collection first
-        collection = Collection.objects.create(name="Test", enabled=True)
+        # Create a test collection first with available languages
+        collection = Collection.objects.create(name="Test", enabled=True, available_languages=["en", "pl", "nl"])
         CollectionMaintainer.objects.create(collection=collection, maintainer=self.maintainer)
 
-        # Mock a database error
+        # Mock a database error on the PeriodCollection filter call
         mock_filter.side_effect = Exception("Database connection error")
 
         url = reverse("get_collection_periods", kwargs={"collection_id": collection.id})
 
-        response = self.client.get(url)
+        with translation.override("en"):
+            response = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         # Should return a 500 error with error message
         self.assertEqual(response.status_code, 500)

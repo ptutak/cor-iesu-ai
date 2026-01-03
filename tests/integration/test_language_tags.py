@@ -129,8 +129,10 @@ class LanguageTagsIntegrationTests(TestCase):
             rendered = template.render(context)
 
             # Check that the rendered content contains expected elements
-            self.assertIn("dropdown", rendered)
+            self.assertIn("language-switcher-buttons", rendered)
+            self.assertIn("language-btn", rendered)
             self.assertIn("English", rendered)
+            self.assertIn("Switch to English", rendered)
 
     def test_language_switcher_preserves_current_path(self):
         """Test that language switcher preserves the current path."""

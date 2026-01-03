@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from .forms import DeletionConfirmForm, PeriodAssignmentForm
@@ -133,9 +134,18 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
 
     Returns:
         JsonResponse: JSON containing periods data or error message
+
+    Raises:
+        DoesNotExist: When collection is not found or not available in current language
     """
+    # Get current language
+    current_language = translation.get_language() or "en"
+
     try:
         collection = Collection.objects.get(id=collection_id, enabled=True)
+        # Check if collection is available in current language
+        if not collection.is_available_in_language(current_language):
+            raise Collection.DoesNotExist
     except Collection.DoesNotExist:
         return JsonResponse({"error": str(_("Collection not found"))}, status=404)
 

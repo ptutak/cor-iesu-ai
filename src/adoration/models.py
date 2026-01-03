@@ -2,7 +2,9 @@ import hashlib
 import secrets
 from typing import TYPE_CHECKING, Any
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 
 if TYPE_CHECKING:
@@ -59,20 +61,26 @@ class Collection(models.Model):
     name = models.CharField(max_length=100, unique=True, blank=False)
     description = models.CharField(max_length=600, blank=True, null=True)
     enabled = models.BooleanField(blank=False, default=True)
+    available_languages = models.JSONField(
+        default=list,
+        blank=False,
+        help_text="List of language codes this collection is available in (e.g., ['en', 'pl', 'nl'])",
+    )
     periods = models.ManyToManyField(Period, through="PeriodCollection")  # type: ignore
 
     def clean(self) -> None:
-        """Validate that collection has at least one maintainer if enabled.
+        """Validate collection data including maintainers and languages.
 
         Raises:
-            ValidationError: If collection is enabled but has no maintainers
+            ValidationError: If collection is enabled but has no maintainers or invalid languages
         """
         super().clean()
+
+        # Validate available_languages
+        self._validate_available_languages()
+
         if self.enabled and hasattr(self, "pk") and self.pk:
             # Only check for existing collections (with pk)
-            # Import here to avoid circular import
-            from django.core.exceptions import ValidationError
-
             # Check if collection has maintainers using reverse foreign key lookup
             if not hasattr(self, "_maintainers_checked"):
                 # Use string reference to avoid import issues
@@ -87,8 +95,64 @@ class Collection(models.Model):
             args: Positional arguments for save method
             kwargs: Keyword arguments for save method
         """
+        # Set default languages if not specified
+        if not self.available_languages:
+            self.available_languages = self._get_default_languages()
+
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def _validate_available_languages(self) -> None:
+        """Validate that all language codes in available_languages are valid.
+
+        Raises:
+            ValidationError: If any language code is invalid
+        """
+        if not self.available_languages:
+            raise ValidationError("Collection must have at least one available language.")
+
+        if not isinstance(self.available_languages, list):
+            raise ValidationError("Available languages must be a list.")
+
+        valid_language_codes = {code for code, name in settings.LANGUAGES}
+        invalid_codes = set(self.available_languages) - valid_language_codes
+
+        if invalid_codes:
+            raise ValidationError(
+                f"Invalid language codes: {', '.join(sorted(invalid_codes))}. "
+                f"Valid codes are: {', '.join(sorted(valid_language_codes))}"
+            )
+
+    def _get_default_languages(self) -> list[str]:
+        """Get default list of available language codes.
+
+        Returns:
+            List of all configured language codes
+        """
+        return [code for code, name in settings.LANGUAGES]
+
+    def is_available_in_language(self, language_code: str) -> bool:
+        """Check if collection is available in the specified language.
+
+        Args:
+            language_code: Language code to check (e.g., 'en', 'pl', 'nl')
+
+        Returns:
+            True if collection is available in the language, False otherwise
+        """
+        return language_code in (self.available_languages or [])
+
+    def get_available_language_names(self) -> list[tuple[str, str]]:
+        """Get list of available languages as (code, name) tuples.
+
+        Returns:
+            List of (language_code, language_name) tuples for available languages
+        """
+        if not self.available_languages:
+            return []
+
+        language_dict = dict(settings.LANGUAGES)
+        return [(code, language_dict.get(code, code)) for code in self.available_languages if code in language_dict]
 
     def __str__(self) -> str:
         return self.name

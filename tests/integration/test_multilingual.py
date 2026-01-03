@@ -122,7 +122,7 @@ class MultilingualIntegrationTests(TestCase):
 
         self.assertContains(response, "language-switcher")
         self.assertContains(response, "🇺🇸")  # US flag emoji for English
-        self.assertContains(response, "language-switcher-btn")
+        self.assertContains(response, "language-btn")
 
     @patch("adoration.views.send_mail")
     @patch("adoration.views.EmailMessage")

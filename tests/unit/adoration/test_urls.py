@@ -7,6 +7,7 @@ for the adoration Django application.
 
 import pytest
 from django.urls import resolve, reverse
+from django.utils import translation
 
 from adoration.models import PeriodAssignment
 
@@ -61,7 +62,9 @@ class TestAdorationUrls:
         """Test AJAX request to get collection periods."""
         setup = complete_setup
         url = reverse("get_collection_periods", kwargs={"collection_id": setup["collection"].id})
-        response = test_client.get(url)
+
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 200
         data = response.json()
@@ -80,7 +83,8 @@ class TestAdorationUrls:
             "privacy_accepted": True,
         }
 
-        response = test_client.post(reverse("registration"), form_data)
+        with translation.override("en"):
+            response = test_client.post(reverse("registration"), form_data, HTTP_ACCEPT_LANGUAGE="en")
         assert response.status_code == 302  # Redirect after successful submission
 
     def test_delete_assignment_post_request(self, test_client, period_collection):
@@ -105,7 +109,9 @@ class TestAdorationUrls:
     def test_nonexistent_collection_periods_404(self, test_client, db):
         """Test that requesting periods for nonexistent collection returns 404."""
         url = reverse("get_collection_periods", kwargs={"collection_id": 99999})
-        response = test_client.get(url)
+
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
 
         assert response.status_code == 404
         data = response.json()

@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from typing import Any
 
+from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
@@ -34,6 +36,74 @@ def admin_display(
         return func
 
     return decorator
+
+
+class CollectionLanguageWidget(forms.CheckboxSelectMultiple):
+    """Custom widget for selecting available languages in Collection admin."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the form with dynamic language choices.
+
+        Args:
+            args: Positional arguments
+            kwargs: Keyword arguments
+        """
+        super().__init__(*args, **kwargs)
+        self.choices = [(code, name) for code, name in settings.LANGUAGES]
+
+
+class CollectionAdminForm(forms.ModelForm[Collection]):
+    """Custom form for Collection admin with language selection."""
+
+    available_languages = forms.MultipleChoiceField(
+        choices=[],  # Will be set in __init__
+        widget=CollectionLanguageWidget,
+        required=True,
+        help_text="Select which languages this collection is available in.",
+        label="Available Languages",
+    )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the form with dynamic language choices.
+
+        Args:
+            args: Positional arguments
+            kwargs: Keyword arguments
+        """
+        super().__init__(*args, **kwargs)
+        # Set choices dynamically based on settings
+        # Type ignore needed for dynamic field assignment
+        self.fields["available_languages"].choices = [(code, name) for code, name in settings.LANGUAGES]  # type: ignore
+
+        # Set initial values if editing existing instance
+        if self.instance and self.instance.pk and self.instance.available_languages:
+            self.fields["available_languages"].initial = self.instance.available_languages
+
+    def clean_available_languages(self) -> list[str]:
+        """Validate that selected languages are valid.
+
+        Returns:
+            List of validated language codes
+
+        Raises:
+            ValidationError: If no languages selected or invalid codes provided
+        """
+        languages: list[str] = self.cleaned_data.get("available_languages", [])
+        if not languages:
+            raise forms.ValidationError("At least one language must be selected.")
+
+        valid_codes = {code for code, name in settings.LANGUAGES}
+        invalid_codes = set(languages) - valid_codes
+        if invalid_codes:
+            raise forms.ValidationError(f"Invalid language codes: {', '.join(invalid_codes)}")
+
+        return languages
+
+    class Meta:
+        """Form meta configuration."""
+
+        model = Collection
+        fields = "__all__"
 
 
 @admin.register(Period)
@@ -230,6 +300,109 @@ class PeriodAssignmentAdmin(admin.ModelAdmin[PeriodAssignment]):
         return False
 
 
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin[Collection]):
+    """Admin configuration for Collection model."""
+
+    form = CollectionAdminForm
+    list_display = (
+        "name",
+        "enabled",
+        "get_available_languages_display",
+        "get_period_count",
+        "get_maintainer_count",
+    )
+    list_filter = ("enabled", "available_languages")
+    search_fields = ("name", "description")
+    filter_horizontal = ("periods",)
+
+    fieldsets = (
+        (None, {"fields": ("name", "description", "enabled")}),
+        (
+            "Languages",
+            {
+                "fields": ("available_languages",),
+                "description": "Select which languages this collection should be available in.",
+            },
+        ),
+        (
+            "Periods",
+            {
+                "fields": ("periods",),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+    def get_form(
+        self,
+        request: Any,
+        obj: Collection | None = None,
+        change: bool = False,
+        **kwargs: Any,
+    ) -> type[forms.ModelForm[Collection]]:
+        """Get the form class and set the model.
+
+        Args:
+            request: HTTP request object
+            obj: Collection instance being edited
+            change: Whether this is a change form
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Form class for Collection admin
+        """
+        form_class = super().get_form(request, obj, change=change, **kwargs)
+        return form_class
+
+    @admin_display("Available Languages")
+    def get_available_languages_display(self, obj: Collection) -> str:
+        """Display available languages as flags and names.
+
+        Args:
+            obj: The Collection instance
+
+        Returns:
+            str: Formatted display of available languages
+        """
+        if not obj.available_languages:
+            return "None"
+
+        language_names = dict(settings.LANGUAGES)
+        flags = {"en": "🇺🇸", "pl": "🇵🇱", "nl": "🇳🇱"}
+
+        display_items = []
+        for code in obj.available_languages:
+            flag = flags.get(code, "🌐")
+            name = language_names.get(code, code.upper())
+            display_items.append(f"{flag} {name}")
+
+        return " | ".join(display_items)
+
+    @admin_display("Periods")
+    def get_period_count(self, obj: Collection) -> int:
+        """Get count of periods in this collection.
+
+        Args:
+            obj: The Collection instance
+
+        Returns:
+            int: Number of periods in collection
+        """
+        return obj.periods.count()
+
+    @admin_display("Maintainers")
+    def get_maintainer_count(self, obj: Collection) -> int:
+        """Get count of maintainers for this collection.
+
+        Args:
+            obj: The Collection instance
+
+        Returns:
+            int: Number of maintainers for collection
+        """
+        return CollectionMaintainer.objects.filter(collection=obj).count()
+
+
 admin.site.register(Config)
-admin.site.register(Collection)
 admin.site.register(CollectionConfig)

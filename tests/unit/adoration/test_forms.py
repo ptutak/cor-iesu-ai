@@ -2,12 +2,13 @@
 Unit tests for adoration forms.
 
 This module contains comprehensive tests for all forms in the adoration app,
-including validation, dynamic querysets, and custom clean methods.
+including validation, dynamic querysets, custom clean methods, and language filtering.
 """
 
 import pytest
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import translation
 
 from adoration.forms import DeletionConfirmForm, PeriodAssignmentForm
 from adoration.models import (
@@ -40,12 +41,66 @@ class TestPeriodAssignmentForm:
         maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
-        form = PeriodAssignmentForm()
+        # Test with English language context
+        with translation.override("en"):
+            form = PeriodAssignmentForm()
 
-        # Should only show collections with maintainers
-        collection_queryset = form.fields["collection"].queryset
-        assert collection_queryset.count() == 1
-        assert collection in collection_queryset
+            # Should only show collections with maintainers
+            collection_queryset = form.fields["collection"].queryset
+            assert collection_queryset.count() == 1
+            assert collection in collection_queryset
+
+    def test_form_initialization_filters_by_language(self, db, maintainer_user):
+        """Test form only shows collections available in current language."""
+        # Create collections with different language availability
+        collection_en_pl = Collection.objects.create(
+            name="English Polish Collection",
+            enabled=True,
+            available_languages=["en", "pl"],
+        )
+        collection_nl_only = Collection.objects.create(
+            name="Dutch Only Collection", enabled=True, available_languages=["nl"]
+        )
+        collection_all_langs = Collection.objects.create(
+            name="All Languages Collection",
+            enabled=True,
+            available_languages=["en", "pl", "nl"],
+        )
+
+        # Create maintainers for all collections
+        maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
+        for collection in [collection_en_pl, collection_nl_only, collection_all_langs]:
+            CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Test with English language
+        with translation.override("en"):
+            form = PeriodAssignmentForm()
+            collection_queryset = form.fields["collection"].queryset
+
+            # Should include collections available in English
+            assert collection_en_pl in collection_queryset
+            assert collection_all_langs in collection_queryset
+            assert collection_nl_only not in collection_queryset
+
+        # Test with Dutch language
+        with translation.override("nl"):
+            form = PeriodAssignmentForm()
+            collection_queryset = form.fields["collection"].queryset
+
+            # Should include collections available in Dutch
+            assert collection_nl_only in collection_queryset
+            assert collection_all_langs in collection_queryset
+            assert collection_en_pl not in collection_queryset
+
+        # Test with Polish language
+        with translation.override("pl"):
+            form = PeriodAssignmentForm()
+            collection_queryset = form.fields["collection"].queryset
+
+            # Should include collections available in Polish
+            assert collection_en_pl in collection_queryset
+            assert collection_all_langs in collection_queryset
+            assert collection_nl_only not in collection_queryset
 
     def test_form_initialization_with_collection_data(self, db, complete_setup):
         """Test form initialization with collection data sets period queryset."""
@@ -88,7 +143,9 @@ class TestPeriodAssignmentForm:
             "privacy_accepted": True,
         }
 
-        form = PeriodAssignmentForm(data=form_data)
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert form.is_valid(), f"Form errors: {form.errors}"
         assert form.is_valid()
         assert form.cleaned_data["attendant_name"] == "John Doe"
         assert form.cleaned_data["attendant_email"] == "john@example.com"
@@ -137,9 +194,10 @@ class TestPeriodAssignmentForm:
             # No phone number provided
         }
 
-        form = PeriodAssignmentForm(data=form_data)
-        assert form.is_valid()
-        assert form.cleaned_data.get("attendant_phone_number", "") == ""
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert form.is_valid()
+            assert form.cleaned_data.get("attendant_phone_number", "") == ""
 
     def test_clean_period_collection_no_selection(self, db):
         """Test clean_period_collection with no period selected."""
@@ -282,7 +340,7 @@ class TestPeriodAssignmentForm:
         assert "already registered" in str(form.non_field_errors()).lower()
 
     def test_clean_different_period_same_email(self, db, complete_setup):
-        """Test clean allows same email for different periods."""
+        """Test form allows same email for different periods."""
         setup = complete_setup
         email = "test@example.com"
 
@@ -295,14 +353,16 @@ class TestPeriodAssignmentForm:
             "period_collection": setup["period_collection2"].id,
             "attendant_name": "John Doe",
             "attendant_email": email,
+            "attendant_phone_number": "+1234567890",
             "privacy_accepted": True,
         }
 
-        form = PeriodAssignmentForm(data=form_data)
-        assert form.is_valid()  # Should allow same email for different periods
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert form.is_valid()  # Should be valid for different period
 
     def test_save_method(self, db, complete_setup):
-        """Test form save method creates assignment correctly."""
+        """Test form save method creates assignment."""
         setup = complete_setup
 
         form_data = {
@@ -314,15 +374,15 @@ class TestPeriodAssignmentForm:
             "privacy_accepted": True,
         }
 
-        form = PeriodAssignmentForm(data=form_data)
-        assert form.is_valid()
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert form.is_valid()
 
-        assignment = form.save()
-
-        assert assignment.id is not None
-        assert assignment.verify_email("john@example.com")
-        assert assignment.period_collection == setup["period_collection"]
-        assert assignment.deletion_token != ""
+            assignment = form.save()
+            assert assignment.id is not None
+            assert assignment.period_collection == setup["period_collection"]
+            assert assignment.verify_email("john@example.com") is True
+            assert assignment.deletion_token != ""
 
     def test_save_method_commit_false(self, db, complete_setup):
         """Test form save method with commit=False."""
@@ -336,14 +396,58 @@ class TestPeriodAssignmentForm:
             "privacy_accepted": True,
         }
 
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert form.is_valid()
+
+            assignment = form.save(commit=False)
+            assert assignment.id is None  # Not saved to database yet
+            assert assignment.period_collection == setup["period_collection"]
+            assert assignment.verify_email("john@example.com") is True
+
+    def test_clean_period_collection_default_config_fallback(self, db, period_collection):
+        """Test assignment limit falls back to default config when collection config doesn't exist."""
+        # Create default config only (no collection-specific config)
+        Config.objects.create(name=Config.DefaultValues.ASSIGNMENT_LIMIT, value="1")
+
+        # Create one assignment to fill the period
+        assignment = PeriodAssignment.create_with_email(
+            email="existing@example.com", period_collection=period_collection
+        )
+        assignment.save()
+
+        form_data = {
+            "collection": period_collection.collection.id,
+            "period_collection": period_collection.id,
+            "attendant_name": "John Doe",
+            "attendant_email": "john@example.com",
+            "privacy_accepted": True,
+        }
+
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            assert not form.is_valid()
+            assert "period_collection" in form.errors
+            assert "period is full" in str(form.errors["period_collection"]).lower()
+
+    def test_clean_returns_none_when_super_clean_fails(self, db, complete_setup):
+        """Test clean method returns None when super().clean() returns None."""
+        setup = complete_setup
+
+        # Create a form with invalid data to make super().clean() return None
+        form_data = {
+            "collection": "invalid",  # Invalid collection ID
+            "period_collection": setup["period_collection"].id,
+            "attendant_name": "",  # Required field missing
+            "attendant_email": "invalid-email",  # Invalid email
+            "privacy_accepted": False,  # Required field not accepted
+        }
+
         form = PeriodAssignmentForm(data=form_data)
-        assert form.is_valid()
 
-        assignment = form.save(commit=False)
-
-        assert assignment.id is None  # Not saved to database
-        assert assignment.verify_email("john@example.com")
-        assert assignment.period_collection == setup["period_collection"]
+        # The form should be invalid and clean should return None
+        assert not form.is_valid()
+        # This covers the line where cleaned_data is None and we return None
 
 
 class TestDeletionConfirmForm:
@@ -448,11 +552,12 @@ class TestFormIntegration:
             "privacy_accepted": True,
         }
 
-        creation_form = PeriodAssignmentForm(data=creation_form_data)
-        assert creation_form.is_valid()
+        with translation.override("en"):
+            creation_form = PeriodAssignmentForm(data=creation_form_data)
+            assert creation_form.is_valid()
 
-        assignment = creation_form.save()
-        assert assignment.verify_email(email)
+            assignment = creation_form.save()
+            assert assignment.verify_email(email)
 
         # Step 2: Delete assignment via deletion form
         deletion_form_data = {"email": email}
@@ -500,19 +605,20 @@ class TestFormIntegration:
         user_without_email.email = ""
         user_without_email.save()
 
-        # Create maintainer without email validation (bypass clean method)
+        # Create maintainer without email (bypassing validation)
         maintainer_without_email = Maintainer(user=user_without_email, country="US")
         # Save without calling full_clean() to bypass validation
         super(Maintainer, maintainer_without_email).save()
         CollectionMaintainer.objects.create(collection=collection_without_email, maintainer=maintainer_without_email)
 
-        form = PeriodAssignmentForm()
-        collection_queryset = form.fields["collection"].queryset
+        with translation.override("en"):
+            form = PeriodAssignmentForm()
+            collection_queryset = form.fields["collection"].queryset
 
-        # Should only show collection with valid maintainer email
-        assert collection_queryset.count() == 1
-        assert collection_with_email in collection_queryset
-        assert collection_without_email not in collection_queryset
+            # Should only show collection with valid maintainer email
+            assert collection_queryset.count() == 1
+            assert collection_with_email in collection_queryset
+            assert collection_without_email not in collection_queryset
 
     def test_form_filters_maintainers_with_empty_email(self, db):
         """Test that form filters out collections with maintainers who have empty email."""
@@ -542,10 +648,11 @@ class TestFormIntegration:
         super(Maintainer, maintainer_empty_email).save()
         CollectionMaintainer.objects.create(collection=collection_empty_email, maintainer=maintainer_empty_email)
 
-        form = PeriodAssignmentForm()
-        collection_queryset = form.fields["collection"].queryset
+        with translation.override("en"):
+            form = PeriodAssignmentForm()
+            collection_queryset = form.fields["collection"].queryset
 
-        # Should only show collection with valid maintainer email
-        assert collection_queryset.count() == 1
-        assert collection_valid in collection_queryset
-        assert collection_empty_email not in collection_queryset
+            # Should only show collection with valid maintainer email
+            assert collection_queryset.count() == 1
+            assert collection_valid in collection_queryset
+            assert collection_empty_email not in collection_queryset

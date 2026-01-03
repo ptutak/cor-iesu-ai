@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from .models import (
@@ -67,17 +68,32 @@ class PeriodAssignmentForm(forms.Form):
         """
         super().__init__(*args, **kwargs)
 
+        # Get current language
+        current_language = translation.get_language() or "en"
+
         # Filter collections to only show those with maintainers who have email addresses
+        # AND are available in the current language
         from .models import CollectionMaintainer
 
         # Get collections that have at least one maintainer with a non-empty email
-        collections_with_valid_maintainers = Collection.objects.filter(
+        # and are available in the current language
+        # First get all enabled collections with valid maintainers
+        collections_with_maintainers = Collection.objects.filter(
             enabled=True,
             id__in=CollectionMaintainer.objects.filter(maintainer__user__email__isnull=False)
             .exclude(maintainer__user__email="")
             .exclude(maintainer__user__email__regex=r"^\s*$")  # Exclude whitespace-only
             .values_list("collection_id", flat=True),
         )
+
+        # Filter by language using Python (SQLite compatible)
+        available_collection_ids = [
+            collection.pk
+            for collection in collections_with_maintainers
+            if collection.is_available_in_language(current_language)
+        ]
+
+        collections_with_valid_maintainers = Collection.objects.filter(id__in=available_collection_ids)
         collection_field = self.fields["collection"]
         if isinstance(collection_field, forms.ModelChoiceField):
             collection_field.queryset = collections_with_valid_maintainers

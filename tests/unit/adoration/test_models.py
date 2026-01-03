@@ -118,6 +118,146 @@ class TestCollection:
         collection.save()
         assert collection.pk is not None
 
+    def test_collection_default_languages(self, db):
+        """Test that collection gets default languages when created without specifying."""
+        collection = Collection.objects.create(name="Test Collection", enabled=True)
+
+        # Should have default languages from settings
+        expected_languages = ["en", "pl", "nl"]  # From settings.LANGUAGES
+        assert collection.available_languages == expected_languages
+
+    def test_collection_custom_languages(self, db):
+        """Test creating collection with custom available languages."""
+        custom_languages = ["en", "pl"]
+        collection = Collection.objects.create(
+            name="Custom Languages Collection",
+            enabled=True,
+            available_languages=custom_languages,
+        )
+
+        assert collection.available_languages == custom_languages
+
+    def test_collection_empty_languages_validation(self, db):
+        """Test that collection cannot have empty available_languages."""
+        collection = Collection(name="Empty Languages Collection", enabled=True, available_languages=[])
+
+        with pytest.raises(ValidationError) as exc_info:
+            collection.full_clean()
+
+        assert "Collection must have at least one available language" in str(exc_info.value)
+
+    def test_collection_invalid_languages_validation(self, db):
+        """Test that collection rejects invalid language codes."""
+        invalid_languages = ["en", "invalid", "pl"]
+        collection = Collection(
+            name="Invalid Languages Collection",
+            enabled=True,
+            available_languages=invalid_languages,
+        )
+
+        with pytest.raises(ValidationError) as exc_info:
+            collection.full_clean()
+
+        assert "Invalid language codes: invalid" in str(exc_info.value)
+
+    def test_collection_non_list_languages_validation(self, db):
+        """Test that available_languages must be a list."""
+        collection = Collection(
+            name="Non-list Languages Collection",
+            enabled=True,
+            available_languages="en,pl,nl",  # String instead of list
+        )
+
+        with pytest.raises(ValidationError) as exc_info:
+            collection.full_clean()
+
+        assert "Available languages must be a list" in str(exc_info.value)
+
+    def test_is_available_in_language(self, db):
+        """Test is_available_in_language method."""
+        collection = Collection.objects.create(name="Test Collection", enabled=True, available_languages=["en", "pl"])
+
+        assert collection.is_available_in_language("en") is True
+        assert collection.is_available_in_language("pl") is True
+        assert collection.is_available_in_language("nl") is False
+        assert collection.is_available_in_language("fr") is False
+
+    def test_is_available_in_language_empty_list(self, db):
+        """Test is_available_in_language with empty languages list."""
+        collection = Collection(name="Test Collection", enabled=True, available_languages=None)
+
+        assert collection.is_available_in_language("en") is False
+
+    def test_get_available_language_names(self, db):
+        """Test get_available_language_names method."""
+        collection = Collection.objects.create(name="Test Collection", enabled=True, available_languages=["en", "pl"])
+
+        language_names = collection.get_available_language_names()
+        expected = [("en", "English"), ("pl", "Polish")]
+
+        assert language_names == expected
+
+    def test_get_available_language_names_empty(self, db):
+        """Test get_available_language_names with empty languages."""
+        collection = Collection(name="Test Collection", enabled=True, available_languages=[])
+
+        language_names = collection.get_available_language_names()
+        assert language_names == []
+
+    def test_get_available_language_names_invalid_code(self, db):
+        """Test get_available_language_names filters out invalid codes."""
+        # Create collection bypassing validation for testing
+        collection = Collection(
+            name="Test Collection",
+            enabled=True,
+            available_languages=["en", "invalid_code", "pl"],
+        )
+
+        language_names = collection.get_available_language_names()
+        expected = [("en", "English"), ("pl", "Polish")]
+
+        assert language_names == expected
+
+    def test_get_default_languages_method(self, db):
+        """Test _get_default_languages private method."""
+        collection = Collection()
+        default_languages = collection._get_default_languages()
+
+        expected = ["en", "pl", "nl"]  # From settings.LANGUAGES
+        assert default_languages == expected
+
+    def test_collection_save_sets_default_languages(self, db):
+        """Test that save method sets default languages if empty."""
+        collection = Collection(name="Test Collection", enabled=True)
+        # Don't set available_languages
+        collection.save()
+
+        expected_languages = ["en", "pl", "nl"]
+        assert collection.available_languages == expected_languages
+
+    def test_collection_save_preserves_custom_languages(self, db):
+        """Test that save method preserves existing languages."""
+        custom_languages = ["en", "pl"]
+        collection = Collection(name="Test Collection", enabled=True, available_languages=custom_languages)
+        collection.save()
+
+        assert collection.available_languages == custom_languages
+
+    @patch("django.conf.settings.LANGUAGES", [("en", "English"), ("fr", "French")])
+    def test_collection_validation_with_different_settings(self, db):
+        """Test validation adapts to different LANGUAGES settings."""
+        collection = Collection(
+            name="Test Collection",
+            enabled=True,
+            available_languages=["en", "pl"],  # pl not in mocked settings
+        )
+
+        with pytest.raises(ValidationError) as exc_info:
+            collection.full_clean()
+
+        assert "Invalid language codes: pl" in str(exc_info.value)
+        assert "Valid codes are: en, fr" in str(exc_info.value)
+
 
 class TestMaintainer:
     """Test cases for Maintainer model."""

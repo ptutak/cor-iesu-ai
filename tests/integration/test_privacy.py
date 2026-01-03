@@ -24,7 +24,12 @@ class PrivacyImplementationTests(TestCase):
         # Create test data
         self.period = Period.objects.create(name="Test Period", description="Test period for privacy testing")
 
-        self.collection = Collection.objects.create(name="Test Collection", description="Test collection", enabled=True)
+        self.collection = Collection.objects.create(
+            name="Test Collection",
+            description="Test collection",
+            enabled=True,
+            available_languages=["en", "pl", "nl"],
+        )
 
         # Create a maintainer for the collection
         self.user = User.objects.create_user(
@@ -79,8 +84,12 @@ class PrivacyImplementationTests(TestCase):
             "privacy_accepted": True,
         }
 
-        form = PeriodAssignmentForm(data=form_data)
-        self.assertTrue(form.is_valid(), f"Form validation failed: {form.errors}")
+        # Test form in English language context
+        from django.utils import translation
+
+        with translation.override("en"):
+            form = PeriodAssignmentForm(data=form_data)
+            self.assertTrue(form.is_valid(), f"Form validation failed: {form.errors}")
 
     def test_deletion_form(self):
         """Test deletion form validation."""
