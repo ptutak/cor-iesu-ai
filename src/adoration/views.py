@@ -25,7 +25,6 @@ def registration_view(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Rendered registration form or redirect after successful submission
     """
-
     if request.method == "POST":
         form = PeriodAssignmentForm(request.POST)
         if form.is_valid():

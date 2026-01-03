@@ -15,20 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import URLPattern, URLResolver, include, path
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
     path("i18n/", include("django.conf.urls.i18n")),
     # API endpoints - language independent
     path("api/", include("adoration.api_urls")),
 ]
 
 # Add language-prefixed patterns
-urlpatterns += i18n_patterns(
-    path("admin/", admin.site.urls),
-    path("", include("adoration.urls")),
-    prefix_default_language=False,
+urlpatterns = urlpatterns + list(
+    i18n_patterns(
+        path("admin/", admin.site.urls),
+        path("", include("adoration.urls")),
+        prefix_default_language=False,
+    )
 )

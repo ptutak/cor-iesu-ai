@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""
-Script to update translations for the multilingual adoration registration system.
+"""Script to update translations for the multilingual adoration registration system.
+
 This script helps maintain and update translation files for Polish and Dutch.
 """
 
@@ -9,8 +9,16 @@ import subprocess
 import sys
 
 
-def run_command(command, cwd=None):
-    """Run a shell command and handle errors."""
+def run_command(command: str, cwd: str | None = None) -> bool:
+    """Run a shell command and handle errors.
+
+    Args:
+        command: Shell command to execute
+        cwd: Working directory for the command
+
+    Returns:
+        True if command executed successfully, False otherwise
+    """
     try:
         result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True, cwd=cwd)
         print(f"✓ {command}")
@@ -23,9 +31,8 @@ def run_command(command, cwd=None):
         return False
 
 
-def update_translations():
+def update_translations() -> None:
     """Update translation files for all supported languages."""
-
     print("Updating translations for the multilingual adoration app...")
     print("=" * 60)
 
@@ -67,7 +74,7 @@ def update_translations():
         print("3. Run this script again to compile the updated translations")
         print("4. Test the application in different languages")
 
-        print(f"\nTranslation files location:")
+        print("\nTranslation files location:")
         for lang in languages:
             lang_name = "Polish" if lang == "pl" else "Dutch"
             print(f"- {lang_name}: src/locale/{lang}/LC_MESSAGES/django.po")
@@ -76,9 +83,12 @@ def update_translations():
         sys.exit(1)
 
 
-def check_translations():
-    """Check if all translation files are properly compiled."""
+def check_translations() -> bool:
+    """Check if all translation files are properly compiled.
 
+    Returns:
+        True if all translation files are present, False otherwise
+    """
     print("Checking translation files...")
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # Go up one level from manage/ to project root, then into src/
@@ -115,7 +125,7 @@ def check_translations():
     return all_good
 
 
-def show_usage():
+def show_usage() -> None:
     """Show script usage information."""
     script_name = os.path.basename(__file__)
     print(
