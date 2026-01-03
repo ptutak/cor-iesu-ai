@@ -56,9 +56,7 @@ class TestDefaultValues(unittest.TestCase):
         from adoration.const import ValidationMessages
 
         self.assertEqual(ValidationMessages.REQUIRED_FIELD, "This field is required.")
-        self.assertEqual(
-            ValidationMessages.INVALID_EMAIL, "Enter a valid email address."
-        )
+        self.assertEqual(ValidationMessages.INVALID_EMAIL, "Enter a valid email address.")
         self.assertEqual(
             ValidationMessages.COLLECTION_DISABLED,
             "This collection is currently disabled.",
