@@ -120,8 +120,9 @@ class MultilingualIntegrationTests(TestCase):
         """Test that language switcher is present on registration page."""
         response = self.client.get("/")
 
-        self.assertContains(response, "dropdown")
-        self.assertContains(response, "bi-globe")
+        self.assertContains(response, "language-switcher")
+        self.assertContains(response, "🇺🇸")  # US flag emoji for English
+        self.assertContains(response, "language-switcher-btn")
 
     @patch("adoration.views.send_mail")
     @patch("adoration.views.EmailMessage")

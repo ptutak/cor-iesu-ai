@@ -1,41 +1,53 @@
 {% load i18n %}
-<div class="dropdown d-inline-block">
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'adoration/css/language-switcher.css' %}">
+<script src="{% static 'adoration/js/language-switcher.js' %}" defer></script>
+
+<div class="language-switcher" id="languageSwitcher">
     <button
-        class="btn btn-sm btn-outline-light dropdown-toggle"
+        class="language-switcher-btn"
         type="button"
-        data-bs-toggle="dropdown"
+        onclick="toggleLanguageDropdown()"
         aria-expanded="false"
+        aria-haspopup="true"
+        aria-label="{% trans 'Select language' %}"
     >
-        <i class="bi bi-globe me-1"></i>
-        {{ current_language_name }}
+        <span class="language-flag" role="img" aria-hidden="true">
+            {% if current_language == 'en' %}🇺🇸{% elif current_language == 'pl' %}🇵🇱{% elif current_language == 'nl' %}🇳🇱{% else %}🌐{% endif %}
+        </span>
+        <span class="language-name">
+            {% if current_language == 'en' %}English{% elif current_language == 'pl' %}Polski{% elif current_language == 'nl' %}Nederlands{% else %}{{ current_language_name }}{% endif %}
+        </span>
+        <i class="bi bi-chevron-down chevron-icon" aria-hidden="true"></i>
     </button>
-    <ul class="dropdown-menu">
+
+    <div class="language-dropdown" role="menu" aria-label="{% trans 'Language options' %}">
         {% for language in available_languages %}
-        <li>
-            <form action="/i18n/setlang/" method="post" class="d-inline w-100">
-                {% csrf_token %}
-                <input
-                    name="next"
-                    type="hidden"
-                    value="{% if language.code == 'en' %}/{% else %}/{{ language.code }}/{% endif %}"
-                />
-                <input
-                    name="language"
-                    type="hidden"
-                    value="{{ language.code }}"
-                />
-                <button
-                    type="submit"
-                    class="dropdown-item border-0 bg-transparent text-start w-100 {% if language.code == current_language %}active{% endif %}"
-                    {% if language.code == current_language %}disabled{% endif %}
-                >
-                    {{ language.name }}
-                    {% if language.code == current_language %}
-                        <i class="bi bi-check ms-1"></i>
-                    {% endif %}
-                </button>
-            </form>
-        </li>
+        <form action="/i18n/setlang/" method="post" class="d-inline w-100">
+            {% csrf_token %}
+            <input
+                name="next"
+                type="hidden"
+                value="{% if language.code == 'en' %}/{% else %}/{{ language.code }}/{% endif %}"
+            />
+            <input name="language" type="hidden" value="{{ language.code }}" />
+            <button
+                type="submit"
+                class="language-option {% if language.code == current_language %}active{% endif %}"
+                role="menuitem"
+                {% if language.code == current_language %}aria-current="true"{% endif %}
+                aria-label="{% if language.code == 'en' %}{% trans 'Switch to English' %}{% elif language.code == 'pl' %}{% trans 'Switch to Polish' %}{% elif language.code == 'nl' %}{% trans 'Switch to Dutch' %}{% else %}{% blocktrans with name=language.name %}Switch to {{ name }}{% endblocktrans %}{% endif %}"
+            >
+                <span class="language-flag" role="img" aria-hidden="true">
+                    {% if language.code == 'en' %}🇺🇸{% elif language.code == 'pl' %}🇵🇱{% elif language.code == 'nl' %}🇳🇱{% else %}🌐{% endif %}
+                </span>
+                <span class="language-name">
+                    {% if language.code == 'en' %}English{% elif language.code == 'pl' %}Polski{% elif language.code == 'nl' %}Nederlands{% else %}{{ language.name }}{% endif %}
+                </span>
+                <i class="bi bi-check language-check" aria-hidden="true"></i>
+            </button>
+        </form>
         {% endfor %}
-    </ul>
+    </div>
 </div>
