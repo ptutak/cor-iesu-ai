@@ -29,7 +29,9 @@ class TestAdorationUrls:
         assert response.status_code == 200
         assert "form" in response.context
         # Check that the form is rendered in the response
-        assert b"form" in response.content or b"registration" in response.content.lower()
+        assert (
+            b"form" in response.content or b"registration" in response.content.lower()
+        )
 
     def test_delete_assignment_url_resolves(self):
         """Test that the delete assignment URL resolves correctly."""
@@ -50,7 +52,9 @@ class TestAdorationUrls:
         # Ensure assignment is saved to database
         period_assignment.save()
 
-        url = reverse("delete_assignment", kwargs={"token": period_assignment.deletion_token})
+        url = reverse(
+            "delete_assignment", kwargs={"token": period_assignment.deletion_token}
+        )
         response = test_client.get(url)
 
         assert response.status_code == 200
@@ -60,7 +64,9 @@ class TestAdorationUrls:
     def test_get_collection_periods_ajax_request(self, test_client, complete_setup):
         """Test AJAX request to get collection periods."""
         setup = complete_setup
-        url = reverse("get_collection_periods", kwargs={"collection_id": setup["collection"].id})
+        url = reverse(
+            "get_collection_periods", kwargs={"collection_id": setup["collection"].id}
+        )
         response = test_client.get(url)
 
         assert response.status_code == 200
@@ -86,7 +92,9 @@ class TestAdorationUrls:
     def test_delete_assignment_post_request(self, test_client, period_collection):
         """Test POST request to delete assignment."""
         email = "delete@example.com"
-        assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
+        assignment = PeriodAssignment.create_with_email(
+            email=email, period_collection=period_collection
+        )
         assignment.save()
 
         form_data = {"email": email}
@@ -103,11 +111,11 @@ class TestAdorationUrls:
         assert response.status_code == 404
 
     def test_nonexistent_collection_periods_404(self, test_client, db):
-        """Test that requesting periods for nonexistent collection returns 500 due to exception handling."""
+        """Test that requesting periods for nonexistent collection returns 404."""
         url = reverse("get_collection_periods", kwargs={"collection_id": 99999})
         response = test_client.get(url)
 
-        assert response.status_code == 500
+        assert response.status_code == 404
         data = response.json()
         assert "error" in data
-        assert data["error"] == "Failed to load periods"
+        assert data["error"] == "Collection not found"

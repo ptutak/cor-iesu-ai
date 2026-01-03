@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-=4c$6ev(vk^@%ss@$mqv=0n8(61upep+&p^2oh@gb)9#($%!4i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "testserver"]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -60,6 +61,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -103,11 +105,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
+
+LANGUAGES = [
+    ("en", "English"),
+    ("pl", "Polish"),
+    ("nl", "Dutch"),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
 
 TIME_ZONE = "UTC"
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 

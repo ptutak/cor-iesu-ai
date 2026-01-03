@@ -1,9 +1,11 @@
+{% load i18n %}
+{% load language_tags %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Period Registration - Adoration</title>
+        <title>{% trans "Period Registration - Adoration" %}</title>
 
         <!-- Bootstrap 5.3.8 CSS -->
         <link
@@ -206,6 +208,17 @@
         </style>
     </head>
     <body class="bg-light">
+        <!-- Language Switcher -->
+        <div class="bg-primary py-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-end">
+                        {% language_switcher %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Hero Section -->
         <div class="hero-section">
             <div class="container">
@@ -213,18 +226,15 @@
                     <div class="col-lg-8">
                         <h1 class="display-4 fw-bold mb-3">
                             <i class="bi bi-calendar-heart me-3"></i>
-                            Period Assignment Registration
+                            {% trans "Period Assignment Registration" %}
                         </h1>
                         <p class="lead mb-4">
-                            Sign up for your adoration period and join our
-                            community of faith
+                            {% trans "Sign up for your adoration period and join our community of faith" %}
                         </p>
                         <div class="alert alert-info mx-auto" style="max-width: 600px;">
-                            <h5><i class="bi bi-shield-check me-2"></i>Privacy Protection</h5>
+                            <h5><i class="bi bi-shield-check me-2"></i>{% trans "Privacy Protection" %}</h5>
                             <p class="mb-0 small">
-                                <strong>We value your privacy:</strong> We do not store any personal data in our database.
-                                Only a secure hash is kept for verification. Your email will be sent directly to collection
-                                maintainers for coordination purposes. By registering, you consent to this communication method.
+                                <strong>{% trans "We value your privacy:" %}</strong> {% trans "We do not store any personal data in our database. Only a secure hash is kept for verification. Your email will be sent directly to collection maintainers for coordination purposes. By registering, you consent to this communication method." %}
                             </p>
                         </div>
                     </div>
@@ -245,7 +255,7 @@
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
-                    aria-label="Close"
+                    aria-label="{% trans 'Close' %}"
                 ></button>
             </div>
             {% endfor %} {% endif %}
@@ -261,7 +271,7 @@
                                 <div class="section-header">
                                     <h3 class="section-title">
                                         <i class="bi bi-calendar-heart me-3"></i>
-                                        Service Information
+                                        {% trans "Service Information" %}
                                     </h3>
                                 </div>
 
@@ -269,7 +279,7 @@
                                     <tr>
                                         <td class="form-label-cell">
                                             <i class="bi bi-collection form-label-icon"></i>
-                                            Collection *
+                                            {% trans "Collection" %} *
                                         </td>
                                         <td class="form-input-cell">
                                             {{ form.collection }}
@@ -286,15 +296,15 @@
                                     <tr>
                                         <td class="form-label-cell">
                                             <i class="bi bi-clock form-label-icon"></i>
-                                            Period *
+                                            {% trans "Period" %} *
                                         </td>
                                         <td class="form-input-cell">
                                             {{ form.period_collection }}
                                             <div class="loading-spinner text-center mt-3">
                                                 <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
+                                                    <span class="visually-hidden">{% trans "Loading..." %}</span>
                                                 </div>
-                                                <small class="text-muted ms-2">Loading periods...</small>
+                                                <small class="text-muted ms-2">{% trans "Loading periods..." %}</small>
                                             </div>
                                             {% if form.period_collection.errors %}
                                             <div class="error-message">
@@ -310,7 +320,7 @@
                                 <div class="section-header">
                                     <h3 class="section-title">
                                         <i class="bi bi-person-badge me-3"></i>
-                                        Personal Information
+                                        {% trans "Personal Information" %}
                                     </h3>
                                 </div>
 
@@ -368,7 +378,7 @@
                                 <div class="section-header">
                                     <h3 class="section-title">
                                         <i class="bi bi-shield-check me-3"></i>
-                                        Privacy Agreement
+                                        {% trans "Consent" %}
                                     </h3>
                                 </div>
 
@@ -411,7 +421,7 @@
                                 <div class="text-center mt-5">
                                     <button type="submit" class="btn btn-primary btn-lg">
                                         <i class="bi bi-check-circle me-3"></i>
-                                        Complete Registration
+                                        {% trans "Complete Registration" %}
                                     </button>
                                 </div>
                             </form>
@@ -427,17 +437,14 @@
                             </div>
                             <div class="col">
                                 <h6 class="mb-1 fw-bold">
-                                    Important Information
+                                    {% trans "Important Information" %}
                                 </h6>
                                 <p class="mb-0 small text-muted">
                                     <strong
-                                        >Required fields are marked with
-                                        *</strong
+                                        >{% trans "Required fields are marked with *" %}</strong
                                     ><br />
-                                    You will receive a confirmation email with
-                                    your registration details and a cancellation
-                                    link.<br />
-                                    <strong>Privacy Protection:</strong> Your personal information is not stored in our database. Only a secure hash is kept for verification purposes. Your email will be shared with collection maintainers for coordination.
+                                    {% trans "You will receive a confirmation email with your registration details and a cancellation link." %}<br />
+                                    <strong>{% trans "Privacy Protection:" %}</strong> {% trans "Your personal information is not stored in our database. Only a secure hash is kept for verification purposes. Your email will be shared with collection maintainers for coordination." %}
                                 </p>
                             </div>
                         </div>

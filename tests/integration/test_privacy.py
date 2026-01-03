@@ -1,20 +1,8 @@
-#!/usr/bin/env python
-"""Test script to validate the new privacy implementation for PeriodAssignment."""
+"""Integration tests for privacy implementation in PeriodAssignment."""
 
-import os
-import sys
-
-import django
-
-# Setup Django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coreiesuai.settings")
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-django.setup()
-
-import secrets
-
+import pytest
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from adoration.forms import DeletionConfirmForm, PeriodAssignmentForm
 from adoration.models import (
@@ -27,107 +15,93 @@ from adoration.models import (
 )
 
 
-def test_privacy_implementation():
-    """Test the privacy implementation."""
-    print("Testing Privacy Implementation")
-    print("=" * 50)
+@pytest.mark.django_db
+class PrivacyImplementationTests(TestCase):
+    """Test cases for privacy implementation."""
 
-    # Test 1: Check if we can create assignment with hashed email
-    print("\n1. Testing PeriodAssignment.create_with_email()")
+    def setUp(self):
+        """Set up test data."""
+        # Create test data
+        self.period = Period.objects.create(name="Test Period", description="Test period for privacy testing")
 
-    try:
-        # Get or create test data
-        period, _ = Period.objects.get_or_create(
-            name="Test Period",
-            defaults={"description": "Test period for privacy testing"},
-        )
+        self.collection = Collection.objects.create(name="Test Collection", description="Test collection", enabled=True)
 
-        collection, _ = Collection.objects.get_or_create(
-            name="Test Collection",
-            defaults={"description": "Test collection", "enabled": True},
-        )
-
-        # Create a maintainer for the collection first
-        user, _ = User.objects.get_or_create(
+        # Create a maintainer for the collection
+        self.user = User.objects.create_user(
             username="testmaintainer",
-            defaults={
-                "email": "maintainer@example.com",
-                "first_name": "Test",
-                "last_name": "Maintainer",
-            },
+            email="maintainer@example.com",
+            first_name="Test",
+            last_name="Maintainer",
         )
 
-        maintainer, _ = Maintainer.objects.get_or_create(user=user, defaults={"country": "Test Country"})
+        self.maintainer = Maintainer.objects.create(user=self.user, country="Test Country")
 
         # Add maintainer to collection
-        CollectionMaintainer.objects.get_or_create(collection=collection, maintainer=maintainer)
+        CollectionMaintainer.objects.create(collection=self.collection, maintainer=self.maintainer)
 
-        period_collection, _ = PeriodCollection.objects.get_or_create(period=period, collection=collection)
+        self.period_collection = PeriodCollection.objects.create(period=self.period, collection=self.collection)
 
-        # Create assignment with hashed email
-        test_email = "test@example.com"
-        assignment = PeriodAssignment.create_with_email(email=test_email, period_collection=period_collection)
+        self.test_email = "test@example.com"
+
+    def test_privacy_implementation(self):
+        """Test the complete privacy implementation."""
+        # Test 1: Check if we can create assignment with hashed email
+        assignment = PeriodAssignment.create_with_email(email=self.test_email, period_collection=self.period_collection)
         assignment.save()
 
-        print(f"✓ Assignment created with hashed email")
-        print(f"  Email hash: {assignment.email_hash[:16]}...")
-        print(f"  Salt: {assignment.salt[:8]}...")
-        print(f"  Deletion token: {assignment.deletion_token[:16]}...")
+        # Verify assignment was created with proper fields
+        self.assertIsNotNone(assignment.email_hash)
+        self.assertIsNotNone(assignment.salt)
+        self.assertIsNotNone(assignment.deletion_token)
+        self.assertTrue(len(assignment.email_hash) > 0)
+        self.assertTrue(len(assignment.salt) > 0)
+        self.assertTrue(len(assignment.deletion_token) > 0)
 
-        # Test 2: Verify email verification works
-        print("\n2. Testing email verification")
+    def test_email_verification(self):
+        """Test email verification functionality."""
+        assignment = PeriodAssignment.create_with_email(email=self.test_email, period_collection=self.period_collection)
+        assignment.save()
 
-        if assignment.verify_email(test_email):
-            print("✓ Email verification works correctly")
-        else:
-            print("✗ Email verification failed")
+        # Test correct email verification
+        self.assertTrue(assignment.verify_email(self.test_email))
 
-        if not assignment.verify_email("wrong@example.com"):
-            print("✓ Email verification correctly rejects wrong email")
-        else:
-            print("✗ Email verification incorrectly accepted wrong email")
+        # Test wrong email verification
+        self.assertFalse(assignment.verify_email("wrong@example.com"))
 
-        # Test 3: Test form validation
-        print("\n3. Testing form functionality")
-
+    def test_form_functionality(self):
+        """Test form validation and creation."""
         form_data = {
-            "collection": collection.id,
-            "period_collection": period_collection.id,
+            "collection": self.collection.id,
+            "period_collection": self.period_collection.id,
             "attendant_name": "Test User",
             "attendant_email": "newuser@example.com",
             "attendant_phone_number": "+1234567890",
+            "privacy_accepted": True,
         }
 
         form = PeriodAssignmentForm(data=form_data)
-        if form.is_valid():
-            print("✓ Form validation passed")
+        self.assertTrue(form.is_valid(), f"Form validation failed: {form.errors}")
 
-            # Don't save to avoid duplicate
-            # saved_assignment = form.save()
-            # print(f"✓ Form save created assignment with hash: {saved_assignment.email_hash[:16]}...")
-        else:
-            print(f"✗ Form validation failed: {form.errors}")
+    def test_deletion_form(self):
+        """Test deletion form validation."""
+        assignment = PeriodAssignment.create_with_email(email=self.test_email, period_collection=self.period_collection)
+        assignment.save()
 
-        # Test 4: Test deletion form
-        print("\n4. Testing deletion form")
-
-        deletion_form = DeletionConfirmForm(assignment=assignment, data={"email": test_email})
-
-        if deletion_form.is_valid():
-            print("✓ Deletion form validation passed with correct email")
-        else:
-            print(f"✗ Deletion form validation failed: {deletion_form.errors}")
+        # Test correct email
+        deletion_form = DeletionConfirmForm(assignment=assignment, data={"email": self.test_email})
+        self.assertTrue(
+            deletion_form.is_valid(),
+            f"Deletion form validation failed: {deletion_form.errors}",
+        )
 
         # Test wrong email
         wrong_deletion_form = DeletionConfirmForm(assignment=assignment, data={"email": "wrong@example.com"})
+        self.assertFalse(wrong_deletion_form.is_valid())
 
-        if not wrong_deletion_form.is_valid():
-            print("✓ Deletion form correctly rejects wrong email")
-        else:
-            print("✗ Deletion form incorrectly accepted wrong email")
-
-        # Test 5: Check that no personal data is stored
-        print("\n5. Testing data privacy")
+    def test_data_privacy(self):
+        """Test that no personal data is stored in the model."""
+        assignment = PeriodAssignment.create_with_email(email=self.test_email, period_collection=self.period_collection)
+        assignment.save()
 
         # Refresh from database
         assignment.refresh_from_db()
@@ -135,54 +109,29 @@ def test_privacy_implementation():
         # Check that we don't have personal data fields
         model_fields = [field.name for field in assignment._meta.fields]
 
-        privacy_check = True
-        for field in ["attendant_name", "attendant_email", "attendant_phone_number"]:
-            if field in model_fields:
-                print(f"✗ Privacy violation: {field} field still exists")
-                privacy_check = False
+        # These fields should not exist
+        private_fields = ["attendant_name", "attendant_email", "attendant_phone_number"]
+        for field in private_fields:
+            self.assertNotIn(field, model_fields, f"Privacy violation: {field} field still exists")
 
-        if privacy_check:
-            print("✓ No personal data fields found in model")
-
-        # Check that we have the new privacy fields
+        # These fields should exist
         required_fields = ["email_hash", "salt", "deletion_token"]
         for field in required_fields:
-            if field in model_fields:
-                print(f"✓ Privacy field {field} exists")
-            else:
-                print(f"✗ Privacy field {field} missing")
+            self.assertIn(field, model_fields, f"Privacy field {field} missing")
 
-        # Test 6: Test collection maintainer requirement
-        print("\n6. Testing collection maintainer requirement")
+    def test_unique_tokens_and_hashes(self):
+        """Test that each assignment gets unique tokens and hashes."""
+        assignment1 = PeriodAssignment.create_with_email(
+            email=self.test_email, period_collection=self.period_collection
+        )
+        assignment1.save()
 
-        try:
-            # Try to create a collection without maintainer
-            test_collection = Collection(
-                name="Test Collection No Maintainer",
-                description="Should fail validation",
-                enabled=True,
-            )
-            test_collection.save()  # This should work initially
+        assignment2 = PeriodAssignment.create_with_email(
+            email="different@example.com", period_collection=self.period_collection
+        )
+        assignment2.save()
 
-            print("✓ Collection with maintainer validation setup complete")
-
-        except Exception as e:
-            print(f"⚠ Collection maintainer test setup issue: {e}")
-
-        # Clean up
-        print("\n7. Cleaning up test data")
-        assignment.delete()
-        print("✓ Test assignment deleted")
-
-        print("\n" + "=" * 50)
-        print("Privacy implementation test completed!")
-
-    except Exception as e:
-        print(f"✗ Test failed with error: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    test_privacy_implementation()
+        # Different assignments should have different tokens and hashes
+        self.assertNotEqual(assignment1.deletion_token, assignment2.deletion_token)
+        self.assertNotEqual(assignment1.email_hash, assignment2.email_hash)
+        self.assertNotEqual(assignment1.salt, assignment2.salt)

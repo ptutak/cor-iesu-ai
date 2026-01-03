@@ -34,7 +34,9 @@ class TestRegistrationView:
         assert "form" in response.context
         assert response.context["form"].__class__.__name__ == "PeriodAssignmentForm"
 
-    def test_registration_view_post_valid_form(self, test_client, complete_setup, mail_outbox):
+    def test_registration_view_post_valid_form(
+        self, test_client, complete_setup, mail_outbox
+    ):
         """Test POST request with valid form data."""
         setup = complete_setup
 
@@ -92,13 +94,17 @@ class TestRegistrationView:
         # No assignments should be created
         assert PeriodAssignment.objects.count() == 0
 
-    def test_registration_view_post_duplicate_registration(self, test_client, complete_setup):
+    def test_registration_view_post_duplicate_registration(
+        self, test_client, complete_setup
+    ):
         """Test POST request with duplicate registration."""
         setup = complete_setup
         email = "duplicate@example.com"
 
         # Create first assignment
-        PeriodAssignment.create_with_email(email=email, period_collection=setup["period_collection"]).save()
+        PeriodAssignment.create_with_email(
+            email=email, period_collection=setup["period_collection"]
+        ).save()
 
         form_data = {
             "collection": setup["collection"].id,
@@ -117,7 +123,9 @@ class TestRegistrationView:
         # Should still only have one assignment
         assert PeriodAssignment.objects.count() == 1
 
-    def test_registration_view_assignment_limit_reached(self, test_client, complete_setup):
+    def test_registration_view_assignment_limit_reached(
+        self, test_client, complete_setup
+    ):
         """Test registration when assignment limit is reached."""
         setup = complete_setup
 
@@ -176,7 +184,9 @@ class TestGetCollectionPeriods:
             email="test2@example.com", period_collection=setup["period_collection2"]
         ).save()
 
-        url = reverse("get_collection_periods", kwargs={"collection_id": setup["collection"].id})
+        url = reverse(
+            "get_collection_periods", kwargs={"collection_id": setup["collection"].id}
+        )
         response = test_client.get(url)
 
         assert response.status_code == 200
@@ -201,22 +211,28 @@ class TestGetCollectionPeriods:
         url = reverse("get_collection_periods", kwargs={"collection_id": 99999})
         response = test_client.get(url)
 
-        assert response.status_code == 500
+        assert response.status_code == 404
         data = response.json()
         assert "error" in data
-        assert data["error"] == "Failed to load periods"
+        assert data["error"] == "Collection not found"
 
-    def test_get_collection_periods_disabled_collection(self, test_client, disabled_collection):
+    def test_get_collection_periods_disabled_collection(
+        self, test_client, disabled_collection
+    ):
         """Test AJAX request for disabled collection."""
-        url = reverse("get_collection_periods", kwargs={"collection_id": disabled_collection.id})
+        url = reverse(
+            "get_collection_periods", kwargs={"collection_id": disabled_collection.id}
+        )
         response = test_client.get(url)
 
-        assert response.status_code == 500
+        assert response.status_code == 404
         data = response.json()
         assert "error" in data
-        assert data["error"] == "Failed to load periods"
+        assert data["error"] == "Collection not found"
 
-    def test_get_collection_periods_exception_handling(self, test_client, db, monkeypatch):
+    def test_get_collection_periods_exception_handling(
+        self, test_client, db, monkeypatch
+    ):
         """Test AJAX view exception handling."""
         # Create a collection first
         collection = Collection.objects.create(name="Test Collection", enabled=True)
@@ -225,7 +241,9 @@ class TestGetCollectionPeriods:
         def mock_filter(*args, **kwargs):
             raise Exception("Database error")
 
-        monkeypatch.setattr("adoration.views.PeriodCollection.objects.filter", mock_filter)
+        monkeypatch.setattr(
+            "adoration.views.PeriodCollection.objects.filter", mock_filter
+        )
 
         url = reverse("get_collection_periods", kwargs={"collection_id": collection.id})
         response = test_client.get(url)
@@ -244,7 +262,9 @@ class TestDeleteAssignment:
         # Make sure assignment is saved
         period_assignment.save()
 
-        url = reverse("delete_assignment", kwargs={"token": period_assignment.deletion_token})
+        url = reverse(
+            "delete_assignment", kwargs={"token": period_assignment.deletion_token}
+        )
         response = test_client.get(url)
 
         assert response.status_code == 200
@@ -255,7 +275,9 @@ class TestDeleteAssignment:
     def test_delete_assignment_post_valid_email(self, test_client, period_collection):
         """Test POST request with valid email for deletion."""
         email = "test@example.com"
-        assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
+        assignment = PeriodAssignment.create_with_email(
+            email=email, period_collection=period_collection
+        )
         assignment.save()
 
         form_data = {"email": email}
@@ -272,7 +294,9 @@ class TestDeleteAssignment:
     def test_delete_assignment_post_invalid_email(self, test_client, period_collection):
         """Test POST request with invalid email for deletion."""
         email = "test@example.com"
-        assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
+        assignment = PeriodAssignment.create_with_email(
+            email=email, period_collection=period_collection
+        )
         assignment.save()
 
         form_data = {"email": "wrong@example.com"}
@@ -333,7 +357,9 @@ class TestGetEmailConfig:
 class TestRegistrationViewEmailIntegration:
     """Test registration view email integration with different configurations."""
 
-    def test_registration_view_email_config_integration(self, test_client, complete_setup, mail_outbox):
+    def test_registration_view_email_config_integration(
+        self, test_client, complete_setup, mail_outbox
+    ):
         """Test registration view uses email configuration."""
         setup = complete_setup
 
@@ -361,10 +387,14 @@ class TestRegistrationViewEmailIntegration:
         user_email = mail_outbox[0]
         assert user_email.from_email == "custom@example.com"
 
-    def test_registration_view_no_maintainers(self, test_client, period_collection, mail_outbox):
+    def test_registration_view_no_maintainers(
+        self, test_client, period_collection, mail_outbox
+    ):
         """Test registration view when collection has no maintainers."""
         # Clear any existing maintainers for this collection
-        CollectionMaintainer.objects.filter(collection=period_collection.collection).delete()
+        CollectionMaintainer.objects.filter(
+            collection=period_collection.collection
+        ).delete()
 
         form_data = {
             "collection": period_collection.collection.id,
@@ -393,7 +423,9 @@ class TestRegistrationViewEmailIntegration:
         assert "john@example.com" in user_email.to
         assert "Registration Confirmation" in user_email.subject
 
-    def test_registration_view_email_failure_silent(self, test_client, complete_setup, monkeypatch):
+    def test_registration_view_email_failure_silent(
+        self, test_client, complete_setup, monkeypatch
+    ):
         """Test registration view handles email failures silently."""
         setup = complete_setup
 
@@ -410,7 +442,9 @@ class TestRegistrationViewEmailIntegration:
             return True
 
         monkeypatch.setattr("adoration.views.send_mail", mock_send_mail)
-        monkeypatch.setattr("adoration.views.EmailMessage.send", mock_email_message_send)
+        monkeypatch.setattr(
+            "adoration.views.EmailMessage.send", mock_email_message_send
+        )
 
         form_data = {
             "collection": setup["collection"].id,
@@ -424,7 +458,9 @@ class TestRegistrationViewEmailIntegration:
 
         assert response.status_code == 302
         # Assignment should be created
-        new_assignments = PeriodAssignment.objects.filter(period_collection=setup["period_collection"])
+        new_assignments = PeriodAssignment.objects.filter(
+            period_collection=setup["period_collection"]
+        )
         assert new_assignments.exists()
 
         # Verify that send_mail was called with fail_silently=True (user confirmation)

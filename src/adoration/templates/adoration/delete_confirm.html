@@ -1,13 +1,29 @@
+{% load i18n %}
 <!doctype html>
-<html>
+<html lang="{{ LANGUAGE_CODE }}">
     <head>
-        <title>Cancel Registration</title>
+        <title>{% trans "Cancel Registration" %}</title>
     </head>
     <body>
-        <h1>Cancel Registration</h1>
+        <!-- Language Switcher -->
+        <div style="background-color: #0d6efd; padding: 10px 0;">
+            <div style="text-align: right; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+                <div style="display: inline-block; position: relative;">
+                    <select onchange="changeLanguage(this.value)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 4px;">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                        <option value="pl" {% if LANGUAGE_CODE == 'pl' %}selected{% endif %}>Polski</option>
+                        <option value="nl" {% if LANGUAGE_CODE == 'nl' %}selected{% endif %}>Nederlands</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1>{% trans "Cancel Registration" %}</h1>
 
         <p>
-            <strong>Are you sure you want to cancel your registration?</strong>
+            <strong>{% trans "Are you sure you want to cancel your registration?" %}</strong>
         </p>
 
         <div
@@ -18,11 +34,11 @@
                 margin: 20px 0;
             "
         >
-            <p><strong>Registration Details:</strong></p>
+            <p><strong>{% trans "Registration Details:" %}</strong></p>
             <p>
-                Collection: {{ assignment.period_collection.collection.name }}
+                {% trans "Collection:" %} {{ assignment.period_collection.collection.name }}
             </p>
-            <p>Period: {{ assignment.period_collection.period.name }}</p>
+            <p>{% trans "Period:" %} {{ assignment.period_collection.period.name }}</p>
         </div>
 
         <div
@@ -33,8 +49,8 @@
                 margin: 20px 0;
             "
         >
-            <p><strong>Email Verification Required</strong></p>
-            <p>For privacy and security, please enter the email address used for registration to confirm deletion.</p>
+            <p><strong>{% trans "Email Verification Required" %}</strong></p>
+            <p>{% trans "For privacy and security, please enter the email address used for registration to confirm deletion." %}</p>
         </div>
 
         <form method="post">
@@ -77,11 +93,44 @@
                     cursor: pointer;
                 "
             >
-                Yes, Cancel Registration
+                {% trans "Yes, Cancel Registration" %}
             </button>
-            <a href="/" style="margin-left: 10px">Keep Registration</a>
+            <a href="/" style="margin-left: 10px">{% trans "Keep Registration" %}</a>
         </form>
 
-        <p><small>This action cannot be undone.</small></p>
+        <p><small>{% trans "This action cannot be undone." %}</small></p>
+        </div>
+
+        <script>
+            function changeLanguage(langCode) {
+                // Create a form and submit to change language
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/i18n/setlang/';
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+
+                const langInput = document.createElement('input');
+                langInput.type = 'hidden';
+                langInput.name = 'language';
+                langInput.value = langCode;
+
+                const nextInput = document.createElement('input');
+                nextInput.type = 'hidden';
+                nextInput.name = 'next';
+                nextInput.value = window.location.pathname;
+
+                form.appendChild(csrfInput);
+                form.appendChild(langInput);
+                form.appendChild(nextInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        </script>
     </body>
 </html>

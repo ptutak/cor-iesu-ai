@@ -1,0 +1,278 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-02 23:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: adoration/forms.py:21
+msgid "Select a collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/forms.py:23 adoration/templates/adoration/registration.html:315
+msgid "Collection"
+msgstr "Collectie"
+
+#: adoration/forms.py:30
+msgid "Select a period"
+msgstr "Selecteer een periode"
+
+#: adoration/forms.py:31 adoration/templates/adoration/registration.html:332
+msgid "Period"
+msgstr "Periode"
+
+#: adoration/forms.py:36
+msgid "Full Name *"
+msgstr "Volledige naam *"
+
+#: adoration/forms.py:42 adoration/forms.py:205
+msgid "Email Address *"
+msgstr "E-mailadres *"
+
+#: adoration/forms.py:48
+msgid "Phone Number (optional)"
+msgstr "Telefoonnummer (optioneel)"
+
+#: adoration/forms.py:54
+msgid "Privacy Agreement"
+msgstr "Privacyovereenkomst"
+
+#: adoration/forms.py:56
+msgid ""
+"I acknowledge that my email address will be sent directly to the collection "
+"maintainer(s) for coordination purposes. I understand that no personal data "
+"is stored in the system database - only a secure hash for verification. I "
+"consent to receiving confirmation and coordination emails related to my "
+"registration."
+msgstr "Ik bevestig dat mijn e-mailadres rechtstreeks naar de collectiebeheerder(s) wordt gestuurd voor coördinatiedoeleinden. Ik begrijp dat er geen persoonlijke gegevens worden opgeslagen in de systeemdatabase - alleen een veilige hash voor verificatie. Ik stem in met het ontvangen van bevestigings- en coördinatie-e-mails gerelateerd aan mijn registratie."
+
+#: adoration/forms.py:116
+msgid "Please select a period."
+msgstr "Selecteer alstublieft een periode."
+
+#: adoration/forms.py:143
+#, python-format
+msgid "This period is full. Maximum %(limit)s assignments allowed."
+msgstr "Deze periode is vol. Maximaal %(limit)s toewijzingen toegestaan."
+
+#: adoration/forms.py:174
+msgid "You are already registered for this period."
+msgstr "U bent al geregistreerd voor deze periode."
+
+#: adoration/forms.py:207
+msgid "Enter the email address used for registration to confirm deletion."
+msgstr "Voer het e-mailadres in dat gebruikt werd voor registratie om verwijdering te bevestigen."
+
+#: adoration/forms.py:234
+msgid "Email address does not match the registration."
+msgstr "E-mailadres komt niet overeen met de registratie."
+
+#: adoration/templates/adoration/delete_confirm.html:5
+#: adoration/templates/adoration/delete_confirm.html:23
+msgid "Cancel Registration"
+msgstr "Registratie annuleren"
+
+#: adoration/templates/adoration/delete_confirm.html:26
+msgid "Are you sure you want to cancel your registration?"
+msgstr "Weet u zeker dat u uw registratie wilt annuleren?"
+
+#: adoration/templates/adoration/delete_confirm.html:37
+msgid "Registration Details:"
+msgstr "Registratiegegevens:"
+
+#: adoration/templates/adoration/delete_confirm.html:39
+msgid "Collection:"
+msgstr "Collectie:"
+
+#: adoration/templates/adoration/delete_confirm.html:41
+msgid "Period:"
+msgstr "Periode:"
+
+#: adoration/templates/adoration/delete_confirm.html:52
+msgid "Email Verification Required"
+msgstr "E-mailverificatie vereist"
+
+#: adoration/templates/adoration/delete_confirm.html:53
+msgid ""
+"For privacy and security, please enter the email address used for "
+"registration to confirm deletion."
+msgstr "Voor privacy en veiligheid, voer alstublieft het e-mailadres in dat gebruikt werd voor registratie om verwijdering te bevestigen."
+
+#: adoration/templates/adoration/delete_confirm.html:96
+msgid "Yes, Cancel Registration"
+msgstr "Ja, annuleer registratie"
+
+#: adoration/templates/adoration/delete_confirm.html:98
+msgid "Keep Registration"
+msgstr "Behoud registratie"
+
+#: adoration/templates/adoration/delete_confirm.html:101
+msgid "This action cannot be undone."
+msgstr "Deze actie kan niet ongedaan worden gemaakt."
+
+#: adoration/templates/adoration/registration.html:7
+msgid "Period Registration - Adoration"
+msgstr "Perioderegistratie - Aanbidding"
+
+#: adoration/templates/adoration/registration.html:262
+msgid "Period Assignment Registration"
+msgstr "Periodetoewijzing registratie"
+
+#: adoration/templates/adoration/registration.html:265
+msgid "Sign up for your adoration period and join our community of faith"
+msgstr "Meld u aan voor uw aanbiddingsperiode en sluit u aan bij onze geloofsgemeenschap"
+
+#: adoration/templates/adoration/registration.html:268
+msgid "Privacy Protection"
+msgstr "Privacybescherming"
+
+#: adoration/templates/adoration/registration.html:270
+msgid "We value your privacy:"
+msgstr "Wij waarderen uw privacy:"
+
+#: adoration/templates/adoration/registration.html:270
+msgid ""
+"We do not store any personal data in our database. Only a secure hash is "
+"kept for verification. Your email will be sent directly to collection "
+"maintainers for coordination purposes. By registering, you consent to this "
+"communication method."
+msgstr "Wij slaan geen persoonlijke gegevens op in onze database. Alleen een veilige hash wordt bewaard voor verificatie. Uw e-mail wordt rechtstreeks naar collectiebeheerders gestuurd voor coördinatiedoeleinden. Door te registreren, stemt u in met deze communicatiemethode."
+
+#: adoration/templates/adoration/registration.html:291
+msgid "Close"
+msgstr "Sluiten"
+
+#: adoration/templates/adoration/registration.html:307
+msgid "Service Information"
+msgstr "Service-informatie"
+
+#: adoration/templates/adoration/registration.html:338
+msgid "Loading..."
+msgstr "Laden..."
+
+#: adoration/templates/adoration/registration.html:340
+msgid "Loading periods..."
+msgstr "Periodes laden..."
+
+#: adoration/templates/adoration/registration.html:356
+msgid "Personal Information"
+msgstr "Persoonlijke informatie"
+
+#: adoration/templates/adoration/registration.html:414
+msgid "Consent"
+msgstr "Toestemming"
+
+#: adoration/templates/adoration/registration.html:457
+msgid "Complete Registration"
+msgstr "Registratie voltooien"
+
+#: adoration/templates/adoration/registration.html:473
+msgid "Important Information"
+msgstr "Belangrijke informatie"
+
+#: adoration/templates/adoration/registration.html:477
+msgid "Required fields are marked with *"
+msgstr "Verplichte velden zijn gemarkeerd met *"
+
+#: adoration/templates/adoration/registration.html:479
+msgid ""
+"You will receive a confirmation email with your registration details and a "
+"cancellation link."
+msgstr "U ontvangt een bevestigingsmail met uw registratiegegevens en een annuleringslink."
+
+#: adoration/templates/adoration/registration.html:480
+msgid "Privacy Protection:"
+msgstr "Privacybescherming:"
+
+#: adoration/templates/adoration/registration.html:480
+msgid ""
+"Your personal information is not stored in our database. Only a secure hash "
+"is kept for verification purposes. Your email will be shared with collection "
+"maintainers for coordination."
+msgstr "Uw persoonlijke informatie wordt niet opgeslagen in onze database. Alleen een veilige hash wordt bewaard voor verificatiedoeleinden. Uw e-mail wordt gedeeld met collectiebeheerders voor coördinatie."
+
+#: adoration/views.py:40
+#, python-format
+msgid "Registration Confirmation - %(collection)s"
+msgstr "Registratiebevestiging - %(collection)s"
+
+#: adoration/views.py:44
+#, python-format
+msgid ""
+"Dear %(name)s,\n"
+"\n"
+"Your registration is confirmed.\n"
+"\n"
+"Collection: %(collection)s\n"
+"Period: %(period)s\n"
+"\n"
+"Deletion link: %(link)s\n"
+"\n"
+"Important: You will need to provide your email address to confirm deletion.\n"
+"\n"
+"Best regards"
+msgstr "Beste %(name)s,\n\nUw registratie is bevestigd.\n\nCollectie: %(collection)s\nPeriode: %(period)s\n\nVerwijderingslink: %(link)s\n\nBelangrijk: U moet uw e-mailadres opgeven om verwijdering te bevestigen.\n\nMet vriendelijke groet"
+
+#: adoration/views.py:87
+#, python-format
+msgid "New Registration - %(collection)s"
+msgstr "Nieuwe registratie - %(collection)s"
+
+#: adoration/views.py:91
+#, python-format
+msgid ""
+"New participant registered:\n"
+"\n"
+"Name: %(name)s\n"
+"Email: %(email)s%(phone)s\n"
+"Collection: %(collection)s\n"
+"Period: %(period)s\n"
+"\n"
+"Registration Date: %(date)s\n"
+"Deletion Token: %(token)s\n"
+"\n"
+"Note: Personal data is not stored in the system for privacy. This email is "
+"sent directly from the user's email address."
+msgstr "Nieuwe deelnemer geregistreerd:\n\nNaam: %(name)s\nE-mail: %(email)s%(phone)s\nCollectie: %(collection)s\nPeriode: %(period)s\n\nRegistratiedatum: %(date)s\nVerwijderingstoken: %(token)s\n\nOpmerking: Persoonlijke gegevens worden niet opgeslagen in het systeem voor privacy. Deze e-mail wordt rechtstreeks verzonden vanaf het e-mailadres van de gebruiker."
+
+#: adoration/views.py:121
+msgid "Registration successful! Check your email for confirmation."
+msgstr "Registratie succesvol! Controleer uw e-mail voor bevestiging."
+
+#: adoration/views.py:165
+msgid "Failed to load periods"
+msgstr "Kon periodes niet laden"
+
+#: adoration/views.py:202
+#, python-format
+msgid "Registration Cancelled - %(collection)s"
+msgstr "Registratie geannuleerd - %(collection)s"
+
+#: adoration/views.py:206
+#, python-format
+msgid ""
+"A participant has cancelled their registration:\n"
+"\n"
+"Email: %(email)s\n"
+"Collection: %(collection)s\n"
+"Period: %(period)s\n"
+"\n"
+"The participant voluntarily cancelled their registration using the deletion "
+"link."
+msgstr "Een deelnemer heeft zijn/haar registratie geannuleerd:\n\nE-mail: %(email)s\nCollectie: %(collection)s\nPeriode: %(period)s\n\nDe deelnemer heeft vrijwillig zijn/haar registratie geannuleerd met behulp van de verwijderingslink."
+
+#: adoration/views.py:227
+msgid "Registration cancelled successfully."
+msgstr "Registratie succesvol geannuleerd."

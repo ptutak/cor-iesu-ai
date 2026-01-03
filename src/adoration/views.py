@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext_lazy as _
 
 from .forms import DeletionConfirmForm, PeriodAssignmentForm
 from .models import (
@@ -24,6 +25,7 @@ def registration_view(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Rendered registration form or redirect after successful submission
     """
+
     if request.method == "POST":
         form = PeriodAssignmentForm(request.POST)
         if form.is_valid():
@@ -36,16 +38,24 @@ def registration_view(request: HttpRequest) -> HttpResponse:
 
             # Send user confirmation email (using form data, not stored data)
             send_mail(
-                subject=f"Registration Confirmation - {assignment.period_collection.collection.name}",
+                subject=_("Registration Confirmation - %(collection)s")
+                % {"collection": assignment.period_collection.collection.name},
                 message=(
-                    f"Dear {attendant_name},\n\n"
-                    f"Your registration is confirmed.\n\n"
-                    f"Collection: {assignment.period_collection.collection.name}\n"
-                    f"Period: {assignment.period_collection.period.name}\n\n"
-                    f"Deletion link: "
-                    f"{request.build_absolute_uri('/delete/' + str(assignment.deletion_token) + '/')}\n\n"
-                    f"Important: You will need to provide your email address to confirm deletion.\n\n"
-                    f"Best regards"
+                    _(
+                        "Dear %(name)s,\n\n"
+                        "Your registration is confirmed.\n\n"
+                        "Collection: %(collection)s\n"
+                        "Period: %(period)s\n\n"
+                        "Deletion link: %(link)s\n\n"
+                        "Important: You will need to provide your email address to confirm deletion.\n\n"
+                        "Best regards"
+                    )
+                    % {
+                        "name": attendant_name,
+                        "collection": assignment.period_collection.collection.name,
+                        "period": assignment.period_collection.period.name,
+                        "link": request.build_absolute_uri("/delete/" + str(assignment.deletion_token) + "/"),
+                    }
                 ),
                 from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
                 recipient_list=[attendant_email],
@@ -72,17 +82,29 @@ def registration_view(request: HttpRequest) -> HttpResponse:
 
                 # Create email message with reply-to functionality
                 email_message = EmailMessage(
-                    subject=f"New Registration - {assignment.period_collection.collection.name}",
+                    subject=_("New Registration - %(collection)s")
+                    % {"collection": assignment.period_collection.collection.name},
                     body=(
-                        f"New participant registered:\n\n"
-                        f"Name: {attendant_name}\n"
-                        f"Email: {attendant_email}{phone_info}\n"
-                        f"Collection: {assignment.period_collection.collection.name}\n"
-                        f"Period: {assignment.period_collection.period.name}\n\n"
-                        f"Registration Date: {assignment.period_collection.period.name}\n"
-                        f"Deletion Token: {assignment.deletion_token}\n\n"
-                        f"Note: Personal data is not stored in the system for privacy. "
-                        f"This email is sent directly from the user's email address."
+                        _(
+                            "New participant registered:\n\n"
+                            "Name: %(name)s\n"
+                            "Email: %(email)s%(phone)s\n"
+                            "Collection: %(collection)s\n"
+                            "Period: %(period)s\n\n"
+                            "Registration Date: %(date)s\n"
+                            "Deletion Token: %(token)s\n\n"
+                            "Note: Personal data is not stored in the system for privacy. "
+                            "This email is sent directly from the user's email address."
+                        )
+                        % {
+                            "name": attendant_name,
+                            "email": attendant_email,
+                            "phone": phone_info,
+                            "collection": assignment.period_collection.collection.name,
+                            "period": assignment.period_collection.period.name,
+                            "date": assignment.period_collection.period.name,
+                            "token": assignment.deletion_token,
+                        }
                     ),
                     from_email=from_email,
                     to=maintainer_emails,
@@ -92,7 +114,10 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                 if maintainer_emails:
                     email_message.send(fail_silently=True)
 
-            messages.success(request, "Registration successful! Check your email for confirmation.")
+            messages.success(
+                request,
+                _("Registration successful! Check your email for confirmation."),
+            )
             return redirect("registration")
     else:
         form = PeriodAssignmentForm()
@@ -111,7 +136,11 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
         JsonResponse: JSON containing periods data or error message
     """
     try:
-        collection = get_object_or_404(Collection, id=collection_id, enabled=True)
+        collection = Collection.objects.get(id=collection_id, enabled=True)
+    except Collection.DoesNotExist:
+        return JsonResponse({"error": str(_("Collection not found"))}, status=404)
+
+    try:
         period_collections = PeriodCollection.objects.filter(collection=collection).select_related("period")
 
         periods_data: list[dict[str, Any]] = []
@@ -131,7 +160,7 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
         return JsonResponse({"periods": periods_data})
 
     except Exception:
-        return JsonResponse({"error": "Failed to load periods"}, status=500)
+        return JsonResponse({"error": str(_("Failed to load periods"))}, status=500)
 
 
 def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
@@ -168,13 +197,21 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
 
                 # Create email message for deletion notification
                 email_message = EmailMessage(
-                    subject=f"Registration Cancelled - {assignment.period_collection.collection.name}",
+                    subject=_("Registration Cancelled - %(collection)s")
+                    % {"collection": assignment.period_collection.collection.name},
                     body=(
-                        f"A participant has cancelled their registration:\n\n"
-                        f"Email: {user_email}\n"
-                        f"Collection: {assignment.period_collection.collection.name}\n"
-                        f"Period: {assignment.period_collection.period.name}\n\n"
-                        f"The participant voluntarily cancelled their registration using the deletion link."
+                        _(
+                            "A participant has cancelled their registration:\n\n"
+                            "Email: %(email)s\n"
+                            "Collection: %(collection)s\n"
+                            "Period: %(period)s\n\n"
+                            "The participant voluntarily cancelled their registration using the deletion link."
+                        )
+                        % {
+                            "email": user_email,
+                            "collection": assignment.period_collection.collection.name,
+                            "period": assignment.period_collection.period.name,
+                        }
                     ),
                     from_email=user_email,
                     to=maintainer_emails,
@@ -185,7 +222,7 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
                     email_message.send(fail_silently=True)
 
             assignment.delete()
-            messages.success(request, "Registration cancelled successfully.")
+            messages.success(request, _("Registration cancelled successfully."))
             return redirect("registration")
     else:
         form = DeletionConfirmForm(assignment)

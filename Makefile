@@ -58,3 +58,21 @@ migrations:
 .PHONY: tests-unit
 tests-unit:
 	pytest tests/unit --cov --cov-report term-missing
+
+.PHONY: tests-integration
+tests-integration:
+	@echo "🔧 Running all integration tests..."
+	pytest tests/integration/ -v
+	@echo "✅ All integration tests completed!"
+
+.PHONY: tests
+tests:
+	@echo "🧪 Running all tests (unit + integration)..."
+	@echo ""
+	@echo "📋 Running unit tests with coverage..."
+	pytest tests/unit --cov --cov-report term-missing
+	@echo ""
+	@echo "🔧 Running integration tests..."
+	pytest tests/integration/ -v
+	@echo ""
+	@echo "✅ All tests completed successfully!"

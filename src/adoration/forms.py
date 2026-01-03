@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
     Collection,
@@ -17,37 +18,39 @@ class PeriodAssignmentForm(forms.Form):
 
     collection = forms.ModelChoiceField(
         queryset=Collection.objects.filter(enabled=True),
-        empty_label="Select a collection",
+        empty_label=_("Select a collection"),
         required=True,
+        label=_("Collection"),
     )
 
     period_collection = forms.ModelChoiceField(
         queryset=PeriodCollection.objects.select_related("collection", "period").filter(collection__enabled=True),
-        empty_label="Select a period",
+        empty_label=_("Select a period"),
+        label=_("Period"),
     )
 
     attendant_name = forms.CharField(
         max_length=100,
-        label="Full Name *",
+        label=_("Full Name *"),
         required=True,
     )
 
     attendant_email = forms.EmailField(
         max_length=80,
-        label="Email Address *",
+        label=_("Email Address *"),
         required=True,
     )
 
     attendant_phone_number = forms.CharField(
         max_length=15,
-        label="Phone Number (optional)",
+        label=_("Phone Number (optional)"),
         required=False,
     )
 
     privacy_accepted = forms.BooleanField(
         required=True,
-        label="Privacy Agreement",
-        help_text=(
+        label=_("Privacy Agreement"),
+        help_text=_(
             "I acknowledge that my email address will be sent directly to the collection "
             "maintainer(s) for coordination purposes. I understand that no personal data "
             "is stored in the system database - only a secure hash for verification. "
@@ -104,7 +107,7 @@ class PeriodAssignmentForm(forms.Form):
         """
         period_collection = cast(PeriodCollection | None, self.cleaned_data.get("period_collection"))
         if not period_collection:
-            raise ValidationError("Please select a period.")
+            raise ValidationError(_("Please select a period."))
 
         # Check assignment limits
         collection = period_collection.collection
@@ -126,7 +129,9 @@ class PeriodAssignmentForm(forms.Form):
                 pass
 
         if collection_limit is not None and current_assignments >= collection_limit:
-            raise ValidationError(f"This period is full. Maximum {collection_limit} assignments allowed.")
+            raise ValidationError(
+                _("This period is full. Maximum %(limit)s assignments allowed.") % {"limit": collection_limit}
+            )
 
         return period_collection
 
@@ -152,7 +157,7 @@ class PeriodAssignmentForm(forms.Form):
             existing_assignments = PeriodAssignment.objects.filter(period_collection=period_collection)
             for assignment in existing_assignments:
                 if assignment.verify_email(attendant_email):
-                    raise ValidationError("You are already registered for this period.")
+                    raise ValidationError(_("You are already registered for this period."))
 
         return cleaned_data
 
@@ -182,8 +187,8 @@ class DeletionConfirmForm(forms.Form):
     """Form for confirming assignment deletion with email verification."""
 
     email = forms.EmailField(
-        label="Email Address *",
-        help_text="Enter the email address used for registration to confirm deletion.",
+        label=_("Email Address *"),
+        help_text=_("Enter the email address used for registration to confirm deletion."),
         required=True,
     )
 
@@ -209,5 +214,5 @@ class DeletionConfirmForm(forms.Form):
         """
         email = self.cleaned_data.get("email")
         if email and not self.assignment.verify_email(email):
-            raise ValidationError("Email address does not match the registration.")
+            raise ValidationError(_("Email address does not match the registration."))
         return email or ""
