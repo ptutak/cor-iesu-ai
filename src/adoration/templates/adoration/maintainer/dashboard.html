@@ -1,0 +1,260 @@
+{% extends "adoration/maintainer/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% trans "Dashboard" %}
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">
+    {% trans "Dashboard" %}
+</li>
+{% endblock %}
+
+{% block maintainer_content %}
+<!-- Welcome message -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">
+                <i class="fas fa-user-shield me-2"></i>
+                {% trans "Welcome, Maintainer!" %}
+            </h4>
+            <p class="mb-0">
+                {% blocktrans with
+                name=maintainer.user.get_full_name|default:maintainer.user.username
+                %} Hello {{ name }}! You have access to the maintainer panel
+                where you can manage collections, periods, and assignments. {%
+                endblocktrans %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary text-white me-3">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold">{{ total_collections }}</div>
+                        <div class="text-muted">
+                            {% trans "My Collections" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success text-white me-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold">{{ total_periods }}</div>
+                        <div class="text-muted">
+                            {% trans "Available Periods" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info text-white me-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold">{{ total_assignments }}</div>
+                        <div class="text-muted">
+                            {% trans "Total Assignments" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning text-white me-3">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div>
+                        <div class="fs-2 fw-bold">1</div>
+                        <div class="text-muted">
+                            {% trans "Maintainer Status" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    {% trans "Quick Actions" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a
+                            href="{% url 'maintainer:collection_create' %}"
+                            class="btn btn-primary w-100"
+                        >
+                            <i class="fas fa-plus me-2"></i>
+                            {% trans "Create Collection" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a
+                            href="{% url 'maintainer:period_create' %}"
+                            class="btn btn-success w-100"
+                        >
+                            <i class="fas fa-plus me-2"></i>
+                            {% trans "Create Period" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a
+                            href="{% url 'maintainer:assignment_list' %}"
+                            class="btn btn-info w-100"
+                        >
+                            <i class="fas fa-list me-2"></i>
+                            {% trans "View Assignments" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a
+                            href="{% url 'maintainer:user_promotion' %}"
+                            class="btn btn-warning w-100"
+                        >
+                            <i class="fas fa-user-plus me-2"></i>
+                            {% trans "Promote Users" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent collections -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="card-header d-flex justify-content-between align-items-center"
+            >
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-folder me-2"></i>
+                    {% trans "My Collections" %}
+                </h5>
+                <a
+                    href="{% url 'maintainer:collection_list' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    {% trans "View All" %}
+                </a>
+            </div>
+            <div class="card-body">
+                {% if collections %}
+                <div class="row">
+                    {% for collection in collections|slice:":4" %}
+                    <div class="col-lg-6 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <div
+                                class="d-flex justify-content-between align-items-start mb-2"
+                            >
+                                <h6 class="mb-0">{{ collection.name }}</h6>
+                                {% if collection.enabled %}
+                                <span class="badge bg-success">
+                                    {% trans "Active" %}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    {% trans "Inactive" %}
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            {% if collection.description %}
+                            <p class="text-muted small mb-2">
+                                {{ collection.description|truncatechars:80 }}
+                            </p>
+                            {% endif %}
+
+                            <div class="row text-center small text-muted">
+                                <div class="col-6">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ collection.periods.count }} {% trans
+                                    "periods" %}
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-globe me-1"></i>
+                                    {{ collection.available_languages|length }}
+                                    {% trans "languages" %}
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <a
+                                    href="{% url 'maintainer:collection_detail' collection.pk %}"
+                                    class="btn btn-sm btn-outline-primary me-2"
+                                >
+                                    {% trans "View" %}
+                                </a>
+                                <a
+                                    href="{% url 'maintainer:collection_edit' collection.pk %}"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    {% trans "Edit" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h6 class="text-muted">{% trans "No collections yet" %}</h6>
+                    <p class="text-muted">
+                        {% trans "Create your first collection to get started."
+                        %}
+                    </p>
+                    <a
+                        href="{% url 'maintainer:collection_create' %}"
+                        class="btn btn-primary"
+                    >
+                        <i class="fas fa-plus me-2"></i>
+                        {% trans "Create Collection" %}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

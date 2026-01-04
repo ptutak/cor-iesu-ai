@@ -4,7 +4,6 @@ Tests AJAX endpoints and JSON responses in different language contexts.
 """
 
 import json
-from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
@@ -211,8 +210,10 @@ class MultilingualAPIIntegrationTests(TestCase):
 
     def test_api_error_messages_in_different_languages(self):
         """Test that API error messages respect language context."""
+        import unittest.mock
+
         # We'll need to mock an error condition
-        with patch("adoration.views.PeriodCollection.objects.filter") as mock_filter:
+        with unittest.mock.patch("adoration.views.PeriodCollection.objects.filter") as mock_filter:
             mock_filter.side_effect = Exception("Test error")
 
             languages = ["en", "pl", "nl"]
@@ -431,22 +432,24 @@ class APIErrorHandlingTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-    @patch("adoration.views.PeriodCollection.objects.filter")
-    def test_api_database_error_handling(self, mock_filter):
+    def test_api_database_error_handling(self):
         """Test API behavior when database errors occur."""
-        # Create a test collection first with available languages
-        collection = Collection.objects.create(name="Test", enabled=True, available_languages=["en", "pl", "nl"])
-        CollectionMaintainer.objects.create(collection=collection, maintainer=self.maintainer)
+        import unittest.mock
 
-        # Mock a database error on the PeriodCollection filter call
-        mock_filter.side_effect = Exception("Database connection error")
+        with unittest.mock.patch("adoration.views.PeriodCollection.objects.filter") as mock_filter:
+            # Create a test collection first with available languages
+            collection = Collection.objects.create(name="Test", enabled=True, available_languages=["en", "pl", "nl"])
+            CollectionMaintainer.objects.create(collection=collection, maintainer=self.maintainer)
 
-        url = reverse("get_collection_periods", kwargs={"collection_id": collection.id})
+            # Mock a database error on the PeriodCollection filter call
+            mock_filter.side_effect = Exception("Database connection error")
 
-        with translation.override("en"):
-            response = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+            url = reverse("get_collection_periods", kwargs={"collection_id": collection.id})
 
-        # Should return a 500 error with error message
-        self.assertEqual(response.status_code, 500)
-        data = response.json()
-        self.assertIn("error", data)
+            with translation.override("en"):
+                response = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+            # Should return a 500 error with error message
+            self.assertEqual(response.status_code, 500)
+            data = response.json()
+            self.assertIn("error", data)

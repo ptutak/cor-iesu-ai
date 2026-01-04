@@ -1,0 +1,322 @@
+{% extends "adoration/maintainer/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ collection.name }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'maintainer:collection_list' %}">{% trans "Collections" %}</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">{{ collection.name }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'maintainer:collection_edit' collection.pk %}" class="btn btn-outline-secondary me-2">
+    <i class="fas fa-edit me-2"></i>
+    {% trans "Edit Collection" %}
+</a>
+<a href="{% url 'maintainer:period_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    {% trans "Create Period" %}
+</a>
+{% endblock %}
+
+{% block maintainer_content %}
+<!-- Collection Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-folder me-2"></i>
+                    {{ collection.name }}
+                    {% if collection.enabled %}
+                        <span class="badge bg-success ms-2">{% trans "Active" %}</span>
+                    {% else %}
+                        <span class="badge bg-secondary ms-2">{% trans "Inactive" %}</span>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if collection.description %}
+                    <p class="text-muted">{{ collection.description }}</p>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-primary">{{ period_collections|length }}</div>
+                            <small class="text-muted">{% trans "Assigned Periods" %}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-success">{{ total_assignments }}</div>
+                            <small class="text-muted">{% trans "Total Assignments" %}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-info">{{ collection.available_languages|length }}</div>
+                            <small class="text-muted">{% trans "Languages" %}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-warning">{{ collection.collectionmaintainer_set.count }}</div>
+                            <small class="text-muted">{% trans "Maintainers" %}</small>
+                        </div>
+                    </div>
+                </div>
+
+                {% if collection.available_languages %}
+                <div class="mt-3">
+                    <small class="text-muted d-block mb-2">{% trans "Available Languages:" %}</small>
+                    {% for lang_code in collection.available_languages %}
+                        {% if lang_code == 'en' %}
+                            <span class="badge bg-primary me-1">English</span>
+                        {% elif lang_code == 'pl' %}
+                            <span class="badge bg-primary me-1">Polish</span>
+                        {% elif lang_code == 'nl' %}
+                            <span class="badge bg-primary me-1">Dutch</span>
+                        {% else %}
+                            <span class="badge bg-primary me-1">{{ lang_code|upper }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Assigned Periods -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    {% trans "Assigned Periods" %}
+                </h6>
+                <small class="text-muted">{{ period_collections|length }} {% trans "periods" %}</small>
+            </div>
+            <div class="card-body">
+                {% if period_collections %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans "Period" %}</th>
+                                    <th>{% trans "Description" %}</th>
+                                    <th class="text-center">{% trans "Assignments" %}</th>
+                                    <th class="text-end">{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for period_collection in period_collections %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ period_collection.period.name }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if period_collection.period.description %}
+                                            <small class="text-muted">{{ period_collection.period.description|truncatechars:40 }}</small>
+                                        {% else %}
+                                            <small class="text-muted fst-italic">{% trans "No description" %}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">
+                                            {{ period_collection.periodassignment_set.count }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger remove-period-btn"
+                                                data-period-id="{{ period_collection.period.id }}"
+                                                data-period-name="{{ period_collection.period.name }}"
+                                                title="{% trans 'Remove from collection' %}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">{% trans "No periods assigned" %}</h6>
+                        <p class="text-muted mb-3">
+                            {% trans "Assign periods from the list on the right to make this collection available for registration." %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Periods -->
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    {% trans "Available Periods" %}
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if unassigned_periods %}
+                    <div class="list-group list-group-flush">
+                        {% for period in unassigned_periods %}
+                        <div class="list-group-item list-group-item-action p-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ period.name }}</h6>
+                                    {% if period.description %}
+                                        <small class="text-muted">{{ period.description|truncatechars:50 }}</small>
+                                    {% endif %}
+                                </div>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary assign-period-btn ms-2"
+                                        data-period-id="{{ period.id }}"
+                                        data-period-name="{{ period.name }}"
+                                        title="{% trans 'Assign to collection' %}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h6 class="text-muted">{% trans "All periods assigned" %}</h6>
+                        <p class="text-muted mb-3">
+                            {% trans "All available periods have been assigned to this collection." %}
+                        </p>
+                        <a href="{% url 'maintainer:period_create' %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i>
+                            {% trans "Create New Period" %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collection Maintainers -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    {% trans "Collection Maintainers" %}
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if collection.collectionmaintainer_set.all %}
+                    <div class="row">
+                        {% for cm in collection.collectionmaintainer_set.all %}
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-shield text-primary me-2"></i>
+                                <div>
+                                    <strong>{{ cm.maintainer.user.get_full_name|default:cm.maintainer.user.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ cm.maintainer.user.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">{% trans "No maintainers assigned." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_maintainer_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle period assignment
+    document.querySelectorAll('.assign-period-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const periodId = this.getAttribute('data-period-id');
+            const periodName = this.getAttribute('data-period-name');
+
+            if (confirm(`{% trans "Assign period" %} "${periodName}" {% trans "to this collection" %}?`)) {
+                assignPeriod(periodId);
+            }
+        });
+    });
+
+    // Handle period removal
+    document.querySelectorAll('.remove-period-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const periodId = this.getAttribute('data-period-id');
+            const periodName = this.getAttribute('data-period-name');
+
+            if (confirm(`{% trans "Remove period" %} "${periodName}" {% trans "from this collection" %}?`)) {
+                removePeriod(periodId);
+            }
+        });
+    });
+
+    function assignPeriod(periodId) {
+        fetch('{% url "maintainer:assign_period" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `collection_id={{ collection.id }}&period_id=${periodId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('{% trans "An error occurred while assigning the period." %}', 'danger');
+            console.error('Error:', error);
+        });
+    }
+
+    function removePeriod(periodId) {
+        fetch('{% url "maintainer:remove_period" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `collection_id={{ collection.id }}&period_id=${periodId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('{% trans "An error occurred while removing the period." %}', 'danger');
+            console.error('Error:', error);
+        });
+    }
+});
+</script>
+{% endblock %}

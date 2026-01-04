@@ -1,0 +1,309 @@
+{% extends "adoration/maintainer/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Promote Users" %}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% trans "Promote Users" %}</li>
+{% endblock %}
+
+{% block maintainer_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    {% trans "Promote Users to Maintainers" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Search form -->
+                <form method="get" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="search"
+                                   placeholder="{% trans 'Search by username, email, first name, or last name' %}"
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>
+                                {% trans "Search" %}
+                            </button>
+                            <a href="{% url 'maintainer:user_promotion' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                {% trans "Clear" %}
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Username" %}</th>
+                                <th>{% trans "Full Name" %}</th>
+                                <th>{% trans "Email" %}</th>
+                                <th>{% trans "Date Joined" %}</th>
+                                <th class="text-end">{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user text-secondary me-2"></i>
+                                        <strong></strong>{{ user.username }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if user.get_full_name %}
+                                        {{ user.get_full_name }}
+                                    {% else %}
+                                        <span class="text-muted fst-italic">{% trans "No name set" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-success promote-user-btn"
+                                            data-user-id="{{ user.id }}"
+                                            data-username="{{ user.username }}"
+                                            data-full-name="{{ user.get_full_name }}"
+                                            title="{% trans 'Promote to maintainer' %}">
+                                        <i class="fas fa-arrow-up me-1"></i>
+                                        {% trans "Promote" %}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="{% trans 'Users pagination' %}">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <!-- Empty state -->
+                <div class="text-center py-5">
+                    <i class="fas fa-user-check fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">
+                        {% if search_query %}
+                            {% trans "No users found" %}
+                        {% else %}
+                            {% trans "All users are already maintainers" %}
+                        {% endif %}
+                    </h5>
+                    <p class="text-muted">
+                        {% if search_query %}
+                            {% trans "Try adjusting your search criteria." %}
+                        {% else %}
+                            {% trans "All eligible users have already been promoted to maintainers." %}
+                        {% endif %}
+                    </p>
+                    {% if search_query %}
+                    <a href="{% url 'maintainer:user_promotion' %}" class="btn btn-primary">
+                        <i class="fas fa-list me-2"></i>
+                        {% trans "Show All Users" %}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Promotion Modal -->
+<div class="modal fade" id="promotionModal" tabindex="-1" aria-labelledby="promotionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="promotionModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>
+                    {% trans "Promote User to Maintainer" %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="promotionForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="promotionUserId" name="user_id">
+
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "User" %}</label>
+                        <div id="promotionUserInfo" class="alert alert-info">
+                            <!-- User info will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="promotionCountry" class="form-label required">
+                            {% trans "Country" %}
+                        </label>
+                        <input type="text" class="form-control" id="promotionCountry" name="country" required>
+                        <div class="form-text">
+                            {% trans "Country where this maintainer is located" %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="promotionPhone" class="form-label">
+                            {% trans "Phone Number" %}
+                        </label>
+                        <input type="tel" class="form-control" id="promotionPhone" name="phone_number">
+                        <div class="form-text">
+                            {% trans "Optional contact phone number" %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="button" class="btn btn-success" id="confirmPromotionBtn">
+                    <i class="fas fa-user-plus me-2"></i>
+                    {% trans "Promote User" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_maintainer_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const promotionModal = new bootstrap.Modal(document.getElementById('promotionModal'));
+
+    // Handle promote button clicks
+    document.querySelectorAll('.promote-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const username = this.getAttribute('data-username');
+            const fullName = this.getAttribute('data-full-name');
+
+            // Set form data
+            document.getElementById('promotionUserId').value = userId;
+            document.getElementById('promotionUserInfo').innerHTML = `
+                <strong>${fullName || username}</strong> (${username})
+            `;
+
+            // Clear form fields
+            document.getElementById('promotionCountry').value = '';
+            document.getElementById('promotionPhone').value = '';
+
+            // Show modal
+            promotionModal.show();
+        });
+    });
+
+    // Handle promotion confirmation
+    document.getElementById('confirmPromotionBtn').addEventListener('click', function() {
+        const form = document.getElementById('promotionForm');
+        const formData = new FormData(form);
+
+        const userId = formData.get('user_id');
+        const country = formData.get('country').trim();
+
+        if (!country) {
+            showAlert('{% trans "Please enter a country." %}', 'warning');
+            document.getElementById('promotionCountry').focus();
+            return;
+        }
+
+        // Disable button during request
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Promoting..." %}';
+
+        fetch('{% url "maintainer:promote_user" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                promotionModal.hide();
+
+                // Remove the promoted user from the table
+                const userRow = document.querySelector(`button[data-user-id="${userId}"]`).closest('tr');
+                if (userRow) {
+                    userRow.remove();
+                }
+
+                // If no more users, show empty state
+                const tbody = document.querySelector('tbody');
+                if (tbody && tbody.children.length === 0) {
+                    location.reload();
+                }
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('{% trans "An error occurred while promoting the user." %}', 'danger');
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // Re-enable button
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-user-plus me-2"></i>{% trans "Promote User" %}';
+        });
+    });
+});
+</script>
+{% endblock %}

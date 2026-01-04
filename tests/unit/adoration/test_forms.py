@@ -514,7 +514,7 @@ class TestDeletionConfirmForm:
         form.is_valid()  # This calls clean_email
         assert form.cleaned_data["email"] == email
 
-    def test_clean_email_method_wrong_email(self, db, period_collection):
+    def test_clean_email_method_wrong_email(self, period_collection):
         """Test clean_email method with wrong email."""
         email = "test@example.com"
         assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
@@ -524,6 +524,56 @@ class TestDeletionConfirmForm:
 
         assert not form.is_valid()
         assert "email" in form.errors
+
+    def test_period_assignment_form_clean_returns_super_none(self, complete_setup, monkeypatch):
+        """Test form.clean() when super().clean() returns None."""
+        setup = complete_setup
+
+        # Mock super().clean() to return None
+        monkeypatch.setattr("django.forms.forms.BaseForm.clean", lambda self: None)
+
+        form_data = {
+            "collection": setup["collection"].id,
+            "period_collection": setup["period_collection"].id,
+            "attendant_name": "John Doe",
+            "attendant_email": "test@example.com",
+            "privacy_accepted": True,
+        }
+
+        form = PeriodAssignmentForm(data=form_data)
+        result = form.clean()
+
+        # When super().clean() returns None, form.clean() should return None
+        assert result is None
+
+    def test_period_assignment_form_collection_validation_error_handling(self, complete_setup, monkeypatch):
+        """Test form handling of validation errors in clean_period_collection."""
+        setup = complete_setup
+
+        # Create assignment limit config
+        CollectionConfig.objects.create(
+            collection=setup["collection"],
+            name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT,
+            value="1",
+            description="Test limit",
+        )
+
+        # Create one assignment to fill the limit
+        PeriodAssignment.create_with_email(
+            email="existing@example.com", period_collection=setup["period_collection"]
+        ).save()
+
+        form_data = {
+            "collection": setup["collection"].id,
+            "period_collection": setup["period_collection"].id,
+            "attendant_name": "John Doe",
+            "attendant_email": "test@example.com",
+            "privacy_accepted": True,
+        }
+
+        form = PeriodAssignmentForm(data=form_data)
+        assert not form.is_valid()
+        assert "period_collection" in form.errors
 
     def test_clean_email_method_none_email(self, db, period_assignment):
         """Test clean_email method when email is None."""

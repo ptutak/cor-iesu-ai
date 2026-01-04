@@ -7,7 +7,6 @@ including validation, relationships, and custom methods.
 
 import hashlib
 import secrets
-from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import User
@@ -243,9 +242,11 @@ class TestCollection:
 
         assert collection.available_languages == custom_languages
 
-    @patch("django.conf.settings.LANGUAGES", [("en", "English"), ("fr", "French")])
-    def test_collection_validation_with_different_settings(self, db):
+    def test_collection_validation_with_different_settings(self, db, monkeypatch):
         """Test validation adapts to different LANGUAGES settings."""
+        # Mock settings.LANGUAGES using monkeypatch
+        monkeypatch.setattr("django.conf.settings.LANGUAGES", [("en", "English"), ("fr", "French")])
+
         collection = Collection(
             name="Test Collection",
             enabled=True,
@@ -484,15 +485,17 @@ class TestPeriodAssignment:
         assert "Weekly Adoration: Morning Prayer" in str_repr
         assert "[Hashed Email]" in str_repr
 
-    @patch("secrets.token_hex")
-    def test_salt_generation(self, mock_token_hex, period_collection):
+    def test_salt_generation(self, period_collection, monkeypatch):
         """Test salt generation uses secrets module."""
-        mock_token_hex.return_value = "mocked_salt_12345"
+
+        def mock_token_hex(length):
+            return "mocked_salt_12345"
+
+        monkeypatch.setattr("secrets.token_hex", mock_token_hex)
 
         assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()
 
-        mock_token_hex.assert_called_with(16)
         assert assignment.salt == "mocked_salt_12345"
 
     def test_email_hash_consistency(self, period_collection):

@@ -29,6 +29,7 @@ urlpatterns: list[URLPattern | URLResolver] = [
 urlpatterns = urlpatterns + list(
     i18n_patterns(
         path("admin/", admin.site.urls),
+        path("accounts/", include("django.contrib.auth.urls")),
         path("", include("adoration.urls")),
         prefix_default_language=False,
     )

@@ -3,7 +3,7 @@ Integration tests for multilingual functionality.
 Tests all URL endpoints with proper database mocking.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from django.contrib.auth.models import User
@@ -124,11 +124,15 @@ class MultilingualIntegrationTests(TestCase):
         self.assertContains(response, "🇺🇸")  # US flag emoji for English
         self.assertContains(response, "language-btn")
 
-    @patch("adoration.views.send_mail")
-    @patch("adoration.views.EmailMessage")
-    def test_registration_form_submission_english(self, mock_email, mock_send_mail):
+    def test_registration_form_submission_english(self):
         """Test form submission in English."""
-        with translation.override("en"):
+        import unittest.mock
+
+        with (
+            unittest.mock.patch("adoration.views.send_mail") as mock_send_mail,
+            unittest.mock.patch("adoration.views.EmailMessage") as mock_email,
+            translation.override("en"),
+        ):
             form_data = {
                 "collection": self.collection.id,
                 "period_collection": self.period_collection1.id,
@@ -147,11 +151,15 @@ class MultilingualIntegrationTests(TestCase):
             mock_send_mail.assert_called_once()
             mock_email.assert_called_once()
 
-    @patch("adoration.views.send_mail")
-    @patch("adoration.views.EmailMessage")
-    def test_registration_form_submission_polish(self, mock_email, mock_send_mail):
+    def test_registration_form_submission_polish(self):
         """Test form submission in Polish."""
-        with translation.override("pl"):
+        import unittest.mock
+
+        with (
+            unittest.mock.patch("adoration.views.send_mail") as mock_send_mail,
+            unittest.mock.patch("adoration.views.EmailMessage") as mock_email,
+            translation.override("pl"),
+        ):
             form_data = {
                 "collection": self.collection.id,
                 "period_collection": self.period_collection1.id,
@@ -161,16 +169,20 @@ class MultilingualIntegrationTests(TestCase):
                 "privacy_accepted": True,
             }
 
-            response = self.client.post("/pl/", data=form_data)
+            response = self.client.post("/", data=form_data)
 
             self.assertEqual(response.status_code, 302)
             self.assertTrue(PeriodAssignment.objects.filter(period_collection=self.period_collection1).count() >= 1)
 
-    @patch("adoration.views.send_mail")
-    @patch("adoration.views.EmailMessage")
-    def test_registration_form_submission_dutch(self, mock_email, mock_send_mail):
+    def test_registration_form_submission_dutch(self):
         """Test form submission in Dutch."""
-        with translation.override("nl"):
+        import unittest.mock
+
+        with (
+            unittest.mock.patch("adoration.views.send_mail") as mock_send_mail,
+            unittest.mock.patch("adoration.views.EmailMessage") as mock_email,
+            translation.override("nl"),
+        ):
             form_data = {
                 "collection": self.collection.id,
                 "period_collection": self.period_collection1.id,
@@ -180,7 +192,7 @@ class MultilingualIntegrationTests(TestCase):
                 "privacy_accepted": True,
             }
 
-            response = self.client.post("/nl/", data=form_data)
+            response = self.client.post("/", data=form_data)
 
             self.assertEqual(response.status_code, 302)
             self.assertTrue(PeriodAssignment.objects.filter(period_collection=self.period_collection1).count() >= 1)
@@ -231,8 +243,7 @@ class MultilingualIntegrationTests(TestCase):
         self.assertContains(response, assignment.period_collection.period.name)
         self.assertContains(response, "form")
 
-    @patch("adoration.views.EmailMessage")
-    def test_delete_assignment_view_post_english(self, mock_email):
+    def test_delete_assignment_view_post_english(self):
         """Test delete assignment POST request in English."""
         with translation.override("en"):
             # Create an assignment
@@ -250,8 +261,7 @@ class MultilingualIntegrationTests(TestCase):
             self.assertEqual(response.status_code, 302)  # Redirect after successful deletion
             self.assertFalse(PeriodAssignment.objects.filter(id=assignment.id).exists())
 
-    @patch("adoration.views.EmailMessage")
-    def test_delete_assignment_view_post_polish(self, mock_email):
+    def test_delete_assignment_view_post_polish(self):
         """Test delete assignment POST request in Polish."""
         with translation.override("pl"):
             assignment = PeriodAssignment.create_with_email(
@@ -268,8 +278,7 @@ class MultilingualIntegrationTests(TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertFalse(PeriodAssignment.objects.filter(id=assignment.id).exists())
 
-    @patch("adoration.views.EmailMessage")
-    def test_delete_assignment_view_post_dutch(self, mock_email):
+    def test_delete_assignment_view_post_dutch(self):
         """Test delete assignment POST request in Dutch."""
         with translation.override("nl"):
             assignment = PeriodAssignment.create_with_email(
@@ -478,8 +487,7 @@ class MultilingualFormIntegrationTests(TestCase):
                     self.assertContains(response, 'name="attendant_email"')
                     self.assertContains(response, 'name="privacy_accepted"')
 
-    @patch("adoration.views.send_mail")
-    def test_duplicate_registration_prevention_multilingual(self, mock_send_mail):
+    def test_duplicate_registration_prevention_multilingual(self):
         """Test that duplicate registration prevention works across languages."""
         email = "test@example.com"
 

@@ -1,0 +1,170 @@
+{% extends "adoration/maintainer/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Periods" %}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">{% trans "Periods" %}</li>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'maintainer:period_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    {% trans "Create Period" %}
+</a>
+{% endblock %}
+
+{% block maintainer_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    {% trans "Available Periods" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if periods %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Description" %}</th>
+                                <th>{% trans "Collections" %}</th>
+                                <th>{% trans "Assignments" %}</th>
+                                <th class="text-end">{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for period in periods %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock text-success me-2"></i>
+                                        <strong>{{ period.name }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if period.description %}
+                                        <span class="text-muted">{{ period.description|truncatechars:80 }}</span>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">{% trans "No description" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ period.collection_set.count }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        {{ period.periodcollection_set.all|length }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'maintainer:period_edit' period.pk %}"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="{% trans 'Edit' %}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="{% trans 'Periods pagination' %}">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <!-- Empty state -->
+                <div class="text-center py-5">
+                    <i class="fas fa-clock fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">{% trans "No periods found" %}</h5>
+                    <p class="text-muted mb-4">
+                        {% trans "Create periods to organize adoration time slots. Periods can be assigned to multiple collections." %}
+                    </p>
+                    <a href="{% url 'maintainer:period_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        {% trans "Create Your First Period" %}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Period Statistics -->
+{% if periods %}
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-clock text-success fa-2x mb-2"></i>
+                <h5 class="card-title">{{ periods|length }}</h5>
+                <p class="card-text text-muted">{% trans "Total Periods" %}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-folder text-primary fa-2x mb-2"></i>
+                <h5 class="card-title">
+                    {% with total_collections=periods|length %}{{ total_collections }}{% endwith %}
+                </h5>
+                <p class="card-text text-muted">{% trans "Available for Assignment" %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

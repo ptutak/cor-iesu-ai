@@ -15,7 +15,6 @@
   - mocking external services (like email)
 - keep the code coverage on the required level
 - don't leave any test as failed
-- if you cannot fix a test, mark it as xfailed and report it
 - never create test scripts, always create unit tests and integration tests instead
 - don't reformat the code which was already formatted by the linters
 - don't add any new features or scripts if not asked for, add only things you are directly asked for

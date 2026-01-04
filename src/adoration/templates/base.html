@@ -1,0 +1,270 @@
+{% load i18n %}
+{% load language_tags %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            {% block title %}{% trans "Cor Iesu Adoration" %}{% endblock %} -
+            {% trans "Adoration Management" %}
+        </title>
+
+        <!-- Bootstrap 5.3 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Font Awesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <style>
+            :root {
+                --primary-color: #007bff;
+                --secondary-color: #6c757d;
+                --success-color: #28a745;
+                --danger-color: #dc3545;
+                --warning-color: #ffc107;
+                --info-color: #17a2b8;
+                --light-color: #f8f9fa;
+                --dark-color: #343a40;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+            }
+
+            .navbar-brand {
+                font-weight: bold;
+                color: var(--primary-color) !important;
+            }
+
+            .btn {
+                border-radius: 0.5rem;
+                font-weight: 500;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .card {
+                border: none;
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                transition: box-shadow 0.2s ease-in-out;
+            }
+
+            .card:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+
+            .alert {
+                border-radius: 0.5rem;
+            }
+
+            .required:after {
+                content: " *";
+                color: var(--danger-color);
+            }
+
+            .text-primary {
+                color: var(--primary-color) !important;
+            }
+
+            footer {
+                margin-top: auto;
+                background-color: var(--light-color);
+                border-top: 1px solid #dee2e6;
+            }
+
+            .main-content {
+                min-height: calc(100vh - 200px);
+            }
+        </style>
+
+        {% block extra_css %}{% endblock %}
+    </head>
+
+    <body class="d-flex flex-column min-vh-100">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'registration' %}">
+                    <i class="fas fa-heart text-danger me-2"></i>
+                    {% trans "Cor Iesu" %}
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'registration' %}">
+                                <i class="fas fa-home me-1"></i>
+                                {% trans "Home" %}
+                            </a>
+                        </li>
+                        {% if user.is_authenticated and user.maintainer %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'maintainer:dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-1"></i>
+                                {% trans "Maintainer Panel" %}
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        <!-- Language Switcher -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-globe me-1"></i>
+                                {% get_current_language_name %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% get_available_languages_with_names as languages %}
+                                {% for lang_code, lang_name in languages %}
+                                <li>
+                                    <a class="dropdown-item {% if LANGUAGE_CODE == lang_code %}active{% endif %}"
+                                       href="{% url 'set_language' %}"
+                                       onclick="setLanguage('{{ lang_code }}')">
+                                        {{ lang_name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+
+                        <!-- User Menu -->
+                        {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>
+                                {{ user.get_full_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if user.maintainer %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'maintainer:dashboard' %}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>
+                                        {% trans "Maintainer Panel" %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                {% if user.is_staff %}
+                                <li>
+                                    <a class="dropdown-item" href="/admin/">
+                                        <i class="fas fa-cog me-2"></i>
+                                        {% trans "Admin" %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'admin:logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        {% trans "Logout" %}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                {% trans "Login" %}
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-4 mt-auto">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-heart text-danger me-1"></i>
+                            {% trans "Cor Iesu Adoration Management System" %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0 text-muted">
+                            <small>&copy; {% now "Y" %} - {% trans "Built with Django" %}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bootstrap 5.3 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Font Awesome JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+        <!-- Language Switcher Script -->
+        <script>
+            function setLanguage(languageCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{% url "set_language" %}';
+
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';
+
+                const langInput = document.createElement('input');
+                langInput.type = 'hidden';
+                langInput.name = 'language';
+                langInput.value = languageCode;
+
+                const nextInput = document.createElement('input');
+                nextInput.type = 'hidden';
+                nextInput.name = 'next';
+                nextInput.value = window.location.pathname;
+
+                form.appendChild(csrfInput);
+                form.appendChild(langInput);
+                form.appendChild(nextInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            // Auto-dismiss alerts after 5 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+                alerts.forEach(function(alert) {
+                    setTimeout(function() {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }, 5000);
+                });
+            });
+        </script>
+
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>

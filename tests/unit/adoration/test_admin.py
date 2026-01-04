@@ -55,10 +55,14 @@ class TestPeriodAdmin:
         Period.objects.all().delete()
 
         # Create a mock request and queryset (not used by the action)
-        from unittest.mock import Mock
+        class MockRequest:
+            pass
 
-        mock_request = Mock()
-        mock_queryset = Mock()
+        class MockQueryset:
+            pass
+
+        mock_request = MockRequest()
+        mock_queryset = MockQueryset()
 
         # Call the admin action
         admin.generate_standard_hour_periods(mock_request, mock_queryset)
