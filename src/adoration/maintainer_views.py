@@ -62,11 +62,11 @@ class MaintainerDashboardView(MaintainerRequiredMixin, ListView):
     def get_queryset(self):
         """Get collections managed by the current maintainer."""
         maintainer = self.request.user.maintainer
-        return Collection.objects.filter(
-            collectionmaintainer__maintainer=maintainer
-        ).prefetch_related("periods", "collectionmaintainer_set__maintainer__user")
+        return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
+            "periods", "collectionmaintainer_set__maintainer__user"
+        )
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Add additional context data."""
         context = super().get_context_data(**kwargs)
         maintainer = self.request.user.maintainer
@@ -96,9 +96,7 @@ class CollectionListView(MaintainerRequiredMixin, ListView):
     def get_queryset(self):
         """Get collections managed by the current maintainer."""
         maintainer = self.request.user.maintainer
-        return Collection.objects.filter(
-            collectionmaintainer__maintainer=maintainer
-        ).prefetch_related("periods")
+        return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related("periods")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -116,15 +114,13 @@ class CollectionCreateView(MaintainerRequiredMixin, CreateView):
 
         # Automatically assign the current user as a maintainer
         maintainer = self.request.user.maintainer
-        CollectionMaintainer.objects.create(
-            collection=self.object, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=self.object, maintainer=maintainer)
 
         messages.success(
             self.request,
-            _(
-                "Collection '{}' created successfully. You are now a maintainer of this collection."
-            ).format(self.object.name),
+            _("Collection '{}' created successfully. You are now a maintainer of this collection.").format(
+                self.object.name
+            ),
         )
         return response
 
@@ -164,15 +160,13 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView):
     def get_queryset(self):
         """Only show collections managed by current maintainer."""
         maintainer = self.request.user.maintainer
-        return Collection.objects.filter(
-            collectionmaintainer__maintainer=maintainer
-        ).prefetch_related(
+        return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
             "periods",
             "collectionmaintainer_set__maintainer__user",
             "periodcollection_set__periodassignment_set",
         )
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Add additional context data."""
         context = super().get_context_data(**kwargs)
         collection = self.object
@@ -192,9 +186,7 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView):
             {
                 "period_collections": period_collections,
                 "unassigned_periods": unassigned_periods,
-                "total_assignments": sum(
-                    pc.periodassignment_set.count() for pc in period_collections
-                ),
+                "total_assignments": sum(pc.periodassignment_set.count() for pc in period_collections),
             }
         )
         return context
@@ -264,29 +256,21 @@ def assign_period_to_collection(request: HttpRequest) -> JsonResponse:
     period_id = request.POST.get("period_id")
 
     if not collection_id or not period_id:
-        return JsonResponse(
-            {"success": False, "error": "Missing collection or period ID"}
-        )
+        return JsonResponse({"success": False, "error": "Missing collection or period ID"})
 
     try:
         # Verify maintainer has access to this collection
-        collection = Collection.objects.get(
-            id=collection_id, collectionmaintainer__maintainer=maintainer
-        )
+        collection = Collection.objects.get(id=collection_id, collectionmaintainer__maintainer=maintainer)
         period = get_object_or_404(Period, id=period_id)
 
         # Create period-collection relationship
-        period_collection, created = PeriodCollection.objects.get_or_create(
-            collection=collection, period=period
-        )
+        period_collection, created = PeriodCollection.objects.get_or_create(collection=collection, period=period)
 
         if created:
             return JsonResponse(
                 {
                     "success": True,
-                    "message": _("Period '{}' assigned to collection '{}'.").format(
-                        period.name, collection.name
-                    ),
+                    "message": _("Period '{}' assigned to collection '{}'.").format(period.name, collection.name),
                 }
             )
         else:
@@ -298,9 +282,7 @@ def assign_period_to_collection(request: HttpRequest) -> JsonResponse:
             )
 
     except Collection.DoesNotExist:
-        return JsonResponse(
-            {"success": False, "error": "Collection not found or access denied"}
-        )
+        return JsonResponse({"success": False, "error": "Collection not found or access denied"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
 
@@ -321,34 +303,26 @@ def remove_period_from_collection(request: HttpRequest) -> JsonResponse:
     period_id = request.POST.get("period_id")
 
     if not collection_id or not period_id:
-        return JsonResponse(
-            {"success": False, "error": "Missing collection or period ID"}
-        )
+        return JsonResponse({"success": False, "error": "Missing collection or period ID"})
 
     try:
         # Verify maintainer has access to this collection
-        collection = Collection.objects.get(
-            id=collection_id, collectionmaintainer__maintainer=maintainer
-        )
+        collection = Collection.objects.get(id=collection_id, collectionmaintainer__maintainer=maintainer)
         period = get_object_or_404(Period, id=period_id)
 
         # Remove period-collection relationship
-        period_collection = PeriodCollection.objects.get(
-            collection=collection, period=period
-        )
+        period_collection = PeriodCollection.objects.get(collection=collection, period=period)
 
         # Check if there are any assignments
-        assignment_count = PeriodAssignment.objects.filter(
-            period_collection=period_collection
-        ).count()
+        assignment_count = PeriodAssignment.objects.filter(period_collection=period_collection).count()
 
         if assignment_count > 0:
             return JsonResponse(
                 {
                     "success": False,
-                    "error": _(
-                        "Cannot remove period '{}' - it has {} active assignments."
-                    ).format(period.name, assignment_count),
+                    "error": _("Cannot remove period '{}' - it has {} active assignments.").format(
+                        period.name, assignment_count
+                    ),
                 }
             )
 
@@ -357,20 +331,14 @@ def remove_period_from_collection(request: HttpRequest) -> JsonResponse:
         return JsonResponse(
             {
                 "success": True,
-                "message": _("Period '{}' removed from collection '{}'.").format(
-                    period.name, collection.name
-                ),
+                "message": _("Period '{}' removed from collection '{}'.").format(period.name, collection.name),
             }
         )
 
     except Collection.DoesNotExist:
-        return JsonResponse(
-            {"success": False, "error": "Collection not found or access denied"}
-        )
+        return JsonResponse({"success": False, "error": "Collection not found or access denied"})
     except PeriodCollection.DoesNotExist:
-        return JsonResponse(
-            {"success": False, "error": "Period is not assigned to this collection"}
-        )
+        return JsonResponse({"success": False, "error": "Period is not assigned to this collection"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
 
@@ -397,9 +365,7 @@ def promote_user_to_maintainer(request: HttpRequest) -> JsonResponse:
             return JsonResponse(
                 {
                     "success": False,
-                    "error": _("User '{}' is already a maintainer.").format(
-                        user.username
-                    ),
+                    "error": _("User '{}' is already a maintainer.").format(user.username),
                 }
             )
 
@@ -408,17 +374,13 @@ def promote_user_to_maintainer(request: HttpRequest) -> JsonResponse:
             return JsonResponse(
                 {
                     "success": False,
-                    "error": _(
-                        "User must have an email address to become a maintainer."
-                    ),
+                    "error": _("User must have an email address to become a maintainer."),
                 }
             )
 
         # Create maintainer
         with transaction.atomic():
-            maintainer = Maintainer.objects.create(
-                user=user, country=country, phone_number=phone_number
-            )
+            maintainer = Maintainer.objects.create(user=user, country=country, phone_number=phone_number)
 
             # Add user to maintainers group
             from django.contrib.auth.models import Group
@@ -452,24 +414,18 @@ class AssignmentListView(MaintainerRequiredMixin, ListView):
         """Get assignments for collections managed by current maintainer."""
         maintainer = self.request.user.maintainer
         return (
-            PeriodAssignment.objects.filter(
-                period_collection__collection__collectionmaintainer__maintainer=maintainer
-            )
-            .select_related(
-                "period_collection__collection", "period_collection__period"
-            )
+            PeriodAssignment.objects.filter(period_collection__collection__collectionmaintainer__maintainer=maintainer)
+            .select_related("period_collection__collection", "period_collection__period")
             .order_by("-id")
         )
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Add filter context."""
         context = super().get_context_data(**kwargs)
         maintainer = self.request.user.maintainer
 
         # Get collections for filtering
-        collections = Collection.objects.filter(
-            collectionmaintainer__maintainer=maintainer
-        )
+        collections = Collection.objects.filter(collectionmaintainer__maintainer=maintainer)
 
         context.update(
             {
@@ -491,13 +447,9 @@ class UserPromotionView(MaintainerRequiredMixin, ListView):
 
     def get_queryset(self):
         """Get users who are not maintainers yet."""
-        return (
-            User.objects.filter(maintainer__isnull=True, email__isnull=False)
-            .exclude(email="")
-            .order_by("username")
-        )
+        return User.objects.filter(maintainer__isnull=True, email__isnull=False).exclude(email="").order_by("username")
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         """Add search context."""
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get("search", "")

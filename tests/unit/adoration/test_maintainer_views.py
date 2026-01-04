@@ -45,9 +45,7 @@ class TestMaintainerRequiredMixin:
         assert response.status_code == 302
         assert "login" in response.url
 
-    def test_authenticated_non_maintainer_gets_permission_denied(
-        self, client, django_user_model
-    ):
+    def test_authenticated_non_maintainer_gets_permission_denied(self, client, django_user_model):
         """Test that authenticated non-maintainers get permission denied."""
         user = django_user_model.objects.create_user(
             username="regular_user", email="user@example.com", password="testpass123"
@@ -58,9 +56,7 @@ class TestMaintainerRequiredMixin:
         response = client.get(url)
         assert response.status_code == 403
 
-    def test_authenticated_maintainer_has_access(
-        self, client, maintainer_user, maintainer
-    ):
+    def test_authenticated_maintainer_has_access(self, client, maintainer_user, maintainer):
         """Test that authenticated maintainers can access views."""
         client.force_login(maintainer_user)
 
@@ -85,9 +81,7 @@ class TestMaintainerDashboardView:
         client.force_login(maintainer_with_permissions)
 
         # Create collection maintainer relationship
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create some assignments
         for i in range(3):
@@ -111,14 +105,10 @@ class TestMaintainerDashboardView:
         client.force_login(maintainer_with_permissions)
 
         # Create another collection not managed by this maintainer
-        other_collection = Collection.objects.create(
-            name="Other Collection", description="Not managed", enabled=True
-        )
+        other_collection = Collection.objects.create(name="Other Collection", description="Not managed", enabled=True)
 
         # Only assign maintainer to first collection
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:dashboard")
         response = client.get(url)
@@ -141,13 +131,9 @@ class TestCollectionListView:
 
         # Create collections
         managed_collection = collection
-        other_collection = Collection.objects.create(
-            name="Other Collection", description="Not managed", enabled=True
-        )
+        other_collection = Collection.objects.create(name="Other Collection", description="Not managed", enabled=True)
 
-        CollectionMaintainer.objects.create(
-            collection=managed_collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=managed_collection, maintainer=maintainer)
 
         url = reverse("maintainer:collection_list")
         response = client.get(url)
@@ -183,9 +169,7 @@ class TestCollectionCreateView:
         assert response.status_code == 200
         assert "form" in response.context
 
-    def test_collection_create_post_valid(
-        self, client, maintainer_with_permissions, maintainer
-    ):
+    def test_collection_create_post_valid(self, client, maintainer_with_permissions, maintainer):
         """Test POST request with valid data creates collection and assigns maintainer."""
         client.force_login(maintainer_with_permissions)
 
@@ -208,9 +192,7 @@ class TestCollectionCreateView:
         assert collection.available_languages == ["en", "pl"]
 
         # Check maintainer was automatically assigned
-        assert CollectionMaintainer.objects.filter(
-            collection=collection, maintainer=maintainer
-        ).exists()
+        assert CollectionMaintainer.objects.filter(collection=collection, maintainer=maintainer).exists()
 
     def test_collection_create_post_invalid(self, client, maintainer_with_permissions):
         """Test POST request with invalid data returns form with errors."""
@@ -234,14 +216,10 @@ class TestCollectionCreateView:
 class TestCollectionUpdateView:
     """Test cases for CollectionUpdateView."""
 
-    def test_collection_update_get(
-        self, client, maintainer_user, maintainer, collection
-    ):
+    def test_collection_update_get(self, client, maintainer_user, maintainer, collection):
         """Test GET request to collection update view."""
         client.force_login(maintainer_user)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:collection_edit", kwargs={"pk": collection.pk})
         response = client.get(url)
@@ -249,14 +227,10 @@ class TestCollectionUpdateView:
         assert response.status_code == 200
         assert response.context["object"] == collection
 
-    def test_collection_update_post_valid(
-        self, client, maintainer_user, maintainer, collection
-    ):
+    def test_collection_update_post_valid(self, client, maintainer_user, maintainer, collection):
         """Test POST request with valid data updates collection."""
         client.force_login(maintainer_user)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:collection_edit", kwargs={"pk": collection.pk})
         form_data = {
@@ -276,9 +250,7 @@ class TestCollectionUpdateView:
         assert collection.enabled is False
         assert collection.available_languages == ["en"]
 
-    def test_collection_update_not_managed_collection_404(
-        self, client, maintainer_with_permissions, collection
-    ):
+    def test_collection_update_not_managed_collection_404(self, client, maintainer_with_permissions, collection):
         """Test that maintainer cannot edit collections they don't manage."""
         client.force_login(maintainer_with_permissions)
 
@@ -290,9 +262,7 @@ class TestCollectionUpdateView:
             available_languages=["en"],
         )
 
-        url = reverse(
-            "maintainer:collection_edit", kwargs={"pk": unmanaged_collection.pk}
-        )
+        url = reverse("maintainer:collection_edit", kwargs={"pk": unmanaged_collection.pk})
         response = client.get(url)
 
         assert response.status_code == 404
@@ -302,14 +272,10 @@ class TestCollectionUpdateView:
 class TestCollectionDetailView:
     """Test cases for CollectionDetailView."""
 
-    def test_collection_detail_get(
-        self, client, maintainer_user, maintainer, collection
-    ):
+    def test_collection_detail_get(self, client, maintainer_user, maintainer, collection):
         """Test GET request to collection detail view."""
         client.force_login(maintainer_user)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:collection_detail", kwargs={"pk": collection.pk})
         response = client.get(url)
@@ -322,14 +288,10 @@ class TestCollectionDetailView:
     ):
         """Test collection detail shows periods and assignments correctly."""
         client.force_login(maintainer_user)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create assignment
-        assignment = PeriodAssignment.create_with_email(
-            email="test@example.com", period_collection=period_collection
-        )
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()
 
         url = reverse("maintainer:collection_detail", kwargs={"pk": collection.pk})
@@ -340,9 +302,7 @@ class TestCollectionDetailView:
         assert period_collections.count() == 1
         assert response.context["total_assignments"] == 1
 
-    def test_collection_detail_not_managed_collection_404(
-        self, client, maintainer_with_permissions, collection
-    ):
+    def test_collection_detail_not_managed_collection_404(self, client, maintainer_with_permissions, collection):
         """Test that maintainer cannot view details of collections they don't manage."""
         client.force_login(maintainer_with_permissions)
 
@@ -354,9 +314,7 @@ class TestCollectionDetailView:
             available_languages=["en"],
         )
 
-        url = reverse(
-            "maintainer:collection_detail", kwargs={"pk": unmanaged_collection.pk}
-        )
+        url = reverse("maintainer:collection_detail", kwargs={"pk": unmanaged_collection.pk})
         response = client.get(url)
 
         assert response.status_code == 404
@@ -366,9 +324,7 @@ class TestCollectionDetailView:
 class TestPeriodListView:
     """Test cases for PeriodListView."""
 
-    def test_period_list_shows_all_periods(
-        self, client, maintainer_with_permissions, period
-    ):
+    def test_period_list_shows_all_periods(self, client, maintainer_with_permissions, period):
         """Test that period list shows all periods."""
         client.force_login(maintainer_with_permissions)
 
@@ -455,9 +411,7 @@ class TestPeriodUpdateView:
         assert response.status_code == 200
         assert response.context["object"] == period
 
-    def test_period_update_post_valid(
-        self, client, maintainer_with_permissions, period
-    ):
+    def test_period_update_post_valid(self, client, maintainer_with_permissions, period):
         """Test POST request with valid data updates period."""
         client.force_login(maintainer_with_permissions)
 
@@ -480,14 +434,10 @@ class TestPeriodUpdateView:
 class TestAssignPeriodToCollection:
     """Test cases for assign_period_to_collection AJAX view."""
 
-    def test_assign_period_success(
-        self, client, maintainer_with_permissions, maintainer, collection, period
-    ):
+    def test_assign_period_success(self, client, maintainer_with_permissions, maintainer, collection, period):
         """Test successful period assignment."""
         client.force_login(maintainer_with_permissions)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:assign_period")
         data = {
@@ -503,18 +453,12 @@ class TestAssignPeriodToCollection:
         assert "assigned" in json_data["message"].lower()
 
         # Check that period-collection relationship was created
-        assert PeriodCollection.objects.filter(
-            collection=collection, period=period
-        ).exists()
+        assert PeriodCollection.objects.filter(collection=collection, period=period).exists()
 
-    def test_assign_period_already_assigned(
-        self, client, maintainer_with_permissions, maintainer, collection, period
-    ):
+    def test_assign_period_already_assigned(self, client, maintainer_with_permissions, maintainer, collection, period):
         """Test assignment when period is already assigned."""
         client.force_login(maintainer_with_permissions)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create the relationship first
         PeriodCollection.objects.create(collection=collection, period=period)
@@ -532,9 +476,7 @@ class TestAssignPeriodToCollection:
         assert json_data["success"] is False
         assert "already assigned" in json_data["error"].lower()
 
-    def test_assign_period_no_access_to_collection(
-        self, client, maintainer_with_permissions, collection, period
-    ):
+    def test_assign_period_no_access_to_collection(self, client, maintainer_with_permissions, collection, period):
         """Test assigning period to collection maintainer doesn't manage."""
         client.force_login(maintainer_with_permissions)
 
@@ -580,9 +522,7 @@ class TestAssignPeriodToCollection:
         assert json_data["success"] is False
         assert "invalid method" in json_data["error"].lower()
 
-    def test_assign_period_non_maintainer(
-        self, client, django_user_model, collection, period
-    ):
+    def test_assign_period_non_maintainer(self, client, django_user_model, collection, period):
         """Test assignment by non-maintainer returns error."""
         user = django_user_model.objects.create_user(
             username="regular_user", email="user@example.com", password="testpass123"
@@ -615,9 +555,7 @@ class TestRemovePeriodFromCollection:
     ):
         """Test successful period removal."""
         client.force_login(maintainer_with_permissions)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:remove_period")
         data = {
@@ -633,9 +571,7 @@ class TestRemovePeriodFromCollection:
         assert "removed" in json_data["message"].lower()
 
         # Check that period-collection relationship was removed
-        assert not PeriodCollection.objects.filter(
-            collection=collection, period=period
-        ).exists()
+        assert not PeriodCollection.objects.filter(collection=collection, period=period).exists()
 
     def test_remove_period_with_assignments_fails(
         self,
@@ -648,14 +584,10 @@ class TestRemovePeriodFromCollection:
     ):
         """Test removing period with assignments returns error."""
         client.force_login(maintainer_with_permissions)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create assignment
-        assignment = PeriodAssignment.create_with_email(
-            email="test@example.com", period_collection=period_collection
-        )
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()
 
         url = reverse("maintainer:remove_period")
@@ -671,14 +603,10 @@ class TestRemovePeriodFromCollection:
         assert json_data["success"] is False
         assert "active assignments" in json_data["error"].lower()
 
-    def test_remove_period_not_assigned(
-        self, client, maintainer_with_permissions, maintainer, collection, period
-    ):
+    def test_remove_period_not_assigned(self, client, maintainer_with_permissions, maintainer, collection, period):
         """Test removal of period not assigned to collection."""
         client.force_login(maintainer_with_permissions)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         url = reverse("maintainer:remove_period")
         data = {
@@ -771,9 +699,7 @@ class TestPromoteUserToMaintainer:
         client.force_login(maintainer_user)
 
         # Create user without email
-        user_no_email = django_user_model.objects.create_user(
-            username="no_email", password="testpass123"
-        )
+        user_no_email = django_user_model.objects.create_user(username="no_email", password="testpass123")
         user_no_email.email = ""
         user_no_email.save()
 
@@ -822,9 +748,7 @@ class TestAssignmentListView:
     ):
         """Test that assignment list shows only assignments for managed collections."""
         client.force_login(maintainer_user)
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create assignment for managed collection
         managed_assignment = PeriodAssignment.create_with_email(
@@ -833,16 +757,10 @@ class TestAssignmentListView:
         managed_assignment.save()
 
         # Create assignment for unmanaged collection
-        other_collection = Collection.objects.create(
-            name="Other Collection", enabled=True
-        )
+        other_collection = Collection.objects.create(name="Other Collection", enabled=True)
         other_period = Period.objects.create(name="Other Period")
-        other_pc = PeriodCollection.objects.create(
-            collection=other_collection, period=other_period
-        )
-        other_assignment = PeriodAssignment.create_with_email(
-            email="other@example.com", period_collection=other_pc
-        )
+        other_pc = PeriodCollection.objects.create(collection=other_collection, period=other_period)
+        other_assignment = PeriodAssignment.create_with_email(email="other@example.com", period_collection=other_pc)
         other_assignment.save()
 
         url = reverse("maintainer:assignment_list")
@@ -878,9 +796,7 @@ class TestUserPromotionView:
         assert regular_user in users
         assert maintainer_with_permissions not in users  # Maintainer should be excluded
 
-    def test_user_promotion_search_functionality(
-        self, client, maintainer_with_permissions, django_user_model
-    ):
+    def test_user_promotion_search_functionality(self, client, maintainer_with_permissions, django_user_model):
         """Test search functionality in user promotion view."""
         client.force_login(maintainer_with_permissions)
 
@@ -919,9 +835,7 @@ class TestMaintainerViewPermissions:
         response = client.get(url)
         assert response.status_code == 403
 
-    def test_ajax_views_require_permissions(
-        self, client, django_user_model, collection, period
-    ):
+    def test_ajax_views_require_permissions(self, client, django_user_model, collection, period):
         """Test that AJAX views require proper permissions."""
         user = django_user_model.objects.create_user(
             username="regular_user", email="user@example.com", password="testpass123"
@@ -930,9 +844,7 @@ class TestMaintainerViewPermissions:
 
         # Test assign period (should fail on permission check)
         url = reverse("maintainer:assign_period")
-        response = client.post(
-            url, {"collection_id": collection.id, "period_id": period.id}
-        )
+        response = client.post(url, {"collection_id": collection.id, "period_id": period.id})
         assert response.status_code == 403
 
         # Test promote user (should fail on permission check)

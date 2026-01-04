@@ -41,9 +41,7 @@ class TestViewsAdditionalCoverage:
         data = json.loads(response.content)
         assert "error" in data
 
-    def test_collection_maintainer_validation_edge_cases(
-        self, collection, maintainer_user
-    ):
+    def test_collection_maintainer_validation_edge_cases(self, collection, maintainer_user):
         """Test collection maintainer validation edge cases."""
         # Test collection without maintainers when enabled
         collection.enabled = True
@@ -52,9 +50,7 @@ class TestViewsAdditionalCoverage:
         with pytest.raises(ValidationError):
             collection.full_clean()
 
-    def test_period_assignment_form_edge_cases(
-        self, period_collection, maintainer_user
-    ):
+    def test_period_assignment_form_edge_cases(self, period_collection, maintainer_user):
         """Test PeriodAssignmentForm edge cases."""
         # Test form initialization without collection parameter
         form = PeriodAssignmentForm()
@@ -62,14 +58,10 @@ class TestViewsAdditionalCoverage:
         # Should have collections available (filtered by language and maintainers)
         assert form.fields["collection"].queryset.count() >= 0
 
-    def test_period_assignment_form_ajax_collection_lookup(
-        self, collection, maintainer_user
-    ):
+    def test_period_assignment_form_ajax_collection_lookup(self, collection, maintainer_user):
         """Test form initialization with collection that has maintainer."""
         maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Set collection to be available in English (which is a valid language code)
         collection.available_languages = ["en"]
@@ -86,9 +78,7 @@ class TestViewsAdditionalCoverage:
             collection_ids = [c.id for c in collection_choices]
             assert collection.id in collection_ids
 
-    def test_registration_view_email_sending_errors(
-        self, rf, complete_setup, monkeypatch
-    ):
+    def test_registration_view_email_sending_errors(self, rf, complete_setup, monkeypatch):
         """Test email sending error handling in registration view."""
         from adoration.views import registration_view
 
@@ -165,27 +155,19 @@ class TestFormsAdditionalCoverage:
     def test_period_assignment_form_collection_filter_edge_cases(self, maintainer_user):
         """Test collection filtering edge cases."""
         # Create collections with different maintainer configurations
-        collection_no_maintainer = Collection.objects.create(
-            name="No Maintainer", enabled=True
-        )
+        collection_no_maintainer = Collection.objects.create(name="No Maintainer", enabled=True)
 
-        collection_with_maintainer = Collection.objects.create(
-            name="With Maintainer", enabled=True
-        )
+        collection_with_maintainer = Collection.objects.create(name="With Maintainer", enabled=True)
 
         # Create maintainer only for second collection
         maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
-        CollectionMaintainer.objects.create(
-            collection=collection_with_maintainer, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection_with_maintainer, maintainer=maintainer)
 
         with translation.override("en"):
             form = PeriodAssignmentForm()
 
             # Should only include collections with maintainers
-            collection_ids = list(
-                form.fields["collection"].queryset.values_list("id", flat=True)
-            )
+            collection_ids = list(form.fields["collection"].queryset.values_list("id", flat=True))
             assert collection_with_maintainer.id in collection_ids
             assert collection_no_maintainer.id not in collection_ids
 
@@ -202,9 +184,7 @@ class TestModelsAdditionalCoverage:
         collection.clean()  # Should not raise
 
         # Test clean method when collection is enabled but has no pk yet
-        new_collection = Collection(
-            name="New", enabled=True, available_languages=["en"]
-        )
+        new_collection = Collection(name="New", enabled=True, available_languages=["en"])
         new_collection.clean()  # Should not raise for new collections
 
     def test_maintainer_clean_validation_edge_cases(self, django_user_model):
@@ -257,9 +237,7 @@ class TestModelsAdditionalCoverage:
     def test_period_assignment_verify_email_with_pbkdf2(self, period_collection):
         """Test verify_email method works correctly with PBKDF2."""
         email = "test@example.com"
-        assignment = PeriodAssignment.create_with_email(
-            email=email, period_collection=period_collection
-        )
+        assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
         assignment.save()
 
         # Test correct email
@@ -337,8 +315,6 @@ class TestErrorHandling:
         assert "test@example.com" in str(maintainer)
 
         # Test without full name
-        user_no_name = django_user_model.objects.create_user(
-            username="noname", email="noname@example.com"
-        )
+        user_no_name = django_user_model.objects.create_user(username="noname", email="noname@example.com")
         maintainer_no_name = Maintainer(user=user_no_name, country="US")
         assert "noname" in str(maintainer_no_name)

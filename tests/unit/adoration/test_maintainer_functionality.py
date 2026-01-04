@@ -33,9 +33,7 @@ from adoration.models import (
 class MockUser:
     """Mock user for testing authentication."""
 
-    def __init__(
-        self, is_authenticated=True, has_maintainer=True, has_permissions=True
-    ):
+    def __init__(self, is_authenticated=True, has_maintainer=True, has_permissions=True):
         self.is_authenticated = is_authenticated
         self.username = "testuser"
         self.email = "test@example.com"
@@ -81,9 +79,7 @@ class TestMaintainerRequiredMixin:
 
     def test_dispatch_with_non_maintainer_user(self, rf, django_user_model):
         """Test dispatch raises PermissionDenied for non-maintainers."""
-        user = django_user_model.objects.create_user(
-            username="regular", email="user@example.com", password="test"
-        )
+        user = django_user_model.objects.create_user(username="regular", email="user@example.com", password="test")
 
         mixin = MaintainerRequiredMixin()
         request = rf.get("/")
@@ -129,9 +125,7 @@ class TestAssignPeriodToCollection:
 
     def test_assign_period_non_maintainer(self, rf, django_user_model):
         """Test function rejects non-maintainer users."""
-        user = django_user_model.objects.create_user(
-            username="regular", password="test"
-        )
+        user = django_user_model.objects.create_user(username="regular", password="test")
 
         request = rf.post("/")
         request.user = user
@@ -157,9 +151,7 @@ class TestAssignPeriodToCollection:
         assert "success" in data
         assert not data["success"]
 
-    def test_assign_period_success(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_assign_period_success(self, rf, maintainer_user, maintainer, collection, period):
         """Test successful period assignment to collection."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -168,9 +160,7 @@ class TestAssignPeriodToCollection:
         maintainer_user.user_permissions.add(perm)
 
         # Make maintainer a collection maintainer
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         request = rf.post(
             "/",
@@ -186,13 +176,9 @@ class TestAssignPeriodToCollection:
 
         assert response.status_code == 200
         assert "success" in data
-        assert PeriodCollection.objects.filter(
-            collection=collection, period=period
-        ).exists()
+        assert PeriodCollection.objects.filter(collection=collection, period=period).exists()
 
-    def test_assign_period_already_assigned(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_assign_period_already_assigned(self, rf, maintainer_user, maintainer, collection, period):
         """Test assigning already assigned period."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -201,9 +187,7 @@ class TestAssignPeriodToCollection:
         maintainer_user.user_permissions.add(perm)
 
         # Make maintainer a collection maintainer
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create existing assignment
         PeriodCollection.objects.create(collection=collection, period=period)
@@ -224,9 +208,7 @@ class TestAssignPeriodToCollection:
         assert "success" in data
         assert not data["success"]
 
-    def test_assign_period_no_access(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_assign_period_no_access(self, rf, maintainer_user, maintainer, collection, period):
         """Test assigning period without collection access."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -257,9 +239,7 @@ class TestAssignPeriodToCollection:
 class TestRemovePeriodFromCollection:
     """Test the remove_period_from_collection function."""
 
-    def test_remove_period_success(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_remove_period_success(self, rf, maintainer_user, maintainer, collection, period):
         """Test successful period removal from collection."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -268,14 +248,10 @@ class TestRemovePeriodFromCollection:
         maintainer_user.user_permissions.add(perm)
 
         # Make maintainer a collection maintainer
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create period collection to remove
-        period_collection = PeriodCollection.objects.create(
-            collection=collection, period=period
-        )
+        period_collection = PeriodCollection.objects.create(collection=collection, period=period)
 
         request = rf.post(
             "/",
@@ -293,9 +269,7 @@ class TestRemovePeriodFromCollection:
         assert "success" in data
         assert not PeriodCollection.objects.filter(id=period_collection.id).exists()
 
-    def test_remove_period_with_assignments(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_remove_period_with_assignments(self, rf, maintainer_user, maintainer, collection, period):
         """Test removing period with existing assignments."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -304,17 +278,11 @@ class TestRemovePeriodFromCollection:
         maintainer_user.user_permissions.add(perm)
 
         # Make maintainer a collection maintainer
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         # Create period collection and assignment
-        period_collection = PeriodCollection.objects.create(
-            collection=collection, period=period
-        )
-        assignment = PeriodAssignment.create_with_email(
-            email="test@example.com", period_collection=period_collection
-        )
+        period_collection = PeriodCollection.objects.create(collection=collection, period=period)
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()
 
         request = rf.post(
@@ -333,9 +301,7 @@ class TestRemovePeriodFromCollection:
         assert "success" in data
         assert not data["success"]
 
-    def test_remove_period_not_assigned(
-        self, rf, maintainer_user, maintainer, collection, period
-    ):
+    def test_remove_period_not_assigned(self, rf, maintainer_user, maintainer, collection, period):
         """Test removing period that's not assigned to collection."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -344,9 +310,7 @@ class TestRemovePeriodFromCollection:
         maintainer_user.user_permissions.add(perm)
 
         # Make maintainer a collection maintainer
-        CollectionMaintainer.objects.create(
-            collection=collection, maintainer=maintainer
-        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
         request = rf.post(
             "/",
@@ -400,9 +364,7 @@ class TestPromoteUserToMaintainer:
         assert "success" in data
         assert not data["success"]
 
-    def test_promote_user_success(
-        self, rf, maintainer_user, maintainer, django_user_model
-    ):
+    def test_promote_user_success(self, rf, maintainer_user, maintainer, django_user_model):
         """Test successful user promotion to maintainer."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -506,9 +468,7 @@ class TestPromoteUserToMaintainer:
         assert not data["success"]
         assert "error" in data
 
-    def test_promotion_transaction_rollback(
-        self, rf, maintainer_user, maintainer, django_user_model, monkeypatch
-    ):
+    def test_promotion_transaction_rollback(self, rf, maintainer_user, maintainer, django_user_model, monkeypatch):
         """Test that promotion failures roll back properly."""
         # Add required permission to user
         from django.contrib.auth.models import Permission
@@ -565,9 +525,7 @@ class TestMaintainerViewFunctionality:
     def test_maintainer_permissions(self):
         """Test maintainer group has correct permissions."""
         group = Group.objects.get(name="Maintainers")
-        permission_codenames = list(
-            group.permissions.values_list("codename", flat=True)
-        )
+        permission_codenames = list(group.permissions.values_list("codename", flat=True))
 
         # Check for key permissions
         expected_permissions = [
@@ -584,9 +542,7 @@ class TestMaintainerViewFunctionality:
 
     def test_user_promotion_adds_to_group(self, django_user_model):
         """Test that promoting user adds them to maintainers group."""
-        user = django_user_model.objects.create_user(
-            username="test", email="test@example.com", password="test"
-        )
+        user = django_user_model.objects.create_user(username="test", email="test@example.com", password="test")
 
         maintainer = Maintainer.objects.create(user=user, country="Test")
 
