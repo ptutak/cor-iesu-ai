@@ -706,3 +706,89 @@ class TestFormIntegration:
             assert collection_queryset.count() == 1
             assert collection_valid in collection_queryset
             assert collection_empty_email not in collection_queryset
+
+
+@pytest.mark.django_db
+class TestCollectionForm:
+    """Test cases for CollectionForm."""
+
+    def test_collection_form_valid_data(self, db):
+        """Test CollectionForm with valid data."""
+        from adoration.forms import CollectionForm
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en", "pl"],
+        }
+
+        form = CollectionForm(data=form_data)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        collection = form.save()
+        assert collection.name == "Test Collection"
+        assert collection.description == "Test Description"
+        assert collection.enabled is True
+        assert collection.available_languages == ["en", "pl"]
+
+    def test_collection_form_no_languages_selected(self, db):
+        """Test CollectionForm validation when no languages are selected."""
+        from adoration.forms import CollectionForm
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": [],
+        }
+
+        form = CollectionForm(data=form_data)
+        assert not form.is_valid()
+        assert "available_languages" in form.errors
+        assert "this field is required" in str(form.errors["available_languages"]).lower()
+
+    def test_collection_form_invalid_language_codes(self, db):
+        """Test CollectionForm validation with invalid language codes."""
+        from adoration.forms import CollectionForm
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en", "invalid_code"],
+        }
+
+        form = CollectionForm(data=form_data)
+        assert not form.is_valid()
+        assert "available_languages" in form.errors
+        assert "not one of the available choices" in str(form.errors["available_languages"]).lower()
+
+    def test_collection_form_existing_instance(self, db, collection):
+        """Test CollectionForm with existing instance."""
+        from adoration.forms import CollectionForm
+
+        # Set initial languages on collection and disable to avoid maintainer validation
+        collection.available_languages = ["en", "nl"]
+        collection.enabled = False
+        collection.save()
+
+        form = CollectionForm(instance=collection)
+
+        # Check that initial value is set correctly
+        assert form.fields["available_languages"].initial == ["en", "nl"]
+
+        # Test updating
+        form_data = {
+            "name": collection.name,
+            "description": "Updated Description",
+            "enabled": collection.enabled,
+            "available_languages": ["pl"],
+        }
+
+        form = CollectionForm(data=form_data, instance=collection)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        updated_collection = form.save()
+        assert updated_collection.description == "Updated Description"
+        assert updated_collection.available_languages == ["pl"]

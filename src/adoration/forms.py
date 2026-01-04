@@ -232,3 +232,105 @@ class DeletionConfirmForm(forms.Form):
         if email and not self.assignment.verify_email(email):
             raise ValidationError(_("Email address does not match the registration."))
         return email or ""
+
+
+class CollectionForm(forms.ModelForm[Collection]):
+    """Form for creating and updating collections in maintainer views."""
+
+    available_languages = forms.MultipleChoiceField(
+        choices=[],  # Will be set in __init__
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+        help_text=_("Select which languages this collection is available in."),
+        label=_("Available Languages"),
+    )
+
+    class Meta:
+        model = Collection
+        fields = ["name", "description", "enabled", "available_languages"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": _("Enter collection name"),
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": _("Enter collection description (optional)"),
+                }
+            ),
+            "enabled": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
+        }
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the form with dynamic language choices.
+
+        Args:
+            args: Positional arguments
+            kwargs: Keyword arguments
+        """
+        super().__init__(*args, **kwargs)
+
+        # Set language choices from Django settings
+        from django.conf import settings
+
+        self.fields["available_languages"].choices = settings.LANGUAGES
+
+        # Set initial value for existing instances
+        if self.instance and self.instance.pk and self.instance.available_languages:
+            self.fields["available_languages"].initial = self.instance.available_languages
+
+    def clean_available_languages(self) -> list[str]:
+        """Validate available languages selection.
+
+        Returns:
+            list[str]: List of valid language codes
+
+        Raises:
+            ValidationError: If no languages selected or invalid codes provided
+        """
+        languages = self.cleaned_data.get("available_languages", [])
+
+        if not languages:
+            raise ValidationError(_("Collection must have at least one available language."))
+
+        # Validate that all selected languages are in Django settings
+        from django.conf import settings
+
+        valid_language_codes = {code for code, name in settings.LANGUAGES}
+        invalid_codes = set(languages) - valid_language_codes
+
+        if invalid_codes:
+            raise ValidationError(
+                f"Invalid language codes: {', '.join(sorted(invalid_codes))}. "
+                f"Valid codes are: {', '.join(sorted(valid_language_codes))}"
+            )
+
+        return languages
+
+    def save(self, commit: bool = True) -> Collection:
+        """Save the collection with proper language handling.
+
+        Args:
+            commit: Whether to save to database immediately
+
+        Returns:
+            Collection: The saved collection instance
+        """
+        collection = super().save(commit=False)
+
+        # Ensure available_languages is properly set as a list
+        if "available_languages" in self.cleaned_data:
+            collection.available_languages = self.cleaned_data["available_languages"]
+
+        if commit:
+            collection.save()
+
+        return collection

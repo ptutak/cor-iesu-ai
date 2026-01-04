@@ -178,7 +178,7 @@ class TestCollectionCreateView:
             "name": "Test Collection",
             "description": "Test Description",
             "enabled": True,
-            "available_languages": '["en", "pl"]',
+            "available_languages": ["en", "pl"],
         }
 
         response = client.post(url, data=form_data)
@@ -237,7 +237,7 @@ class TestCollectionUpdateView:
             "name": "Updated Collection",
             "description": "Updated Description",
             "enabled": False,
-            "available_languages": '["en"]',
+            "available_languages": ["en"],
         }
 
         response = client.post(url, data=form_data)

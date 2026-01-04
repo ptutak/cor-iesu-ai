@@ -20,12 +20,13 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
-    DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
+from .forms import CollectionForm
 from .models import (
     Collection,
     CollectionMaintainer,
@@ -104,8 +105,8 @@ class CollectionCreateView(MaintainerRequiredMixin, CreateView):
     """Create view for collections."""
 
     model = Collection
+    form_class = CollectionForm
     template_name = "adoration/maintainer/collection_form.html"
-    fields = ["name", "description", "enabled", "available_languages"]
     success_url = reverse_lazy("maintainer:collection_list")
 
     def form_valid(self, form):
@@ -130,8 +131,9 @@ class CollectionUpdateView(MaintainerRequiredMixin, UpdateView):
     """Update view for collections."""
 
     model = Collection
+    form_class = CollectionForm
     template_name = "adoration/maintainer/collection_form.html"
-    fields = ["name", "description", "enabled", "available_languages"]
+    context_object_name = "collection"
     success_url = reverse_lazy("maintainer:collection_list")
 
     def get_queryset(self):
