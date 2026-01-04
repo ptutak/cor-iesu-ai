@@ -2,6 +2,7 @@
 - don't add useless .md summary files
 - follow linter guidelines via pre-commit hooks
 - always add type annotations for functions and classes
+- use # type: ignore only when absolutely necessary
 - always write unit tests when implementing new features
 - when ensuring that tests PASS you have to either:
   - correct the test
@@ -39,6 +40,7 @@
 - make check-hooks
 - make tests-unit
 - make tests-integration
+- make migrations
 
 ## Useful files:
 - .pre-commit-config.yaml

@@ -4,6 +4,8 @@ from typing import Any
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.db import models as django_models
+from django.http import HttpRequest
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
 
@@ -113,6 +115,19 @@ class PeriodAdmin(admin.ModelAdmin[Period]):
     list_display = ("name", "description")
     search_fields = ("name", "description")
     list_filter = ("name",)
+
+    @admin.action(description="Generate standard hour periods")
+    def generate_standard_hour_periods(self, request: HttpRequest, queryset: django_models.QuerySet[Period]) -> None:
+        """Generate 24 standard hour periods (00:00-01:00, 01:00-02:00, etc.).
+
+        Args:
+            request: The HTTP request object
+            queryset: The queryset of selected objects (not used by this action)
+        """
+        for hour in range(0, 24):
+            Period.objects.get_or_create(name=f"{hour:02}:00 - {hour + 1:02}:00")
+
+    actions = ["generate_standard_hour_periods"]
 
 
 @admin.register(PeriodCollection)
@@ -314,7 +329,6 @@ class CollectionAdmin(admin.ModelAdmin[Collection]):
     )
     list_filter = ("enabled", "available_languages")
     search_fields = ("name", "description")
-    filter_horizontal = ("periods",)
 
     fieldsets = (
         (None, {"fields": ("name", "description", "enabled")}),
@@ -323,13 +337,6 @@ class CollectionAdmin(admin.ModelAdmin[Collection]):
             {
                 "fields": ("available_languages",),
                 "description": "Select which languages this collection should be available in.",
-            },
-        ),
-        (
-            "Periods",
-            {
-                "fields": ("periods",),
-                "classes": ("collapse",),
             },
         ),
     )

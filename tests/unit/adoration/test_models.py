@@ -500,9 +500,16 @@ class TestPeriodAssignment:
         email = "test@example.com"
         assignment = PeriodAssignment.create_with_email(email=email, period_collection=period_collection)
 
-        # Manually create the expected hash
-        combined_data = f"{email}{assignment.salt}{assignment.deletion_token}"
-        expected_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+        # Manually create the expected hash using PBKDF2
+        from django.contrib.auth.hashers import PBKDF2PasswordHasher
+
+        hasher = PBKDF2PasswordHasher()
+        combined_data = f"{email}{assignment.deletion_token}"
+        expected_hash = hasher.encode(
+            password=combined_data,
+            salt=assignment.salt,
+            iterations=assignment.iterations,
+        )
 
         assert assignment.email_hash == expected_hash
 

@@ -47,6 +47,48 @@ class TestPeriodAdmin:
         admin = PeriodAdmin(Period, AdminSite())
         assert "name" in admin.list_filter
 
+    def test_generate_standard_hour_periods_action(self, db):
+        """Test that generate_standard_hour_periods admin action creates 24 hour periods."""
+        admin = PeriodAdmin(Period, AdminSite())
+
+        # Ensure no periods exist initially
+        Period.objects.all().delete()
+
+        # Create a mock request and queryset (not used by the action)
+        from unittest.mock import Mock
+
+        mock_request = Mock()
+        mock_queryset = Mock()
+
+        # Call the admin action
+        admin.generate_standard_hour_periods(mock_request, mock_queryset)
+
+        # Verify that 24 periods were created
+        periods = Period.objects.all()
+        assert periods.count() == 24
+
+        # Check that the periods have the expected format
+        period_names = set(periods.values_list("name", flat=True))
+        expected_names = {f"{hour:02}:00 - {hour + 1:02}:00" for hour in range(24)}
+        assert period_names == expected_names
+
+        # Test that running again doesn't create duplicates (get_or_create behavior)
+        admin.generate_standard_hour_periods(mock_request, mock_queryset)
+        assert Period.objects.count() == 24
+
+    def test_generate_standard_hour_periods_action_exists(self, db):
+        """Test that generate_standard_hour_periods action is registered."""
+        admin = PeriodAdmin(Period, AdminSite())
+        action_names = [action.__name__ if hasattr(action, "__name__") else action for action in admin.actions]
+        assert "generate_standard_hour_periods" in action_names
+
+    def test_generate_standard_hour_periods_action_description(self, db):
+        """Test that generate_standard_hour_periods action has correct description."""
+        admin = PeriodAdmin(Period, AdminSite())
+        action = admin.generate_standard_hour_periods
+        assert hasattr(action, "short_description")
+        assert action.short_description == "Generate standard hour periods"
+
 
 class TestPeriodCollectionAdmin:
     """Test cases for PeriodCollectionAdmin."""
@@ -666,23 +708,12 @@ class TestCollectionAdmin:
         admin = CollectionAdmin(Collection, AdminSite())
 
         assert admin.fieldsets is not None
-        assert len(admin.fieldsets) == 3  # Should have 3 fieldsets
+        assert len(admin.fieldsets) == 2  # Should have 2 fieldsets
 
         # Check fieldset structure
         fieldset_names = [fieldset[0] for fieldset in admin.fieldsets]
         assert None in fieldset_names  # First fieldset has no name
         assert "Languages" in fieldset_names
-        assert "Periods" in fieldset_names
-
-    def test_filter_horizontal_configuration(self, db):
-        """Test that filter_horizontal is configured correctly."""
-        from django.contrib.admin.sites import AdminSite
-
-        from adoration.admin import CollectionAdmin
-
-        admin = CollectionAdmin(Collection, AdminSite())
-
-        assert "periods" in admin.filter_horizontal
 
 
 class TestAdminDisplayDecorator:

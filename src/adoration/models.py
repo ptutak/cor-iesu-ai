@@ -3,6 +3,7 @@ import secrets
 from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
+from django.contrib.auth.hashers import PBKDF2PasswordHasher
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -221,9 +222,13 @@ class PeriodAssignment(models.Model):
     objects: models.Manager["PeriodAssignment"]
 
     period_collection = models.ForeignKey(PeriodCollection, on_delete=models.CASCADE)
-    email_hash = models.CharField(max_length=64, blank=False, null=False)
+    email_hash = models.CharField(max_length=128, blank=False, null=False)
     salt = models.CharField(max_length=32, blank=False, null=False)
     deletion_token = models.CharField(max_length=128, unique=True, blank=False, null=False)
+    iterations = models.IntegerField(
+        default=320000,
+        help_text="Number of PBKDF2 iterations used for email hashing",
+    )
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         """Save the assignment and generate deletion token if needed.
@@ -238,7 +243,8 @@ class PeriodAssignment(models.Model):
             self.salt = secrets.token_hex(16)  # 32 character hex string
         super().save(*args, **kwargs)
 
-    def generate_deletion_token(self) -> str:
+    @classmethod
+    def generate_deletion_token(cls) -> str:
         """Generate a secure, hard-to-break token for assignment deletion.
 
         Returns:
@@ -267,21 +273,24 @@ class PeriodAssignment(models.Model):
             PeriodAssignment: The new assignment instance
         """
         salt = secrets.token_hex(16)  # 32 character hex string
-        # Hash email with salt and deletion token for extra security
-        combined_data = f"{email}{salt}{deletion_token or ''}"
-        email_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+        iterations = 320000  # Default PBKDF2 iterations
+
+        # Generate deletion token if not provided
+        if not deletion_token:
+            deletion_token = cls.generate_deletion_token()
+
+        # Use PBKDF2 hasher for email hashing with salt and deletion token
+        hasher = PBKDF2PasswordHasher()
+        combined_data = f"{email}{deletion_token}"
+        email_hash = hasher.encode(password=combined_data, salt=salt, iterations=iterations)
 
         assignment = cls(
             period_collection=period_collection,
             email_hash=email_hash,
             salt=salt,
             deletion_token=deletion_token,
+            iterations=iterations,
         )
-        if not deletion_token:
-            assignment.deletion_token = assignment.generate_deletion_token()
-            # Regenerate hash with the actual deletion token
-            combined_data = f"{email}{salt}{assignment.deletion_token}"
-            assignment.email_hash = hashlib.sha256(combined_data.encode()).hexdigest()
 
         return assignment
 
@@ -294,9 +303,9 @@ class PeriodAssignment(models.Model):
         Returns:
             bool: True if email matches, False otherwise
         """
-        combined_data = f"{email}{self.salt}{self.deletion_token}"
-        expected_hash = hashlib.sha256(combined_data.encode()).hexdigest()
-        return self.email_hash == expected_hash
+        hasher = PBKDF2PasswordHasher()
+        combined_data = f"{email}{self.deletion_token}"
+        return hasher.verify(password=combined_data, encoded=self.email_hash)
 
     def __str__(self) -> str:
         return f"{self.period_collection.collection.name}: {self.period_collection.period.name} - [Hashed Email]"
