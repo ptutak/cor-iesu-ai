@@ -1,5 +1,4 @@
 ## AI guidelines context:
-- don't add useless .md summary files
 - follow linter guidelines via pre-commit hooks
 - always add type annotations for functions and classes
 - use # type: ignore only when absolutely necessary
@@ -24,6 +23,7 @@
 - never modify pyproject.toml without permission
 - never modify .pre-commit-config.yaml without permission
 - never modify Makefile without permission
+- when ending work, create a PROJECT_STATUS.md summary file
 
 ## General programming principles:
 - use SOLID:
