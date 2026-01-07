@@ -169,7 +169,7 @@ class MultilingualIntegrationTests(TestCase):
                 "privacy_accepted": True,
             }
 
-            response = self.client.post("/", data=form_data)
+            response = self.client.post("/pl/", data=form_data)
 
             self.assertEqual(response.status_code, 302)
             self.assertTrue(PeriodAssignment.objects.filter(period_collection=self.period_collection1).count() >= 1)
@@ -192,7 +192,7 @@ class MultilingualIntegrationTests(TestCase):
                 "privacy_accepted": True,
             }
 
-            response = self.client.post("/", data=form_data)
+            response = self.client.post("/nl/", data=form_data)
 
             self.assertEqual(response.status_code, 302)
             self.assertTrue(PeriodAssignment.objects.filter(period_collection=self.period_collection1).count() >= 1)

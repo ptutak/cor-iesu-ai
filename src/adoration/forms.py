@@ -246,6 +246,8 @@ class CollectionForm(forms.ModelForm[Collection]):
     )
 
     class Meta:
+        """Meta configuration for CollectionForm."""
+
         model = Collection
         fields = ["name", "description", "enabled", "available_languages"]
         widgets = {
@@ -281,7 +283,8 @@ class CollectionForm(forms.ModelForm[Collection]):
         # Set language choices from Django settings
         from django.conf import settings
 
-        self.fields["available_languages"].choices = settings.LANGUAGES
+        # Type ignore needed because MultipleChoiceField.choices is not properly typed in Django stubs
+        self.fields["available_languages"].choices = settings.LANGUAGES  # type: ignore[assignment,attr-defined]
 
         # Set initial value for existing instances
         if self.instance and self.instance.pk and self.instance.available_languages:
@@ -313,7 +316,7 @@ class CollectionForm(forms.ModelForm[Collection]):
                 f"Valid codes are: {', '.join(sorted(valid_language_codes))}"
             )
 
-        return languages
+        return list(languages)
 
     def save(self, commit: bool = True) -> Collection:
         """Save the collection with proper language handling.

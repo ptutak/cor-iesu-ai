@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:f99a88b6816c63363f28a2529bb364106cf7b7be9a0ceef811c081a15da976a3"
+content_hash = "sha256:8ce80d43a8396a4068ac9dadbea965cd57e2eadfbf9bab122047ecc1af1421af"
 
 [[metadata.targets]]
 requires_python = ">=3.13"
@@ -535,6 +535,16 @@ files = [
 ]
 
 [[package]]
+name = "polib"
+version = "1.2.0"
+summary = "A library to manipulate gettext files (po and mo files)."
+groups = ["default"]
+files = [
+    {file = "polib-1.2.0-py2.py3-none-any.whl", hash = "sha256:1c77ee1b81feb31df9bca258cbc58db1bbb32d10214b173882452c73af06d62d"},
+    {file = "polib-1.2.0.tar.gz", hash = "sha256:f3ef94aefed6e183e342a8a269ae1fc4742ba193186ad76f175938621dbfc26b"},
+]
+
+[[package]]
 name = "pre-commit"
 version = "4.5.1"
 requires_python = ">=3.10"
@@ -619,6 +629,20 @@ dependencies = [
 files = [
     {file = "pytest_cov-7.0.0-py3-none-any.whl", hash = "sha256:3b8e9558b16cc1479da72058bdecf8073661c7f57f7d3c5f22a1c23507f2d861"},
     {file = "pytest_cov-7.0.0.tar.gz", hash = "sha256:33c97eda2e049a0c5298e91f519302a1334c26ac65c1a483d6206fd458361af1"},
+]
+
+[[package]]
+name = "pytest-django"
+version = "4.11.1"
+requires_python = ">=3.8"
+summary = "A Django plugin for pytest."
+groups = ["dev"]
+dependencies = [
+    "pytest>=7.0.0",
+]
+files = [
+    {file = "pytest_django-4.11.1-py3-none-any.whl", hash = "sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10"},
+    {file = "pytest_django-4.11.1.tar.gz", hash = "sha256:a949141a1ee103cb0e7a20f1451d355f83f5e4a5d07bdd4dcfdd1fd0ff227991"},
 ]
 
 [[package]]

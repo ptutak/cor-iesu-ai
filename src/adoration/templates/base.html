@@ -11,7 +11,7 @@
         </title>
 
         <!-- Bootstrap 5.3 CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
         <!-- Font Awesome -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -134,13 +134,16 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 {% get_available_languages_with_names as languages %}
-                                {% for lang_code, lang_name in languages %}
+                                {% for language in languages %}
                                 <li>
-                                    <a class="dropdown-item {% if LANGUAGE_CODE == lang_code %}active{% endif %}"
-                                       href="{% url 'set_language' %}"
-                                       onclick="setLanguage('{{ lang_code }}')">
-                                        {{ lang_name }}
-                                    </a>
+                                    <form action="{% url 'set_language' %}" method="post" style="margin: 0;">
+                                        {% csrf_token %}
+                                        <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+                                        <input name="language" type="hidden" value="{{ language.code }}" />
+                                        <button type="submit" class="dropdown-item {% if LANGUAGE_CODE == language.code %}active{% endif %}" style="border: none; background: none; width: 100%; text-align: left;">
+                                            {{ language.name }}
+                                        </button>
+                                    </form>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -218,40 +221,10 @@
         </footer>
 
         <!-- Bootstrap 5.3 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
         <!-- Font Awesome JS -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-
-        <!-- Language Switcher Script -->
-        <script>
-            function setLanguage(languageCode) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '{% url "set_language" %}';
-
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrfmiddlewaretoken';
-                csrfInput.value = '{{ csrf_token }}';
-
-                const langInput = document.createElement('input');
-                langInput.type = 'hidden';
-                langInput.name = 'language';
-                langInput.value = languageCode;
-
-                const nextInput = document.createElement('input');
-                nextInput.type = 'hidden';
-                nextInput.name = 'next';
-                nextInput.value = window.location.pathname;
-
-                form.appendChild(csrfInput);
-                form.appendChild(langInput);
-                form.appendChild(nextInput);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
 
             // Auto-dismiss alerts after 5 seconds
             document.addEventListener('DOMContentLoaded', function() {

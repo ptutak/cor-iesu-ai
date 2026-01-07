@@ -25,16 +25,6 @@
 - never modify Makefile without permission
 - when ending work, create a PROJECT_STATUS.md summary file
 
-## General programming principles:
-- use SOLID:
-  - Single Responsibility Principle (SRP)
-  - Open/Closed Principle (OCP)
-  - Liskov Substitution Principle (LSP)
-  - Interface Segregation Principle (ISP)
-  - Dependency Inversion Principle (DIP)
-- use DRY - Don't Repeat Yourself (DRY)
-- use KISS - Keep It Simple, Stupid (KISS)
-
 ## Useful available make commands:
 - make check-hooks
 - make tests-unit

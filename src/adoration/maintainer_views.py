@@ -5,24 +5,22 @@ This module contains views that allow maintainers to manage collections,
 periods, and period assignments through a dedicated admin interface.
 """
 
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from django.db import models, transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
     DetailView,
     ListView,
-    TemplateView,
     UpdateView,
 )
 
@@ -36,41 +34,76 @@ from .models import (
     PeriodCollection,
 )
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+
+    class UserWithMaintainer(AbstractUser):
+        """Type hint for User with maintainer relationship."""
+
+        maintainer: Maintainer
+
 
 class MaintainerRequiredMixin:
-    """Mixin to ensure user is a maintainer."""
+    """Mixin to ensure user is a maintainer.
+
+    This mixin checks that the current user is authenticated and has a
+    maintainer profile before allowing access to the view.
+    """
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        """Check if user is a maintainer before allowing access."""
+        """Check if user is a maintainer before allowing access.
+
+        Args:
+            request: HTTP request object
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments
+
+        Returns:
+            HTTP response
+
+        Raises:
+            PermissionDenied: If user is not a maintainer
+        """
         if not request.user.is_authenticated:
             return redirect("login")
 
         try:
-            request.user.maintainer
+            request.user.maintainer  # type: ignore[attr-defined]
         except Maintainer.DoesNotExist:
             raise PermissionDenied("You must be a maintainer to access this page.")
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)  # type: ignore[misc,no-any-return]
 
 
 @method_decorator(login_required, name="dispatch")
-class MaintainerDashboardView(MaintainerRequiredMixin, ListView):
+class MaintainerDashboardView(MaintainerRequiredMixin, ListView[Collection]):
     """Main dashboard view for maintainers."""
 
     template_name = "adoration/maintainer/dashboard.html"
     context_object_name = "collections"
 
-    def get_queryset(self):
-        """Get collections managed by the current maintainer."""
-        maintainer = self.request.user.maintainer
+    def get_queryset(self) -> Any:
+        """Get collections managed by the current maintainer.
+
+        Returns:
+            QuerySet of collections managed by the current maintainer
+        """
+        maintainer = self.request.user.maintainer  # type: ignore
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
             "periods", "collectionmaintainer_set__maintainer__user"
         )
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Add additional context data."""
+        """Add additional context data.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with dashboard statistics
+        """
         context = super().get_context_data(**kwargs)
-        maintainer = self.request.user.maintainer
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
 
         context.update(
             {
@@ -86,22 +119,25 @@ class MaintainerDashboardView(MaintainerRequiredMixin, ListView):
 
 
 @method_decorator(login_required, name="dispatch")
-class CollectionListView(MaintainerRequiredMixin, ListView):
+class CollectionListView(MaintainerRequiredMixin, ListView[Collection]):
     """List view for collections managed by maintainer."""
 
     model = Collection
     template_name = "adoration/maintainer/collection_list.html"
     context_object_name = "collections"
-    paginate_by = 20
 
-    def get_queryset(self):
-        """Get collections managed by the current maintainer."""
-        maintainer = self.request.user.maintainer
+    def get_queryset(self) -> models.QuerySet[Collection]:
+        """Get collections managed by the current maintainer.
+
+        Returns:
+            QuerySet of Collection objects managed by the current maintainer
+        """
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related("periods")
 
 
 @method_decorator(login_required, name="dispatch")
-class CollectionCreateView(MaintainerRequiredMixin, CreateView):
+class CollectionCreateView(MaintainerRequiredMixin, CreateView[Collection, Any]):
     """Create view for collections."""
 
     model = Collection
@@ -109,25 +145,32 @@ class CollectionCreateView(MaintainerRequiredMixin, CreateView):
     template_name = "adoration/maintainer/collection_form.html"
     success_url = reverse_lazy("maintainer:collection_list")
 
-    def form_valid(self, form):
-        """Save collection and automatically assign current user as maintainer."""
+    def form_valid(self, form: CollectionForm) -> HttpResponse:
+        """Save collection and automatically assign current user as maintainer.
+
+        Args:
+            form: The valid form instance
+
+        Returns:
+            HTTP response redirecting to collection list
+        """
         response = super().form_valid(form)
 
         # Automatically assign the current user as a maintainer
-        maintainer = self.request.user.maintainer
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
         CollectionMaintainer.objects.create(collection=self.object, maintainer=maintainer)
 
         messages.success(
             self.request,
             _("Collection '{}' created successfully. You are now a maintainer of this collection.").format(
-                self.object.name
+                self.object.name  # type: ignore[union-attr]
             ),
         )
         return response
 
 
 @method_decorator(login_required, name="dispatch")
-class CollectionUpdateView(MaintainerRequiredMixin, UpdateView):
+class CollectionUpdateView(MaintainerRequiredMixin, UpdateView[Collection, Any]):
     """Update view for collections."""
 
     model = Collection
@@ -136,32 +179,47 @@ class CollectionUpdateView(MaintainerRequiredMixin, UpdateView):
     context_object_name = "collection"
     success_url = reverse_lazy("maintainer:collection_list")
 
-    def get_queryset(self):
-        """Only allow editing collections managed by current maintainer."""
-        maintainer = self.request.user.maintainer
+    def get_queryset(self) -> models.QuerySet[Collection]:
+        """Only allow editing collections managed by current maintainer.
+
+        Returns:
+            QuerySet of Collection objects managed by the current maintainer
+        """
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer)
 
-    def form_valid(self, form):
-        """Handle successful form submission."""
+    def form_valid(self, form: CollectionForm) -> HttpResponse:
+        """Handle successful form submission.
+
+        Args:
+            form: The valid form instance
+
+        Returns:
+            HTTP response redirecting to collection list
+        """
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Collection '{}' updated successfully.").format(self.object.name),
+            _("Collection '{}' updated successfully.").format(self.object.name),  # type: ignore[union-attr]
         )
         return response
 
 
 @method_decorator(login_required, name="dispatch")
-class CollectionDetailView(MaintainerRequiredMixin, DetailView):
+class CollectionDetailView(MaintainerRequiredMixin, DetailView[Collection]):
     """Detail view for collections."""
 
     model = Collection
     template_name = "adoration/maintainer/collection_detail.html"
     context_object_name = "collection"
 
-    def get_queryset(self):
-        """Only show collections managed by current maintainer."""
-        maintainer = self.request.user.maintainer
+    def get_queryset(self) -> models.QuerySet[Collection]:
+        """Only show collections managed by current maintainer.
+
+        Returns:
+            QuerySet of Collection objects managed by the current maintainer
+        """
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
             "periods",
             "collectionmaintainer_set__maintainer__user",
@@ -169,7 +227,14 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView):
         )
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Add additional context data."""
+        """Add additional context data.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with period collections and assignments data
+        """
         context = super().get_context_data(**kwargs)
         collection = self.object
 
@@ -188,14 +253,16 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView):
             {
                 "period_collections": period_collections,
                 "unassigned_periods": unassigned_periods,
-                "total_assignments": sum(pc.periodassignment_set.count() for pc in period_collections),
+                "total_assignments": sum(
+                    pc.periodassignment_set.count() for pc in period_collections  # type: ignore[attr-defined]
+                ),
             }
         )
         return context
 
 
 @method_decorator(login_required, name="dispatch")
-class PeriodListView(MaintainerRequiredMixin, ListView):
+class PeriodListView(MaintainerRequiredMixin, ListView[Period]):
     """List view for periods."""
 
     model = Period
@@ -205,7 +272,7 @@ class PeriodListView(MaintainerRequiredMixin, ListView):
 
 
 @method_decorator(login_required, name="dispatch")
-class PeriodCreateView(MaintainerRequiredMixin, CreateView):
+class PeriodCreateView(MaintainerRequiredMixin, CreateView[Period, Any]):
     """Create view for periods."""
 
     model = Period
@@ -213,18 +280,25 @@ class PeriodCreateView(MaintainerRequiredMixin, CreateView):
     fields = ["name", "description"]
     success_url = reverse_lazy("maintainer:period_list")
 
-    def form_valid(self, form):
-        """Handle successful form submission."""
+    def form_valid(self, form: Any) -> HttpResponse:
+        """Handle successful form submission.
+
+        Args:
+            form: The valid form instance
+
+        Returns:
+            HTTP response redirecting to period list
+        """
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Period '{}' created successfully.").format(self.object.name),
+            _("Period '{}' created successfully.").format(self.object.name),  # type: ignore[union-attr]
         )
         return response
 
 
 @method_decorator(login_required, name="dispatch")
-class PeriodUpdateView(MaintainerRequiredMixin, UpdateView):
+class PeriodUpdateView(MaintainerRequiredMixin, UpdateView[Period, Any]):
     """Update view for periods."""
 
     model = Period
@@ -232,12 +306,19 @@ class PeriodUpdateView(MaintainerRequiredMixin, UpdateView):
     fields = ["name", "description"]
     success_url = reverse_lazy("maintainer:period_list")
 
-    def form_valid(self, form):
-        """Handle successful form submission."""
+    def form_valid(self, form: Any) -> HttpResponse:
+        """Handle successful form submission.
+
+        Args:
+            form: The valid form instance
+
+        Returns:
+            HTTP response redirecting to period list
+        """
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Period '{}' updated successfully.").format(self.object.name),
+            _("Period '{}' updated successfully.").format(self.object.name),  # type: ignore[union-attr]
         )
         return response
 
@@ -245,12 +326,19 @@ class PeriodUpdateView(MaintainerRequiredMixin, UpdateView):
 @login_required
 @permission_required("adoration.add_periodcollection", raise_exception=True)
 def assign_period_to_collection(request: HttpRequest) -> JsonResponse:
-    """AJAX view to assign a period to a collection."""
+    """AJAX view to assign a period to a collection.
+
+    Args:
+        request: HTTP request object
+
+    Returns:
+        JSON response indicating success or failure
+    """
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid method"})
 
     try:
-        maintainer = request.user.maintainer
+        maintainer = request.user.maintainer  # type: ignore[attr-defined,union-attr]
     except Maintainer.DoesNotExist:
         return JsonResponse({"success": False, "error": "User is not a maintainer"})
 
@@ -292,12 +380,19 @@ def assign_period_to_collection(request: HttpRequest) -> JsonResponse:
 @login_required
 @permission_required("adoration.delete_periodcollection", raise_exception=True)
 def remove_period_from_collection(request: HttpRequest) -> JsonResponse:
-    """AJAX view to remove a period from a collection."""
+    """AJAX view to remove a period from a collection.
+
+    Args:
+        request: HTTP request object
+
+    Returns:
+        JSON response indicating success or failure
+    """
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid method"})
 
     try:
-        maintainer = request.user.maintainer
+        maintainer = request.user.maintainer  # type: ignore[attr-defined,union-attr]
     except Maintainer.DoesNotExist:
         return JsonResponse({"success": False, "error": "User is not a maintainer"})
 
@@ -348,7 +443,14 @@ def remove_period_from_collection(request: HttpRequest) -> JsonResponse:
 @login_required
 @permission_required("adoration.add_maintainer", raise_exception=True)
 def promote_user_to_maintainer(request: HttpRequest) -> JsonResponse:
-    """AJAX view to promote a user to maintainer."""
+    """AJAX view to promote a user to maintainer.
+
+    Args:
+        request: HTTP request object
+
+    Returns:
+        JSON response indicating success or failure
+    """
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid method"})
 
@@ -382,7 +484,7 @@ def promote_user_to_maintainer(request: HttpRequest) -> JsonResponse:
 
         # Create maintainer
         with transaction.atomic():
-            maintainer = Maintainer.objects.create(user=user, country=country, phone_number=phone_number)
+            Maintainer.objects.create(user=user, country=country, phone_number=phone_number)
 
             # Add user to maintainers group
             from django.contrib.auth.models import Group
@@ -404,7 +506,7 @@ def promote_user_to_maintainer(request: HttpRequest) -> JsonResponse:
 
 
 @method_decorator(login_required, name="dispatch")
-class AssignmentListView(MaintainerRequiredMixin, ListView):
+class AssignmentListView(MaintainerRequiredMixin, ListView[PeriodAssignment]):
     """List view for period assignments managed by maintainer."""
 
     model = PeriodAssignment
@@ -412,9 +514,13 @@ class AssignmentListView(MaintainerRequiredMixin, ListView):
     context_object_name = "assignments"
     paginate_by = 50
 
-    def get_queryset(self):
-        """Get assignments for collections managed by current maintainer."""
-        maintainer = self.request.user.maintainer
+    def get_queryset(self) -> models.QuerySet[PeriodAssignment]:
+        """Get assignments for collections managed by the current maintainer.
+
+        Returns:
+            QuerySet of PeriodAssignment objects for collections managed by the current maintainer
+        """
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
         return (
             PeriodAssignment.objects.filter(period_collection__collection__collectionmaintainer__maintainer=maintainer)
             .select_related("period_collection__collection", "period_collection__period")
@@ -422,9 +528,16 @@ class AssignmentListView(MaintainerRequiredMixin, ListView):
         )
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Add filter context."""
+        """Add filter context.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with collections for filtering
+        """
         context = super().get_context_data(**kwargs)
-        maintainer = self.request.user.maintainer
+        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
 
         # Get collections for filtering
         collections = Collection.objects.filter(collectionmaintainer__maintainer=maintainer)
@@ -439,7 +552,7 @@ class AssignmentListView(MaintainerRequiredMixin, ListView):
 
 
 @method_decorator(login_required, name="dispatch")
-class UserPromotionView(MaintainerRequiredMixin, ListView):
+class UserPromotionView(MaintainerRequiredMixin, ListView[User]):
     """View for promoting users to maintainers."""
 
     model = User
@@ -447,12 +560,23 @@ class UserPromotionView(MaintainerRequiredMixin, ListView):
     context_object_name = "users"
     paginate_by = 20
 
-    def get_queryset(self):
-        """Get users who are not maintainers yet."""
+    def get_queryset(self) -> models.QuerySet[User]:
+        """Get users who are not maintainers yet.
+
+        Returns:
+            QuerySet of User objects who are not maintainers and have email addresses
+        """
         return User.objects.filter(maintainer__isnull=True, email__isnull=False).exclude(email="").order_by("username")
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        """Add search context."""
+        """Add search context.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with search functionality
+        """
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get("search", "")
 

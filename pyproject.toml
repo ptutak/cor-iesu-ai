@@ -3,7 +3,7 @@ name = "cor-iesu-ai"
 version = "0.1.0"
 description = "Package for managing adoration of Most Holy Sacrament"
 requires-python = ">=3.13"
-dependencies = ["django>=6.0"]
+dependencies = ["django>=6.0", "polib>=1.2.0"]
 
 [tool.black]
 line-length = 120
@@ -77,4 +77,5 @@ dev = [
     "django-stubs[compatible-mypy]",
     "django-stubs-ext",
     "django-test>=0.4030",
+    "pytest-django>=4.11.1",
 ]
