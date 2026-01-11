@@ -430,7 +430,70 @@ class TestPeriodUpdateView:
         assert period.description == "Updated Description"
 
 
-@pytest.mark.django_db
+class TestPeriodDeleteView:
+    """Test cases for PeriodDeleteView."""
+
+    def test_period_delete_get(self, client, maintainer_with_permissions, period):
+        """Test GET request to period delete view shows confirmation page."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert response.context["period"] == period
+        assert "total_collections" in response.context
+        assert "total_assignments" in response.context
+
+    def test_period_delete_post_success(self, client, maintainer_with_permissions, period):
+        """Test POST request successfully deletes period."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
+        response = client.post(url)
+
+        assert response.status_code == 302
+        assert response.url == reverse("maintainer:period_list")
+
+        # Check period was deleted
+        assert not Period.objects.filter(pk=period.pk).exists()
+
+    def test_period_delete_with_assignments_cascades(
+        self, client, maintainer_with_permissions, period, collection, maintainer
+    ):
+        """Test that deleting period also deletes associated assignments."""
+        client.force_login(maintainer_with_permissions)
+
+        # Create collection maintainer relationship
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create period collection and assignment
+        period_collection = PeriodCollection.objects.create(collection=collection, period=period)
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
+        response = client.post(url)
+
+        assert response.status_code == 302
+
+        # Check cascade deletion
+        assert not Period.objects.filter(pk=period.pk).exists()
+        assert not PeriodCollection.objects.filter(pk=period_collection.pk).exists()
+        assert not PeriodAssignment.objects.filter(pk=assignment.pk).exists()
+
+    def test_period_delete_requires_permission(self, client, django_user_model, period):
+        """Test that period delete requires proper permission."""
+        user = django_user_model.objects.create_user(
+            username="regular_user", email="user@example.com", password="testpass123"
+        )
+        client.force_login(user)
+
+        url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
+        response = client.get(url)
+        assert response.status_code == 403
+
+
 class TestAssignPeriodToCollection:
     """Test cases for assign_period_to_collection AJAX view."""
 

@@ -47,6 +47,11 @@ urlpatterns = [
         maintainer_views.PeriodUpdateView.as_view(),
         name="period_edit",
     ),
+    path(
+        "periods/<int:pk>/delete/",
+        maintainer_views.PeriodDeleteView.as_view(),
+        name="period_delete",
+    ),
     # Period-Collection assignment
     path(
         "assign-period/",

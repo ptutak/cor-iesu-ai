@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-02 23:46+0000\n"
+"POT-Creation-Date: 2026-01-11 19:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,198 +17,1092 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: adoration/forms.py:21
+
+#: adoration/forms.py:22
 msgid "Select a collection"
 msgstr "Selecteer een collectie"
 
-#: adoration/forms.py:23 adoration/templates/adoration/registration.html:315
+#: adoration/forms.py:24
+#: adoration/templates/adoration/maintainer/assignment_list.html:26
+#: adoration/templates/adoration/registration.html:274
 msgid "Collection"
 msgstr "Collectie"
 
-#: adoration/forms.py:30
+#: adoration/forms.py:29
 msgid "Select a period"
 msgstr "Selecteer een periode"
 
-#: adoration/forms.py:31 adoration/templates/adoration/registration.html:332
+#: adoration/forms.py:30
+#: adoration/templates/adoration/maintainer/assignment_list.html:27
+#: adoration/templates/adoration/maintainer/collection_detail.html:110
+#: adoration/templates/adoration/registration.html:291
 msgid "Period"
 msgstr "Periode"
 
-#: adoration/forms.py:36
+#: adoration/forms.py:35
 msgid "Full Name *"
 msgstr "Volledige naam *"
 
-#: adoration/forms.py:42 adoration/forms.py:205
+#: adoration/forms.py:41 adoration/forms.py:206
 msgid "Email Address *"
 msgstr "E-mailadres *"
 
-#: adoration/forms.py:48
+#: adoration/forms.py:47
 msgid "Phone Number (optional)"
 msgstr "Telefoonnummer (optioneel)"
 
-#: adoration/forms.py:54
+#: adoration/forms.py:53
 msgid "Privacy Agreement"
 msgstr "Privacyovereenkomst"
 
-#: adoration/forms.py:56
+#: adoration/forms.py:55
 msgid ""
 "I acknowledge that my email address will be sent directly to the collection "
 "maintainer(s) for coordination purposes. I understand that no personal data "
 "is stored in the system database - only a secure hash for verification. I "
 "consent to receiving confirmation and coordination emails related to my "
 "registration."
-msgstr "Ik bevestig dat mijn e-mailadres rechtstreeks naar de collectiebeheerder(s) wordt gestuurd voor coördinatiedoeleinden. Ik begrijp dat er geen persoonlijke gegevens worden opgeslagen in de systeemdatabase - alleen een veilige hash voor verificatie. Ik stem in met het ontvangen van bevestigings- en coördinatie-e-mails gerelateerd aan mijn registratie."
+msgstr ""
+"Ik bevestig dat mijn e-mailadres rechtstreeks naar de collectiebeheerder(s) "
+"wordt gestuurd voor coördinatiedoeleinden. Ik begrijp dat er geen "
+"persoonlijke gegevens worden opgeslagen in de systeemdatabase - alleen een "
+"veilige hash voor verificatie. Ik stem in met het ontvangen van "
+"bevestigings- en coördinatie-e-mails gerelateerd aan mijn registratie."
 
-#: adoration/forms.py:116
+#: adoration/forms.py:126
 msgid "Please select a period."
 msgstr "Selecteer alstublieft een periode."
 
-#: adoration/forms.py:143
+#: adoration/forms.py:149
 #, python-format
 msgid "This period is full. Maximum %(limit)s assignments allowed."
 msgstr "Deze periode is vol. Maximaal %(limit)s toewijzingen toegestaan."
 
-#: adoration/forms.py:174
+#: adoration/forms.py:176
 msgid "You are already registered for this period."
 msgstr "U bent al geregistreerd voor deze periode."
 
 #: adoration/forms.py:207
 msgid "Enter the email address used for registration to confirm deletion."
-msgstr "Voer het e-mailadres in dat gebruikt werd voor registratie om verwijdering te bevestigen."
+msgstr ""
+"Voer het e-mailadres in dat gebruikt werd voor registratie om verwijdering "
+"te bevestigen."
 
-#: adoration/forms.py:234
+#: adoration/forms.py:233
 msgid "Email address does not match the registration."
 msgstr "E-mailadres komt niet overeen met de registratie."
 
-#: adoration/templates/adoration/delete_confirm.html:5
-#: adoration/templates/adoration/delete_confirm.html:23
+#: adoration/forms.py:244
+msgid "Select which languages this collection is available in."
+msgstr ""
+
+#: adoration/forms.py:245
+#: adoration/templates/adoration/maintainer/collection_form.html:135
+msgid "Available Languages"
+msgstr ""
+
+#: adoration/forms.py:257
+#: adoration/templates/adoration/maintainer/collection_form.html:75
+#, fuzzy
+#| msgid "Select a collection"
+msgid "Enter collection name"
+msgstr "Selecteer een collectie"
+
+#: adoration/forms.py:264
+#: adoration/templates/adoration/maintainer/collection_form.html:97
+msgid "Enter collection description (optional)"
+msgstr ""
+
+#: adoration/forms.py:305
+msgid "Collection must have at least one available language."
+msgstr ""
+
+#: adoration/maintainer_views.py:166
+msgid ""
+"Collection '{}' created successfully. You are now a maintainer of this "
+"collection."
+msgstr ""
+
+#: adoration/maintainer_views.py:204
+#, fuzzy
+#| msgid "Registration cancelled successfully."
+msgid "Collection '{}' updated successfully."
+msgstr "Registratie succesvol geannuleerd."
+
+#: adoration/maintainer_views.py:296
+#, fuzzy
+#| msgid "Registration cancelled successfully."
+msgid "Period '{}' created successfully."
+msgstr "Registratie succesvol geannuleerd."
+
+#: adoration/maintainer_views.py:322
+#, fuzzy
+#| msgid "Registration cancelled successfully."
+msgid "Period '{}' updated successfully."
+msgstr "Registratie succesvol geannuleerd."
+
+#: adoration/maintainer_views.py:381
+#, fuzzy
+#| msgid "Registration cancelled successfully."
+msgid "Period '{}' deleted successfully."
+msgstr "Registratie succesvol geannuleerd."
+
+#: adoration/maintainer_views.py:423
+msgid "Period '{}' assigned to collection '{}'."
+msgstr ""
+
+#: adoration/maintainer_views.py:430
+msgid "Period is already assigned to this collection."
+msgstr ""
+
+#: adoration/maintainer_views.py:480
+msgid "Cannot remove period '{}' - it has {} active assignments."
+msgstr ""
+
+#: adoration/maintainer_views.py:491
+msgid "Period '{}' removed from collection '{}'."
+msgstr ""
+
+#: adoration/maintainer_views.py:532
+msgid "User '{}' is already a maintainer."
+msgstr ""
+
+#: adoration/maintainer_views.py:541
+msgid "User must have an email address to become a maintainer."
+msgstr ""
+
+#: adoration/maintainer_views.py:558
+msgid "User '{}' promoted to maintainer successfully."
+msgstr ""
+
+#: adoration/templates/adoration/delete_confirm.html:6
+#: adoration/templates/adoration/delete_confirm.html:15
 msgid "Cancel Registration"
 msgstr "Registratie annuleren"
 
-#: adoration/templates/adoration/delete_confirm.html:26
+#: adoration/templates/adoration/delete_confirm.html:18
 msgid "Are you sure you want to cancel your registration?"
 msgstr "Weet u zeker dat u uw registratie wilt annuleren?"
 
-#: adoration/templates/adoration/delete_confirm.html:37
+#: adoration/templates/adoration/delete_confirm.html:29
 msgid "Registration Details:"
 msgstr "Registratiegegevens:"
 
-#: adoration/templates/adoration/delete_confirm.html:39
+#: adoration/templates/adoration/delete_confirm.html:31
 msgid "Collection:"
 msgstr "Collectie:"
 
-#: adoration/templates/adoration/delete_confirm.html:41
+#: adoration/templates/adoration/delete_confirm.html:33
 msgid "Period:"
 msgstr "Periode:"
 
-#: adoration/templates/adoration/delete_confirm.html:52
+#: adoration/templates/adoration/delete_confirm.html:44
 msgid "Email Verification Required"
 msgstr "E-mailverificatie vereist"
 
-#: adoration/templates/adoration/delete_confirm.html:53
+#: adoration/templates/adoration/delete_confirm.html:45
 msgid ""
 "For privacy and security, please enter the email address used for "
 "registration to confirm deletion."
-msgstr "Voor privacy en veiligheid, voer alstublieft het e-mailadres in dat gebruikt werd voor registratie om verwijdering te bevestigen."
+msgstr ""
+"Voor privacy en veiligheid, voer alstublieft het e-mailadres in dat gebruikt "
+"werd voor registratie om verwijdering te bevestigen."
 
-#: adoration/templates/adoration/delete_confirm.html:96
+#: adoration/templates/adoration/delete_confirm.html:88
 msgid "Yes, Cancel Registration"
 msgstr "Ja, annuleer registratie"
 
-#: adoration/templates/adoration/delete_confirm.html:98
+#: adoration/templates/adoration/delete_confirm.html:90
 msgid "Keep Registration"
 msgstr "Behoud registratie"
 
-#: adoration/templates/adoration/delete_confirm.html:101
+#: adoration/templates/adoration/delete_confirm.html:93
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:27
 msgid "This action cannot be undone."
 msgstr "Deze actie kan niet ongedaan worden gemaakt."
 
-#: adoration/templates/adoration/registration.html:7
+#: adoration/templates/adoration/language_switcher.html:20
+msgid "Switch to English"
+msgstr ""
+
+#: adoration/templates/adoration/language_switcher.html:20
+msgid "Switch to Polish"
+msgstr ""
+
+#: adoration/templates/adoration/language_switcher.html:20
+msgid "Switch to Dutch"
+msgstr ""
+
+#: adoration/templates/adoration/language_switcher.html:20
+#, python-format
+msgid "Switch to %(name)s"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:4
+#: adoration/templates/adoration/maintainer/assignment_list.html:7
+#: adoration/templates/adoration/maintainer/base.html:101
+#: adoration/templates/adoration/maintainer/collection_detail.html:112
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:62
+#: adoration/templates/adoration/maintainer/period_list.html:36
+msgid "Assignments"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:17
+#, fuzzy
+#| msgid "Period Assignment Registration"
+msgid "Period Assignments"
+msgstr "Periodetoewijzing registratie"
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:28
+msgid "Assignment Date"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:29
+#: adoration/templates/adoration/maintainer/collection_list.html:35
+msgid "Status"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:38
+#: adoration/templates/adoration/maintainer/collection_detail.html:34
+#: adoration/templates/adoration/maintainer/collection_list.html:61
+#: adoration/templates/adoration/maintainer/dashboard.html:189
+msgid "Active"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:47
+msgid "No assignments found"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/assignment_list.html:48
+msgid "No period assignments for your collections yet."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:5
+#: adoration/templates/adoration/maintainer/base.html:158
+#: adoration/templates/base.html:122 adoration/templates/base.html:164
+msgid "Maintainer Panel"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:73
+msgid "MAINTAINER PANEL"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:80
+#: adoration/templates/adoration/maintainer/dashboard.html:5
+#: adoration/templates/adoration/maintainer/dashboard.html:10
+msgid "Dashboard"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:87
+#: adoration/templates/adoration/maintainer/collection_detail.html:8
+#: adoration/templates/adoration/maintainer/collection_form.html:14
+#: adoration/templates/adoration/maintainer/collection_list.html:4
+#: adoration/templates/adoration/maintainer/collection_list.html:7
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:51
+#: adoration/templates/adoration/maintainer/period_list.html:35
+#, fuzzy
+#| msgid "Collection"
+msgid "Collections"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/base.html:94
+#: adoration/templates/adoration/maintainer/collection_list.html:36
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:8
+#: adoration/templates/adoration/maintainer/period_form.html:14
+#: adoration/templates/adoration/maintainer/period_list.html:4
+#: adoration/templates/adoration/maintainer/period_list.html:7
+#, fuzzy
+#| msgid "Period"
+msgid "Periods"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/base.html:108
+#: adoration/templates/adoration/maintainer/dashboard.html:150
+#: adoration/templates/adoration/maintainer/user_promotion.html:4
+#: adoration/templates/adoration/maintainer/user_promotion.html:7
+msgid "Promote Users"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:119
+msgid "Back to Site"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:126
+msgid "Admin Panel"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:133
+#: adoration/templates/base.html:181
+msgid "Logout"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/base.html:147
+msgid "Maintainer"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:16
+#: adoration/templates/adoration/maintainer/collection_form.html:6
+#: adoration/templates/adoration/maintainer/collection_form.html:33
+#, fuzzy
+#| msgid "Collection"
+msgid "Edit Collection"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:20
+#: adoration/templates/adoration/maintainer/dashboard.html:132
+#: adoration/templates/adoration/maintainer/period_form.html:8
+#: adoration/templates/adoration/maintainer/period_form.html:119
+#: adoration/templates/adoration/maintainer/period_list.html:13
+#, fuzzy
+#| msgid "Period"
+msgid "Create Period"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:36
+#: adoration/templates/adoration/maintainer/collection_list.html:66
+#: adoration/templates/adoration/maintainer/dashboard.html:193
+msgid "Inactive"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:49
+#: adoration/templates/adoration/maintainer/collection_detail.html:100
+msgid "Assigned Periods"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:55
+#: adoration/templates/adoration/maintainer/dashboard.html:78
+msgid "Total Assignments"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:61
+#: adoration/templates/adoration/maintainer/collection_list.html:37
+msgid "Languages"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:67
+#: adoration/templates/adoration/maintainer/collection_form.html:219
+msgid "Maintainers"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:74
+msgid "Available Languages:"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:102
+#: adoration/templates/adoration/maintainer/dashboard.html:207
+#, fuzzy
+#| msgid "Period"
+msgid "periods"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:111
+#: adoration/templates/adoration/maintainer/collection_form.html:91
+#: adoration/templates/adoration/maintainer/collection_list.html:34
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:38
+#: adoration/templates/adoration/maintainer/period_form.html:91
+#: adoration/templates/adoration/maintainer/period_list.html:34
+msgid "Description"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:113
+#: adoration/templates/adoration/maintainer/collection_list.html:38
+#: adoration/templates/adoration/maintainer/period_list.html:37
+#: adoration/templates/adoration/maintainer/user_promotion.html:51
+msgid "Actions"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:126
+#: adoration/templates/adoration/maintainer/collection_list.html:54
+#: adoration/templates/adoration/maintainer/period_list.html:53
+msgid "No description"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:139
+#, fuzzy
+#| msgid "Select a collection"
+msgid "Remove from collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:151
+msgid "No periods assigned"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:153
+msgid ""
+"Assign periods from the list on the right to make this collection available "
+"for registration."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:167
+#: adoration/templates/adoration/maintainer/dashboard.html:60
+#: adoration/templates/adoration/maintainer/period_list.html:24
+msgid "Available Periods"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:186
+#, fuzzy
+#| msgid "Select a collection"
+msgid "Assign to collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:196
+msgid "All periods assigned"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:198
+msgid "All available periods have been assigned to this collection."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:202
+#: adoration/templates/adoration/maintainer/period_form.html:35
+msgid "Create New Period"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:218
+#, fuzzy
+#| msgid "Collection"
+msgid "Collection Maintainers"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:238
+msgid "No maintainers assigned."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:255
+msgid "Assign period"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:255
+#, fuzzy
+#| msgid "Select a collection"
+msgid "to this collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:267
+#, fuzzy
+#| msgid "Select a period"
+msgid "Remove period"
+msgstr "Selecteer een periode"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:267
+#, fuzzy
+#| msgid "Select a collection"
+msgid "from this collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:292
+msgid "An error occurred while assigning the period."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:316
+msgid "An error occurred while removing the period."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:8
+#: adoration/templates/adoration/maintainer/collection_form.html:195
+#: adoration/templates/adoration/maintainer/collection_list.html:13
+#: adoration/templates/adoration/maintainer/dashboard.html:123
+#: adoration/templates/adoration/maintainer/dashboard.html:246
+#, fuzzy
+#| msgid "Collection"
+msgid "Create Collection"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:18
+#: adoration/templates/adoration/maintainer/collection_list.html:89
+#: adoration/templates/adoration/maintainer/dashboard.html:227
+#: adoration/templates/adoration/maintainer/period_form.html:18
+#: adoration/templates/adoration/maintainer/period_list.html:70
+msgid "Edit"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:20
+#: adoration/templates/adoration/maintainer/period_form.html:20
+msgid "Create"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:35
+#, fuzzy
+#| msgid "Select a collection"
+msgid "Create New Collection"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:44
+#: adoration/templates/adoration/maintainer/period_form.html:44
+msgid "Please correct the errors below:"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:68
+#, fuzzy
+#| msgid "Collection"
+msgid "Collection Name"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:83
+msgid ""
+"A unique name for this collection (e.g., 'Weekly Adoration', 'Special "
+"Events')"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:104
+msgid "Optional description to help identify this collection"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:118
+#, fuzzy
+#| msgid "Collection"
+msgid "Collection Enabled"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:127
+msgid "Only enabled collections are visible to users"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:180
+msgid "Select the languages this collection should be available in"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:188
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:116
+#: adoration/templates/adoration/maintainer/period_form.html:112
+#: adoration/templates/adoration/maintainer/user_promotion.html:211
+msgid "Cancel"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:193
+#, fuzzy
+#| msgid "Collection"
+msgid "Update Collection"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:209
+#, fuzzy
+#| msgid "Personal Information"
+msgid "Collection Information"
+msgstr "Persoonlijke informatie"
+
+#: adoration/templates/adoration/maintainer/collection_form.html:215
+msgid "Periods assigned"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:226
+#: adoration/templates/adoration/maintainer/collection_list.html:84
+msgid "View Details"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:240
+#: adoration/templates/adoration/maintainer/period_form.html:158
+msgid "Getting Started"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:242
+msgid ""
+"After creating this collection, you'll be automatically assigned as its "
+"maintainer. You can then add periods to it from the collection detail page."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_form.html:274
+msgid "Please select at least one language for this collection."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_list.html:24
+#: adoration/templates/adoration/maintainer/dashboard.html:42
+#: adoration/templates/adoration/maintainer/dashboard.html:168
+#, fuzzy
+#| msgid "Collection"
+msgid "My Collections"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_list.html:33
+#: adoration/templates/adoration/maintainer/period_list.html:33
+msgid "Name"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_list.html:102
+#, fuzzy
+#| msgid "Collection"
+msgid "Collections pagination"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_list.html:149
+#, fuzzy
+#| msgid "Collection"
+msgid "No collections found"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/collection_list.html:151
+msgid ""
+"You haven't created any collections yet. Create your first collection to get "
+"started."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/collection_list.html:155
+msgid "Create Your First Collection"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:21
+msgid "Welcome, Maintainer!"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:24
+#, python-format
+msgid ""
+"Hello %(name)s! You have access to the maintainer panel where you can manage "
+"collections, periods, and assignments."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:96
+msgid "Maintainer Status"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:112
+msgid "Quick Actions"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:141
+msgid "View Assignments"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:174
+msgid "View All"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:212
+msgid "languages"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:221
+msgid "View"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/dashboard.html:237
+#, fuzzy
+#| msgid "Collection"
+msgid "No collections yet"
+msgstr "Collectie"
+
+#: adoration/templates/adoration/maintainer/dashboard.html:239
+msgid "Create your first collection to get started."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:4
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:20
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:120
+#, fuzzy
+#| msgid "Period"
+msgid "Delete Period"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:10
+#: adoration/templates/adoration/maintainer/period_list.html:73
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:26
+msgid "Warning!"
+msgstr "Waarschuwing!"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:31
+#, python-format
+msgid ""
+"\n"
+"                    Are you sure you want to delete the period "
+"\"<strong>%(period_name)s</strong>\"?\n"
+"                    "
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:71
+msgid "Will be deleted"
+msgstr "Zal worden verwijderd"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:73
+msgid "All data"
+msgstr "Alle gegevens"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:83
+msgid "Impact Warning!"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:84
+#, python-format
+msgid ""
+"\n"
+"                    Deleting this period will also remove %(counter)s "
+"assignment and all associated data.\n"
+"                    "
+msgid_plural ""
+"\n"
+"                    Deleting this period will also remove %(counter)s "
+"assignments and all associated data.\n"
+"                    "
+msgstr[0] ""
+msgstr[1] ""
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:94
+msgid "This period is used in the following collections:"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:103
+#, fuzzy
+#| msgid "Period Assignment Registration"
+msgid "assignments"
+msgstr "Periodetoewijzing registratie"
+
+#: adoration/templates/adoration/maintainer/period_form.html:6
+#: adoration/templates/adoration/maintainer/period_form.html:33
+#, fuzzy
+#| msgid "Period"
+msgid "Edit Period"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/period_form.html:68
+#, fuzzy
+#| msgid "Period"
+msgid "Period Name"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/period_form.html:75
+msgid "Enter period name (e.g., 06:00 - 07:00, Morning Prayer)"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_form.html:83
+msgid ""
+"A unique name for this time period. This will be displayed to users when "
+"selecting periods."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_form.html:97
+msgid "Enter period description (optional)"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_form.html:104
+msgid "Optional description providing more details about this period"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_form.html:117
+#, fuzzy
+#| msgid "Period"
+msgid "Update Period"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/period_form.html:133
+#, fuzzy
+#| msgid "Personal Information"
+msgid "Period Information"
+msgstr "Persoonlijke informatie"
+
+#: adoration/templates/adoration/maintainer/period_form.html:139
+#, fuzzy
+#| msgid "Select a collection"
+msgid "Assigned to collections"
+msgstr "Selecteer een collectie"
+
+#: adoration/templates/adoration/maintainer/period_form.html:143
+msgid "Total assignments"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_form.html:160
+msgid ""
+"After creating this period, you can assign it to collections from the "
+"collection detail pages."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_list.html:88
+#, fuzzy
+#| msgid "Period Assignment Registration"
+msgid "Periods pagination"
+msgstr "Periodetoewijzing registratie"
+
+#: adoration/templates/adoration/maintainer/period_list.html:135
+msgid "No periods found"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_list.html:137
+msgid ""
+"Create periods to organize adoration time slots. Periods can be assigned to "
+"multiple collections."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_list.html:141
+msgid "Create Your First Period"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/period_list.html:158
+#, fuzzy
+#| msgid "Period"
+msgid "Total Periods"
+msgstr "Periode"
+
+#: adoration/templates/adoration/maintainer/period_list.html:169
+msgid "Available for Assignment"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:17
+msgid "Promote Users to Maintainers"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:26
+msgid "Search by username, email, first name, or last name"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:32
+msgid "Search"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:36
+msgid "Clear"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:47
+#: adoration/templates/registration/login.html:107
+msgid "Username"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:48
+#, fuzzy
+#| msgid "Full Name *"
+msgid "Full Name"
+msgstr "Volledige naam *"
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:49
+msgid "Email"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:50
+msgid "Date Joined"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:67
+msgid "No name set"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:78
+msgid "Promote to maintainer"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:80
+msgid "Promote"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:91
+msgid "Users pagination"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:140
+msgid "No users found"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:142
+msgid "All users are already maintainers"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:147
+msgid "Try adjusting your search criteria."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:149
+msgid "All eligible users have already been promoted to maintainers."
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:155
+msgid "Show All Users"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:172
+msgid "Promote User to Maintainer"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:182
+msgid "User"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:190
+msgid "Country"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:194
+msgid "Country where this maintainer is located"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:200
+#, fuzzy
+#| msgid "Phone Number (optional)"
+msgid "Phone Number"
+msgstr "Telefoonnummer (optioneel)"
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:204
+msgid "Optional contact phone number"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:215
+#: adoration/templates/adoration/maintainer/user_promotion.html:304
+msgid "Promote User"
+msgstr ""
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:259
+#, fuzzy
+#| msgid "Please select a period."
+msgid "Please enter a country."
+msgstr "Selecteer alstublieft een periode."
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:266
+#, fuzzy
+#| msgid "Loading..."
+msgid "Promoting..."
+msgstr "Laden..."
+
+#: adoration/templates/adoration/maintainer/user_promotion.html:298
+msgid "An error occurred while promoting the user."
+msgstr ""
+
+#: adoration/templates/adoration/registration.html:8
 msgid "Period Registration - Adoration"
 msgstr "Perioderegistratie - Aanbidding"
 
-#: adoration/templates/adoration/registration.html:262
+#: adoration/templates/adoration/registration.html:221
 msgid "Period Assignment Registration"
 msgstr "Periodetoewijzing registratie"
 
-#: adoration/templates/adoration/registration.html:265
+#: adoration/templates/adoration/registration.html:224
 msgid "Sign up for your adoration period and join our community of faith"
-msgstr "Meld u aan voor uw aanbiddingsperiode en sluit u aan bij onze geloofsgemeenschap"
+msgstr ""
+"Meld u aan voor uw aanbiddingsperiode en sluit u aan bij onze "
+"geloofsgemeenschap"
 
-#: adoration/templates/adoration/registration.html:268
+#: adoration/templates/adoration/registration.html:227
 msgid "Privacy Protection"
 msgstr "Privacybescherming"
 
-#: adoration/templates/adoration/registration.html:270
+#: adoration/templates/adoration/registration.html:229
 msgid "We value your privacy:"
 msgstr "Wij waarderen uw privacy:"
 
-#: adoration/templates/adoration/registration.html:270
+#: adoration/templates/adoration/registration.html:229
 msgid ""
 "We do not store any personal data in our database. Only a secure hash is "
 "kept for verification. Your email will be sent directly to collection "
 "maintainers for coordination purposes. By registering, you consent to this "
 "communication method."
-msgstr "Wij slaan geen persoonlijke gegevens op in onze database. Alleen een veilige hash wordt bewaard voor verificatie. Uw e-mail wordt rechtstreeks naar collectiebeheerders gestuurd voor coördinatiedoeleinden. Door te registreren, stemt u in met deze communicatiemethode."
+msgstr ""
+"Wij slaan geen persoonlijke gegevens op in onze database. Alleen een veilige "
+"hash wordt bewaard voor verificatie. Uw e-mail wordt rechtstreeks naar "
+"collectiebeheerders gestuurd voor coördinatiedoeleinden. Door te "
+"registreren, stemt u in met deze communicatiemethode."
 
-#: adoration/templates/adoration/registration.html:291
+#: adoration/templates/adoration/registration.html:250
 msgid "Close"
 msgstr "Sluiten"
 
-#: adoration/templates/adoration/registration.html:307
+#: adoration/templates/adoration/registration.html:266
 msgid "Service Information"
 msgstr "Service-informatie"
 
-#: adoration/templates/adoration/registration.html:338
+#: adoration/templates/adoration/registration.html:297
 msgid "Loading..."
 msgstr "Laden..."
 
-#: adoration/templates/adoration/registration.html:340
+#: adoration/templates/adoration/registration.html:299
 msgid "Loading periods..."
 msgstr "Periodes laden..."
 
-#: adoration/templates/adoration/registration.html:356
+#: adoration/templates/adoration/registration.html:315
 msgid "Personal Information"
 msgstr "Persoonlijke informatie"
 
-#: adoration/templates/adoration/registration.html:414
+#: adoration/templates/adoration/registration.html:373
 msgid "Consent"
 msgstr "Toestemming"
 
-#: adoration/templates/adoration/registration.html:457
+#: adoration/templates/adoration/registration.html:416
 msgid "Complete Registration"
 msgstr "Registratie voltooien"
 
-#: adoration/templates/adoration/registration.html:473
+#: adoration/templates/adoration/registration.html:432
 msgid "Important Information"
 msgstr "Belangrijke informatie"
 
-#: adoration/templates/adoration/registration.html:477
+#: adoration/templates/adoration/registration.html:436
 msgid "Required fields are marked with *"
 msgstr "Verplichte velden zijn gemarkeerd met *"
 
-#: adoration/templates/adoration/registration.html:479
+#: adoration/templates/adoration/registration.html:438
 msgid ""
 "You will receive a confirmation email with your registration details and a "
 "cancellation link."
-msgstr "U ontvangt een bevestigingsmail met uw registratiegegevens en een annuleringslink."
+msgstr ""
+"U ontvangt een bevestigingsmail met uw registratiegegevens en een "
+"annuleringslink."
 
-#: adoration/templates/adoration/registration.html:480
+#: adoration/templates/adoration/registration.html:439
 msgid "Privacy Protection:"
 msgstr "Privacybescherming:"
 
-#: adoration/templates/adoration/registration.html:480
+#: adoration/templates/adoration/registration.html:439
 msgid ""
 "Your personal information is not stored in our database. Only a secure hash "
 "is kept for verification purposes. Your email will be shared with collection "
 "maintainers for coordination."
-msgstr "Uw persoonlijke informatie wordt niet opgeslagen in onze database. Alleen een veilige hash wordt bewaard voor verificatiedoeleinden. Uw e-mail wordt gedeeld met collectiebeheerders voor coördinatie."
+msgstr ""
+"Uw persoonlijke informatie wordt niet opgeslagen in onze database. Alleen "
+"een veilige hash wordt bewaard voor verificatiedoeleinden. Uw e-mail wordt "
+"gedeeld met collectiebeheerders voor coördinatie."
 
-#: adoration/views.py:40
+#: adoration/templates/base.html:9
+msgid "Cor Iesu Adoration"
+msgstr ""
+
+#: adoration/templates/base.html:10
+msgid "Adoration Management"
+msgstr ""
+
+#: adoration/templates/base.html:103
+msgid "Cor Iesu"
+msgstr ""
+
+#: adoration/templates/base.html:115
+msgid "Home"
+msgstr ""
+
+#: adoration/templates/base.html:173
+msgid "Admin"
+msgstr ""
+
+#: adoration/templates/base.html:190
+#: adoration/templates/registration/login.html:4
+#: adoration/templates/registration/login.html:132
+msgid "Login"
+msgstr ""
+
+#: adoration/templates/base.html:211
+msgid "Cor Iesu Adoration Management System"
+msgstr ""
+
+#: adoration/templates/base.html:216
+msgid "Built with Django"
+msgstr ""
+
+#: adoration/templates/registration/login.html:73
+msgid "Maintainer Login"
+msgstr ""
+
+#: adoration/templates/registration/login.html:76
+msgid "Access the maintainer panel"
+msgstr ""
+
+#: adoration/templates/registration/login.html:121
+msgid "Password"
+msgstr ""
+
+#: adoration/templates/registration/login.html:141
+msgid "Back to Main Site"
+msgstr ""
+
+#: adoration/views.py:41
 #, python-format
 msgid "Registration Confirmation - %(collection)s"
 msgstr "Registratiebevestiging - %(collection)s"
 
-#: adoration/views.py:44
+#: adoration/views.py:45
 #, python-format
 msgid ""
 "Dear %(name)s,\n"
@@ -223,14 +1117,26 @@ msgid ""
 "Important: You will need to provide your email address to confirm deletion.\n"
 "\n"
 "Best regards"
-msgstr "Beste %(name)s,\n\nUw registratie is bevestigd.\n\nCollectie: %(collection)s\nPeriode: %(period)s\n\nVerwijderingslink: %(link)s\n\nBelangrijk: U moet uw e-mailadres opgeven om verwijdering te bevestigen.\n\nMet vriendelijke groet"
+msgstr ""
+"Beste %(name)s,\n"
+"\n"
+"Uw registratie is bevestigd.\n"
+"\n"
+"Collectie: %(collection)s\n"
+"Periode: %(period)s\n"
+"\n"
+"Verwijderingslink: %(link)s\n"
+"\n"
+"Belangrijk: U moet uw e-mailadres opgeven om verwijdering te bevestigen.\n"
+"\n"
+"Met vriendelijke groet"
 
-#: adoration/views.py:87
+#: adoration/views.py:85
 #, python-format
 msgid "New Registration - %(collection)s"
 msgstr "Nieuwe registratie - %(collection)s"
 
-#: adoration/views.py:91
+#: adoration/views.py:89
 #, python-format
 msgid ""
 "New participant registered:\n"
@@ -245,22 +1151,41 @@ msgid ""
 "\n"
 "Note: Personal data is not stored in the system for privacy. This email is "
 "sent directly from the user's email address."
-msgstr "Nieuwe deelnemer geregistreerd:\n\nNaam: %(name)s\nE-mail: %(email)s%(phone)s\nCollectie: %(collection)s\nPeriode: %(period)s\n\nRegistratiedatum: %(date)s\nVerwijderingstoken: %(token)s\n\nOpmerking: Persoonlijke gegevens worden niet opgeslagen in het systeem voor privacy. Deze e-mail wordt rechtstreeks verzonden vanaf het e-mailadres van de gebruiker."
+msgstr ""
+"Nieuwe deelnemer geregistreerd:\n"
+"\n"
+"Naam: %(name)s\n"
+"E-mail: %(email)s%(phone)s\n"
+"Collectie: %(collection)s\n"
+"Periode: %(period)s\n"
+"\n"
+"Registratiedatum: %(date)s\n"
+"Verwijderingstoken: %(token)s\n"
+"\n"
+"Opmerking: Persoonlijke gegevens worden niet opgeslagen in het systeem voor "
+"privacy. Deze e-mail wordt rechtstreeks verzonden vanaf het e-mailadres van "
+"de gebruiker."
 
-#: adoration/views.py:121
+#: adoration/views.py:119
 msgid "Registration successful! Check your email for confirmation."
 msgstr "Registratie succesvol! Controleer uw e-mail voor bevestiging."
 
-#: adoration/views.py:165
+#: adoration/views.py:150
+#, fuzzy
+#| msgid "Collection"
+msgid "Collection not found"
+msgstr "Collectie"
+
+#: adoration/views.py:172
 msgid "Failed to load periods"
 msgstr "Kon periodes niet laden"
 
-#: adoration/views.py:202
+#: adoration/views.py:209
 #, python-format
 msgid "Registration Cancelled - %(collection)s"
 msgstr "Registratie geannuleerd - %(collection)s"
 
-#: adoration/views.py:206
+#: adoration/views.py:213
 #, python-format
 msgid ""
 "A participant has cancelled their registration:\n"
@@ -271,8 +1196,16 @@ msgid ""
 "\n"
 "The participant voluntarily cancelled their registration using the deletion "
 "link."
-msgstr "Een deelnemer heeft zijn/haar registratie geannuleerd:\n\nE-mail: %(email)s\nCollectie: %(collection)s\nPeriode: %(period)s\n\nDe deelnemer heeft vrijwillig zijn/haar registratie geannuleerd met behulp van de verwijderingslink."
+msgstr ""
+"Een deelnemer heeft zijn/haar registratie geannuleerd:\n"
+"\n"
+"E-mail: %(email)s\n"
+"Collectie: %(collection)s\n"
+"Periode: %(period)s\n"
+"\n"
+"De deelnemer heeft vrijwillig zijn/haar registratie geannuleerd met behulp "
+"van de verwijderingslink."
 
-#: adoration/views.py:227
+#: adoration/views.py:234
 msgid "Registration cancelled successfully."
 msgstr "Registratie succesvol geannuleerd."

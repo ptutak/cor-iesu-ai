@@ -92,3 +92,9 @@ compile-messages:
 .PHONY: update-translations
 update-translations: make-messages compile-messages
 	@echo "🌐 Translation update complete!"
+
+.PHONY: fix-permissions
+fix-permissions:
+	@echo "🔧 Fixing maintainer permissions..."
+	cd src && python manage.py fix_maintainer_permissions
+	@echo "✅ Maintainer permissions fixed!"

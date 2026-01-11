@@ -33,6 +33,7 @@
 - make make-messages
 - make compile-messages
 - make update-translations
+- make fix-permissions
 
 ## Useful files:
 - .pre-commit-config.yaml

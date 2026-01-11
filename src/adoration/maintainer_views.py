@@ -19,6 +19,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
+    DeleteView,
     DetailView,
     ListView,
     UpdateView,
@@ -321,6 +322,65 @@ class PeriodUpdateView(MaintainerRequiredMixin, UpdateView[Period, Any]):
             _("Period '{}' updated successfully.").format(self.object.name),
         )
         return response
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(
+    permission_required("adoration.delete_period", raise_exception=True),
+    name="dispatch",
+)
+class PeriodDeleteView(MaintainerRequiredMixin, DeleteView[Period, Any]):
+    """Delete view for periods."""
+
+    model = Period
+    template_name = "adoration/maintainer/period_confirm_delete.html"
+    success_url = reverse_lazy("maintainer:period_list")
+    context_object_name = "period"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Add additional context data.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with period usage statistics
+        """
+        context = super().get_context_data(**kwargs)
+        period = self.get_object()
+
+        # Get usage statistics
+        period_collections = PeriodCollection.objects.filter(period=period)
+        total_assignments = sum(
+            PeriodAssignment.objects.filter(period_collection=pc).count() for pc in period_collections
+        )
+
+        context.update(
+            {
+                "total_collections": period_collections.count(),
+                "total_assignments": total_assignments,
+                "period_collections": period_collections.select_related("collection"),
+            }
+        )
+        return context
+
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """Handle DELETE request.
+
+        Args:
+            request: HTTP request object
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments
+
+        Returns:
+            HTTP response redirecting to period list
+        """
+        period = self.get_object()
+        messages.success(
+            request,
+            _("Period '{}' deleted successfully.").format(period.name),
+        )
+        return super().delete(request, *args, **kwargs)
 
 
 @login_required
