@@ -86,8 +86,7 @@ msgstr "Jesteś już zarejestrowany na ten okres."
 
 #: adoration/forms.py:207
 msgid "Enter the email address used for registration to confirm deletion."
-msgstr ""
-"Wprowadź adres e-mail używany do rejestracji, aby potwierdzić usunięcie."
+msgstr "Wprowadź adres e-mail używany do rejestracji, aby potwierdzić usunięcie."
 
 #: adoration/forms.py:233
 msgid "Email address does not match the registration."
@@ -95,12 +94,12 @@ msgstr "Adres e-mail nie pasuje do rejestracji."
 
 #: adoration/forms.py:244
 msgid "Select which languages this collection is available in."
-msgstr ""
+msgstr "Wybierz w jakich językach ta kolekcja ma być dostępna."
 
 #: adoration/forms.py:245
 #: adoration/templates/adoration/maintainer/collection_form.html:135
 msgid "Available Languages"
-msgstr ""
+msgstr "Dostępne Języki"
 
 #: adoration/forms.py:257
 #: adoration/templates/adoration/maintainer/collection_form.html:75
@@ -112,79 +111,71 @@ msgstr "Wybierz kolekcję"
 #: adoration/forms.py:264
 #: adoration/templates/adoration/maintainer/collection_form.html:97
 msgid "Enter collection description (optional)"
-msgstr ""
+msgstr "Wprowadź opis kolekcji (opcjonalnie)"
 
 #: adoration/forms.py:305
 msgid "Collection must have at least one available language."
-msgstr ""
+msgstr "Kolekcja musi mieć co najmniej jeden dostępny język."
 
 #: adoration/maintainer_views.py:167
 msgid ""
 "Collection '{}' created successfully. You are now a maintainer of this "
 "collection."
 msgstr ""
+"Kolekcja '{}' została utworzona pomyślnie. Jesteś teraz opiekunem tej "
+"kolekcji."
 
 #: adoration/maintainer_views.py:205
-#, fuzzy
-#| msgid "Registration cancelled successfully."
 msgid "Collection '{}' updated successfully."
-msgstr "Rejestracja anulowana pomyślnie."
+msgstr "Kolekcja '{}' została zaktualizowana pomyślnie."
 
 #: adoration/maintainer_views.py:330
-#, fuzzy
-#| msgid "Registration cancelled successfully."
 msgid "Collection '{}' deleted successfully."
-msgstr "Rejestracja anulowana pomyślnie."
+msgstr "Kolekcja '{}' została usunięta pomyślnie."
 
 #: adoration/maintainer_views.py:377
-#, fuzzy
-#| msgid "Registration cancelled successfully."
 msgid "Period '{}' created successfully."
-msgstr "Rejestracja anulowana pomyślnie."
+msgstr "Okres '{}' został utworzony pomyślnie."
 
 #: adoration/maintainer_views.py:403
-#, fuzzy
-#| msgid "Registration cancelled successfully."
 msgid "Period '{}' updated successfully."
-msgstr "Rejestracja anulowana pomyślnie."
+msgstr "Okres '{}' został zaktualizowany pomyślnie."
 
 #: adoration/maintainer_views.py:462
-#, fuzzy
-#| msgid "Registration cancelled successfully."
 msgid "Period '{}' deleted successfully."
-msgstr "Rejestracja anulowana pomyślnie."
+msgstr "Okres '{}' został usunięty pomyślnie."
 
 #: adoration/maintainer_views.py:504
 msgid "Period '{}' assigned to collection '{}'."
-msgstr ""
+msgstr "Okres '{}' został przypisany do kolekcji '{}'."
 
 #: adoration/maintainer_views.py:511
 msgid "Period is already assigned to this collection."
-msgstr ""
+msgstr "Okres jest już przypisany do tej kolekcji."
 
 #: adoration/maintainer_views.py:561
 msgid "Cannot remove period '{}' - it has {} active assignments."
-msgstr ""
+msgstr "Nie można usunąć okresu '{}' - ma {} aktywnych przydziałów."
 
 #: adoration/maintainer_views.py:572
 msgid "Period '{}' removed from collection '{}'."
-msgstr ""
+msgstr "Okres '{}' został usunięty z kolekcji '{}'."
 
 #: adoration/maintainer_views.py:613
 msgid "User '{}' is already a maintainer."
-msgstr ""
+msgstr "Użytkownik '{}' jest już opiekunem."
 
 #: adoration/maintainer_views.py:622
 msgid "User must have an email address to become a maintainer."
-msgstr ""
+msgstr "Użytkownik musi mieć adres e-mail, aby zostać opiekunem."
 
 #: adoration/maintainer_views.py:639
 msgid "User '{}' promoted to maintainer successfully."
-msgstr ""
+msgstr "Użytkownik '{}' został awansowany na opiekuna pomyślnie."
 
 #: adoration/maintainer_views.py:728
 msgid "Assignment deleted successfully from '{}' - '{}'."
-msgstr ""
+msgstr "Przydział został usunięty pomyślnie z '{}' - '{}'."
 
 #: adoration/templates/adoration/delete_confirm.html:6
 #: adoration/templates/adoration/delete_confirm.html:15
@@ -236,20 +227,20 @@ msgstr "Ta akcja nie może zostać cofnięta."
 
 #: adoration/templates/adoration/language_switcher.html:20
 msgid "Switch to English"
-msgstr ""
+msgstr "Przełącz na angielski"
 
 #: adoration/templates/adoration/language_switcher.html:20
 msgid "Switch to Polish"
-msgstr ""
+msgstr "Przełącz na polski"
 
 #: adoration/templates/adoration/language_switcher.html:20
 msgid "Switch to Dutch"
-msgstr ""
+msgstr "Przełącz na niderlandzki"
 
 #: adoration/templates/adoration/language_switcher.html:20
 #, python-format
 msgid "Switch to %(name)s"
-msgstr ""
+msgstr "Przełącz na %(name)s"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:4
 #: adoration/templates/adoration/maintainer/assignment_list.html:7
@@ -259,7 +250,7 @@ msgstr ""
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:62
 #: adoration/templates/adoration/maintainer/period_list.html:36
 msgid "Assignments"
-msgstr ""
+msgstr "Przydziały"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:17
 #, fuzzy
@@ -274,9 +265,9 @@ msgid "Deletion Token"
 msgstr "Usuń"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:29
-#: adoration/templates/adoration/maintainer/collection_list.html:35
+#: adoration/templates/adoration/maintainer/assignment_list.html:28
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:30
 #: adoration/templates/adoration/maintainer/collection_detail.html:113
@@ -284,14 +275,14 @@ msgstr ""
 #: adoration/templates/adoration/maintainer/period_list.html:37
 #: adoration/templates/adoration/maintainer/user_promotion.html:51
 msgid "Actions"
-msgstr ""
+msgstr "Akcje"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:41
 #: adoration/templates/adoration/maintainer/collection_detail.html:34
 #: adoration/templates/adoration/maintainer/collection_list.html:61
 #: adoration/templates/adoration/maintainer/dashboard.html:189
 msgid "Active"
-msgstr ""
+msgstr "Aktywny"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:48
 #: adoration/templates/adoration/maintainer/assignment_list.html:77
@@ -313,11 +304,11 @@ msgstr "Usuń"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:61
 msgid "No assignments found"
-msgstr ""
+msgstr "Nie znaleziono przydziałów"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:62
 msgid "No period assignments for your collections yet."
-msgstr ""
+msgstr "Brak jeszcze przydziałów okresów dla Twoich kolekcji."
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:79
 #: adoration/templates/adoration/registration.html:297
@@ -343,7 +334,7 @@ msgstr "Czy na pewno chcesz anulować rejestrację?"
 #: adoration/templates/adoration/maintainer/period_form.html:112
 #: adoration/templates/adoration/maintainer/user_promotion.html:211
 msgid "Cancel"
-msgstr ""
+msgstr "Anuluj"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:120
 #, fuzzy
@@ -359,23 +350,23 @@ msgstr "Ładowanie..."
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:179
 msgid "An error occurred while deleting the assignment."
-msgstr ""
+msgstr "Wystąpił błąd podczas usuwania przydziału."
 
 #: adoration/templates/adoration/maintainer/base.html:5
 #: adoration/templates/adoration/maintainer/base.html:158
 #: adoration/templates/base.html:122 adoration/templates/base.html:164
 msgid "Maintainer Panel"
-msgstr ""
+msgstr "Panel Opiekuna"
 
 #: adoration/templates/adoration/maintainer/base.html:73
 msgid "MAINTAINER PANEL"
-msgstr ""
+msgstr "PANEL OPIEKUNA"
 
 #: adoration/templates/adoration/maintainer/base.html:80
 #: adoration/templates/adoration/maintainer/dashboard.html:5
 #: adoration/templates/adoration/maintainer/dashboard.html:10
 msgid "Dashboard"
-msgstr ""
+msgstr "Pulpit"
 
 #: adoration/templates/adoration/maintainer/base.html:87
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:8
@@ -407,24 +398,24 @@ msgstr "Okres"
 #: adoration/templates/adoration/maintainer/user_promotion.html:4
 #: adoration/templates/adoration/maintainer/user_promotion.html:7
 msgid "Promote Users"
-msgstr ""
+msgstr "Awansuj Użytkowników"
 
 #: adoration/templates/adoration/maintainer/base.html:119
 msgid "Back to Site"
-msgstr ""
+msgstr "Powrót do Strony"
 
 #: adoration/templates/adoration/maintainer/base.html:126
 msgid "Admin Panel"
-msgstr ""
+msgstr "Panel Administratora"
 
 #: adoration/templates/adoration/maintainer/base.html:133
 #: adoration/templates/base.html:181
 msgid "Logout"
-msgstr ""
+msgstr "Wyloguj"
 
 #: adoration/templates/adoration/maintainer/base.html:147
 msgid "Maintainer"
-msgstr ""
+msgstr "Opiekun"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:4
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:20
@@ -451,13 +442,13 @@ msgstr ""
 #: adoration/templates/adoration/maintainer/period_form.html:91
 #: adoration/templates/adoration/maintainer/period_list.html:34
 msgid "Description"
-msgstr ""
+msgstr "Opis"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:73
-#: adoration/templates/adoration/maintainer/collection_detail.html:67
-#: adoration/templates/adoration/maintainer/collection_form.html:219
+#: adoration/templates/adoration/maintainer/collection_detail.html:112
+#: adoration/templates/adoration/maintainer/collection_list.html:36
 msgid "Maintainers"
-msgstr ""
+msgstr "Opiekunowie"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:82
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:71
@@ -472,7 +463,7 @@ msgstr "Wszystkie dane"
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:94
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:83
 msgid "Impact Warning!"
-msgstr ""
+msgstr "Ostrzeżenie o Wpływie!"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:95
 #, python-format
@@ -493,7 +484,7 @@ msgstr[3] ""
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:105
 msgid "This collection includes the following periods:"
-msgstr ""
+msgstr "Ta kolekcja zawiera następujące okresy:"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:117
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:103
@@ -510,7 +501,7 @@ msgstr "Kolekcja"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:147
 msgid "Available languages:"
-msgstr ""
+msgstr "Dostępne języki:"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:16
 #: adoration/templates/adoration/maintainer/collection_form.html:6
@@ -534,26 +525,26 @@ msgstr "Okres"
 #: adoration/templates/adoration/maintainer/collection_list.html:66
 #: adoration/templates/adoration/maintainer/dashboard.html:193
 msgid "Inactive"
-msgstr ""
+msgstr "Nieaktywny"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:49
 #: adoration/templates/adoration/maintainer/collection_detail.html:100
 msgid "Assigned Periods"
-msgstr ""
+msgstr "Przypisane Okresy"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:55
 #: adoration/templates/adoration/maintainer/dashboard.html:78
 msgid "Total Assignments"
-msgstr ""
+msgstr "Łączne Przydziały"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:61
 #: adoration/templates/adoration/maintainer/collection_list.html:37
 msgid "Languages"
-msgstr ""
+msgstr "Języki"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:74
 msgid "Available Languages:"
-msgstr ""
+msgstr "Dostępne Języki:"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:102
 #: adoration/templates/adoration/maintainer/dashboard.html:207
@@ -562,11 +553,7 @@ msgstr ""
 msgid "periods"
 msgstr "Okres"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:126
-#: adoration/templates/adoration/maintainer/collection_list.html:54
-#: adoration/templates/adoration/maintainer/period_list.html:53
-msgid "No description"
-msgstr ""
+
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:139
 #, fuzzy
@@ -576,19 +563,21 @@ msgstr "Wybierz kolekcję"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:151
 msgid "No periods assigned"
-msgstr ""
+msgstr "Brak przypisanych okresów"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:153
 msgid ""
 "Assign periods from the list on the right to make this collection available "
 "for registration."
 msgstr ""
+"Przypisz okresy z listy po prawej stronie, aby udostępnić tę kolekcję do "
+"rejestracji."
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:167
 #: adoration/templates/adoration/maintainer/dashboard.html:60
 #: adoration/templates/adoration/maintainer/period_list.html:24
 msgid "Available Periods"
-msgstr ""
+msgstr "Dostępne Okresy"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:186
 #, fuzzy
@@ -598,16 +587,16 @@ msgstr "Wybierz kolekcję"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:196
 msgid "All periods assigned"
-msgstr ""
+msgstr "Wszystkie okresy przypisane"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:198
 msgid "All available periods have been assigned to this collection."
-msgstr ""
+msgstr "Wszystkie dostępne okresy zostały przypisane do tej kolekcji."
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:202
 #: adoration/templates/adoration/maintainer/period_form.html:35
 msgid "Create New Period"
-msgstr ""
+msgstr "Utwórz Nowy Okres"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:218
 #, fuzzy
@@ -617,11 +606,11 @@ msgstr "Kolekcja"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:238
 msgid "No maintainers assigned."
-msgstr ""
+msgstr "Nie przypisano opiekunów."
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:255
 msgid "Assign period"
-msgstr ""
+msgstr "Przypisz okres"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:255
 #, fuzzy
@@ -643,11 +632,11 @@ msgstr "Wybierz kolekcję"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:292
 msgid "An error occurred while assigning the period."
-msgstr ""
+msgstr "Wystąpił błąd podczas przypisywania okresu."
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:316
 msgid "An error occurred while removing the period."
-msgstr ""
+msgstr "Wystąpił błąd podczas usuwania okresu."
 
 #: adoration/templates/adoration/maintainer/collection_form.html:8
 #: adoration/templates/adoration/maintainer/collection_form.html:195
@@ -667,12 +656,12 @@ msgstr "Kolekcja"
 #: adoration/templates/adoration/maintainer/period_list.html:70
 #: adoration/templates/adoration/maintainer/period_list.html:72
 msgid "Edit"
-msgstr ""
+msgstr "Edytuj"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:20
 #: adoration/templates/adoration/maintainer/period_form.html:20
 msgid "Create"
-msgstr ""
+msgstr "Utwórz"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:35
 #, fuzzy
@@ -683,7 +672,7 @@ msgstr "Wybierz kolekcję"
 #: adoration/templates/adoration/maintainer/collection_form.html:44
 #: adoration/templates/adoration/maintainer/period_form.html:44
 msgid "Please correct the errors below:"
-msgstr ""
+msgstr "Proszę popraw poniższe błędy:"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:68
 #, fuzzy
@@ -696,10 +685,12 @@ msgid ""
 "A unique name for this collection (e.g., 'Weekly Adoration', 'Special "
 "Events')"
 msgstr ""
+"Unikalna nazwa dla tej kolekcji (np. 'Adoracja Tygodniowa', 'Wydarzenia "
+"Specjalne')"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:104
 msgid "Optional description to help identify this collection"
-msgstr ""
+msgstr "Opcjonalny opis pomagający zidentyfikować tę kolekcję"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:118
 #, fuzzy
@@ -709,11 +700,11 @@ msgstr "Kolekcja"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:127
 msgid "Only enabled collections are visible to users"
-msgstr ""
+msgstr "Tylko włączone kolekcje są widoczne dla użytkowników"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:180
 msgid "Select the languages this collection should be available in"
-msgstr ""
+msgstr "Wybierz języki, w których ta kolekcja powinna być dostępna"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:193
 #, fuzzy
@@ -729,27 +720,29 @@ msgstr "Dane osobowe"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:215
 msgid "Periods assigned"
-msgstr ""
+msgstr "Przypisane okresy"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:226
 #: adoration/templates/adoration/maintainer/collection_list.html:84
 msgid "View Details"
-msgstr ""
+msgstr "Zobacz Szczegóły"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:240
 #: adoration/templates/adoration/maintainer/period_form.html:158
 msgid "Getting Started"
-msgstr ""
+msgstr "Wprowadzenie"
 
 #: adoration/templates/adoration/maintainer/collection_form.html:242
 msgid ""
 "After creating this collection, you'll be automatically assigned as its "
 "maintainer. You can then add periods to it from the collection detail page."
 msgstr ""
+"Po utworzeniu tej kolekcji zostaniesz automatycznie przypisany jako jej "
+"opiekun. Następnie możesz dodać okresy do niej na stronie szczegółów kolekcji."
 
 #: adoration/templates/adoration/maintainer/collection_form.html:274
 msgid "Please select at least one language for this collection."
-msgstr ""
+msgstr "Proszę wybrać co najmniej jeden język dla tej kolekcji."
 
 #: adoration/templates/adoration/maintainer/collection_list.html:24
 #: adoration/templates/adoration/maintainer/dashboard.html:42
@@ -762,12 +755,12 @@ msgstr "Kolekcja"
 #: adoration/templates/adoration/maintainer/collection_list.html:33
 #: adoration/templates/adoration/maintainer/period_list.html:33
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #: adoration/templates/adoration/maintainer/collection_list.html:86
 #: adoration/templates/adoration/maintainer/dashboard.html:221
 msgid "View"
-msgstr ""
+msgstr "Zobacz"
 
 #: adoration/templates/adoration/maintainer/collection_list.html:110
 #, fuzzy
@@ -789,11 +782,11 @@ msgstr ""
 
 #: adoration/templates/adoration/maintainer/collection_list.html:163
 msgid "Create Your First Collection"
-msgstr ""
+msgstr "Utwórz Swoją Pierwszą Kolekcję"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:21
 msgid "Welcome, Maintainer!"
-msgstr ""
+msgstr "Witaj, Opiekunie!"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:24
 #, python-format
@@ -801,26 +794,28 @@ msgid ""
 "Hello %(name)s! You have access to the maintainer panel where you can manage "
 "collections, periods, and assignments."
 msgstr ""
+"Witaj %(name)s! Masz dostęp do panelu opiekuna, gdzie możesz zarządzać "
+"kolekcjami, okresami i przydziałami."
 
 #: adoration/templates/adoration/maintainer/dashboard.html:96
 msgid "Maintainer Status"
-msgstr ""
+msgstr "Status Opiekuna"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:112
 msgid "Quick Actions"
-msgstr ""
+msgstr "Szybkie Akcje"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:141
 msgid "View Assignments"
-msgstr ""
+msgstr "Zobacz Przydziały"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:174
 msgid "View All"
-msgstr ""
+msgstr "Zobacz Wszystkie"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:212
 msgid "languages"
-msgstr ""
+msgstr "języki"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:237
 #, fuzzy
@@ -830,7 +825,7 @@ msgstr "Kolekcja"
 
 #: adoration/templates/adoration/maintainer/dashboard.html:239
 msgid "Create your first collection to get started."
-msgstr ""
+msgstr "Utwórz swoją pierwszą kolekcję, aby rozpocząć."
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:4
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:20
@@ -868,7 +863,7 @@ msgstr[3] ""
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:94
 msgid "This period is used in the following collections:"
-msgstr ""
+msgstr "Ten okres jest używany w następujących kolekcjach:"
 
 #: adoration/templates/adoration/maintainer/period_form.html:6
 #: adoration/templates/adoration/maintainer/period_form.html:33
@@ -885,21 +880,23 @@ msgstr "Okres"
 
 #: adoration/templates/adoration/maintainer/period_form.html:75
 msgid "Enter period name (e.g., 06:00 - 07:00, Morning Prayer)"
-msgstr ""
+msgstr "Wprowadź nazwę okresu (np. 06:00 - 07:00, Modlitwa Poranna)"
 
 #: adoration/templates/adoration/maintainer/period_form.html:83
 msgid ""
 "A unique name for this time period. This will be displayed to users when "
 "selecting periods."
 msgstr ""
+"Unikalna nazwa dla tego okresu czasu. Będzie wyświetlana użytkownikom przy "
+"wyborze okresów."
 
 #: adoration/templates/adoration/maintainer/period_form.html:97
 msgid "Enter period description (optional)"
-msgstr ""
+msgstr "Wprowadź opis okresu (opcjonalnie)"
 
 #: adoration/templates/adoration/maintainer/period_form.html:104
 msgid "Optional description providing more details about this period"
-msgstr ""
+msgstr "Opcjonalny opis zawierający więcej szczegółów o tym okresie"
 
 #: adoration/templates/adoration/maintainer/period_form.html:117
 #, fuzzy
@@ -921,13 +918,15 @@ msgstr "Wybierz kolekcję"
 
 #: adoration/templates/adoration/maintainer/period_form.html:143
 msgid "Total assignments"
-msgstr ""
+msgstr "Łączne przydziały"
 
 #: adoration/templates/adoration/maintainer/period_form.html:160
 msgid ""
 "After creating this period, you can assign it to collections from the "
 "collection detail pages."
 msgstr ""
+"Po utworzeniu tego okresu możesz przypisać go do kolekcji ze stron "
+"szczegółów kolekcji."
 
 #: adoration/templates/adoration/maintainer/period_list.html:90
 #, fuzzy
@@ -937,7 +936,7 @@ msgstr "Rejestracja przydziału okresu"
 
 #: adoration/templates/adoration/maintainer/period_list.html:137
 msgid "No periods found"
-msgstr ""
+msgstr "Nie znaleziono okresów"
 
 #: adoration/templates/adoration/maintainer/period_list.html:139
 msgid ""
@@ -947,7 +946,7 @@ msgstr ""
 
 #: adoration/templates/adoration/maintainer/period_list.html:143
 msgid "Create Your First Period"
-msgstr ""
+msgstr "Utwórz Swój Pierwszy Okres"
 
 #: adoration/templates/adoration/maintainer/period_list.html:160
 #, fuzzy
@@ -957,28 +956,28 @@ msgstr "Okres"
 
 #: adoration/templates/adoration/maintainer/period_list.html:171
 msgid "Available for Assignment"
-msgstr ""
+msgstr "Dostępne do Przydziału"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:17
 msgid "Promote Users to Maintainers"
-msgstr ""
+msgstr "Awansuj Użytkowników na Opiekunów"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:26
 msgid "Search by username, email, first name, or last name"
-msgstr ""
+msgstr "Szukaj po nazwie użytkownika, e-mailu, imieniu lub nazwisku"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:32
 msgid "Search"
-msgstr ""
+msgstr "Szukaj"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:36
 msgid "Clear"
-msgstr ""
+msgstr "Wyczyść"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:47
 #: adoration/templates/registration/login.html:107
 msgid "Username"
-msgstr ""
+msgstr "Nazwa użytkownika"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:48
 #, fuzzy
@@ -988,63 +987,63 @@ msgstr "Imię i nazwisko *"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:49
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:50
 msgid "Date Joined"
-msgstr ""
+msgstr "Data Dołączenia"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:67
 msgid "No name set"
-msgstr ""
+msgstr "Nie ustawiono imienia"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:78
 msgid "Promote to maintainer"
-msgstr ""
+msgstr "Awansuj na opiekuna"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:80
 msgid "Promote"
-msgstr ""
+msgstr "Awansuj"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:91
 msgid "Users pagination"
-msgstr ""
+msgstr "Paginacja użytkowników"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:140
 msgid "No users found"
-msgstr ""
+msgstr "Nie znaleziono użytkowników"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:142
 msgid "All users are already maintainers"
-msgstr ""
+msgstr "Wszyscy użytkownicy są już opiekunami"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:147
 msgid "Try adjusting your search criteria."
-msgstr ""
+msgstr "Spróbuj zmienić kryteria wyszukiwania."
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:149
 msgid "All eligible users have already been promoted to maintainers."
-msgstr ""
+msgstr "Wszyscy uprawnieni użytkownicy zostali już awansowani na opiekunów."
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:155
 msgid "Show All Users"
-msgstr ""
+msgstr "Pokaż Wszystkich Użytkowników"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:172
 msgid "Promote User to Maintainer"
-msgstr ""
+msgstr "Awansuj Użytkownika na Opiekuna"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:182
 msgid "User"
-msgstr ""
+msgstr "Użytkownik"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:190
 msgid "Country"
-msgstr ""
+msgstr "Kraj"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:194
 msgid "Country where this maintainer is located"
-msgstr ""
+msgstr "Kraj, w którym znajduje się ten opiekun"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:200
 #, fuzzy
@@ -1054,18 +1053,16 @@ msgstr "Numer telefonu (opcjonalny)"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:204
 msgid "Optional contact phone number"
-msgstr ""
+msgstr "Opcjonalny numer telefonu kontaktowego"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:215
 #: adoration/templates/adoration/maintainer/user_promotion.html:304
 msgid "Promote User"
-msgstr ""
+msgstr "Awansuj Użytkownika"
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:259
-#, fuzzy
-#| msgid "Please select a period."
 msgid "Please enter a country."
-msgstr "Proszę wybierz okres."
+msgstr "Proszę wprowadź kraj."
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:266
 #, fuzzy
@@ -1075,7 +1072,7 @@ msgstr "Ładowanie..."
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:298
 msgid "An error occurred while promoting the user."
-msgstr ""
+msgstr "Wystąpił błąd podczas awansowania użytkownika."
 
 #: adoration/templates/adoration/registration.html:8
 msgid "Period Registration - Adoration"
@@ -1165,53 +1162,53 @@ msgstr ""
 
 #: adoration/templates/base.html:9
 msgid "Cor Iesu Adoration"
-msgstr ""
+msgstr "Adoracja Cor Iesu"
 
 #: adoration/templates/base.html:10
 msgid "Adoration Management"
-msgstr ""
+msgstr "Zarządzanie Adoracją"
 
 #: adoration/templates/base.html:103
 msgid "Cor Iesu"
-msgstr ""
+msgstr "Cor Iesu"
 
 #: adoration/templates/base.html:115
 msgid "Home"
-msgstr ""
+msgstr "Strona Główna"
 
 #: adoration/templates/base.html:173
 msgid "Admin"
-msgstr ""
+msgstr "Administrator"
 
 #: adoration/templates/base.html:190
 #: adoration/templates/registration/login.html:4
 #: adoration/templates/registration/login.html:132
 msgid "Login"
-msgstr ""
+msgstr "Zaloguj"
 
 #: adoration/templates/base.html:211
 msgid "Cor Iesu Adoration Management System"
-msgstr ""
+msgstr "System Zarządzania Adoracją Cor Iesu"
 
 #: adoration/templates/base.html:216
 msgid "Built with Django"
-msgstr ""
+msgstr "Zbudowane z Django"
 
 #: adoration/templates/registration/login.html:73
 msgid "Maintainer Login"
-msgstr ""
+msgstr "Logowanie Opiekuna"
 
 #: adoration/templates/registration/login.html:76
 msgid "Access the maintainer panel"
-msgstr ""
+msgstr "Dostęp do panelu opiekuna"
 
 #: adoration/templates/registration/login.html:121
 msgid "Password"
-msgstr ""
+msgstr "Hasło"
 
 #: adoration/templates/registration/login.html:141
 msgid "Back to Main Site"
-msgstr ""
+msgstr "Powrót do Strony Głównej"
 
 #: adoration/views.py:41
 #, python-format
