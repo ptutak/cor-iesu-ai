@@ -17,12 +17,28 @@ Including another URLconf
 
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
+from django.http import HttpRequest, HttpResponse
 from django.urls import URLPattern, URLResolver, include, path
+
+
+def chrome_devtools_handler(request: HttpRequest) -> HttpResponse:
+    """Handle Chrome DevTools debugging requests to prevent 404 errors.
+
+    Args:
+        request: The HTTP request object from Chrome DevTools.
+
+    Returns:
+        HttpResponse with 204 No Content status to acknowledge the request.
+    """
+    return HttpResponse(status=204)
+
 
 urlpatterns: list[URLPattern | URLResolver] = [
     path("i18n/", include("django.conf.urls.i18n")),
     # API endpoints - language independent
     path("api/", include("adoration.api_urls")),
+    # Chrome DevTools debugging endpoint
+    path(".well-known/appspecific/com.chrome.devtools.json", chrome_devtools_handler),
 ]
 
 # Add language-prefixed patterns

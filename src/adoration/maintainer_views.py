@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import models, transaction
+from django.db.models import Count, QuerySet
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -263,6 +264,75 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView[Collection]):
 
 
 @method_decorator(login_required, name="dispatch")
+class CollectionDeleteView(MaintainerRequiredMixin, DeleteView[Collection, Any]):
+    """Delete view for collections."""
+
+    model = Collection
+    template_name = "adoration/maintainer/collection_confirm_delete.html"
+    success_url = reverse_lazy("maintainer:collection_list")
+    context_object_name = "collection"
+
+    def get_queryset(self) -> QuerySet[Collection]:
+        """Get collections that the current maintainer can delete.
+
+        Returns:
+            QuerySet of Collection objects managed by the current maintainer
+        """
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
+        return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
+            "periods", "collectionmaintainer_set__maintainer__user"
+        )
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Add additional context data.
+
+        Args:
+            kwargs: Additional keyword arguments
+
+        Returns:
+            Context dictionary with collection usage statistics
+        """
+        context = super().get_context_data(**kwargs)
+        collection = self.get_object()
+
+        # Get usage statistics
+        period_collections = PeriodCollection.objects.filter(collection=collection)
+        total_assignments = sum(
+            PeriodAssignment.objects.filter(period_collection=pc).count() for pc in period_collections
+        )
+
+        context.update(
+            {
+                "total_periods": period_collections.count(),
+                "total_assignments": total_assignments,
+                "period_collections": period_collections.select_related("period"),
+                "maintainers": CollectionMaintainer.objects.filter(collection=collection).select_related(
+                    "maintainer__user"
+                ),
+            }
+        )
+        return context
+
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """Handle DELETE request.
+
+        Args:
+            request: HTTP request object
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments
+
+        Returns:
+            HTTP response redirecting to collection list
+        """
+        collection = self.get_object()
+        messages.success(
+            request,
+            _("Collection '{}' deleted successfully.").format(collection.name),
+        )
+        return super().delete(request, *args, **kwargs)
+
+
+@method_decorator(login_required, name="dispatch")
 class PeriodListView(MaintainerRequiredMixin, ListView[Period]):
     """List view for periods."""
 
@@ -270,6 +340,17 @@ class PeriodListView(MaintainerRequiredMixin, ListView[Period]):
     template_name = "adoration/maintainer/period_list.html"
     context_object_name = "periods"
     paginate_by = 20
+
+    def get_queryset(self) -> Any:
+        """Get queryset with annotations for collections and assignments count.
+
+        Returns:
+            QuerySet of Period objects with collection_count and assignment_count annotations
+        """
+        return Period.objects.annotate(
+            collection_count=Count("periodcollection", distinct=True),
+            assignment_count=Count("periodcollection__periodassignment", distinct=True),
+        ).order_by("name")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -609,6 +690,47 @@ class AssignmentListView(MaintainerRequiredMixin, ListView[PeriodAssignment]):
             }
         )
         return context
+
+
+@login_required
+@permission_required("adoration.delete_periodassignment", raise_exception=True)
+def delete_assignment(request: HttpRequest, assignment_id: int) -> JsonResponse:
+    """Delete a period assignment.
+
+    Args:
+        request: HTTP request object
+        assignment_id: ID of the assignment to delete
+
+    Returns:
+        JSON response indicating success or failure
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid method"})
+
+    try:
+        maintainer: Maintainer = getattr(request.user, "maintainer")
+
+        # Get the assignment and verify maintainer has permission to delete it
+        assignment = get_object_or_404(
+            PeriodAssignment,
+            id=assignment_id,
+            period_collection__collection__collectionmaintainer__maintainer=maintainer,
+        )
+
+        collection_name = assignment.period_collection.collection.name
+        period_name = assignment.period_collection.period.name
+
+        assignment.delete()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": _("Assignment deleted successfully from '{}' - '{}'.").format(collection_name, period_name),
+            }
+        )
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
 
 
 @method_decorator(login_required, name="dispatch")

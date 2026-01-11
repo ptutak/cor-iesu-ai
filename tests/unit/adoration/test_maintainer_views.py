@@ -281,7 +281,7 @@ class TestCollectionDetailView:
         response = client.get(url)
 
         assert response.status_code == 200
-        assert response.context["collection"] == collection
+        assert response.context["object"] == collection
 
     def test_collection_detail_with_periods_and_assignments(
         self, client, maintainer_user, maintainer, collection, period, period_collection
@@ -320,7 +320,79 @@ class TestCollectionDetailView:
         assert response.status_code == 404
 
 
-@pytest.mark.django_db
+class TestCollectionDeleteView:
+    """Test cases for CollectionDeleteView."""
+
+    def test_collection_delete_get(self, client, maintainer_user, maintainer, collection):
+        """Test GET request to collection delete view."""
+        client.force_login(maintainer_user)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = reverse("maintainer:collection_delete", kwargs={"pk": collection.pk})
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert response.context["object"] == collection
+        assert "total_periods" in response.context
+        assert "total_assignments" in response.context
+
+    def test_collection_delete_post_success(self, client, maintainer_user, maintainer, collection):
+        """Test POST request successfully deletes collection."""
+        client.force_login(maintainer_user)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = reverse("maintainer:collection_delete", kwargs={"pk": collection.pk})
+        response = client.post(url)
+
+        assert response.status_code == 302
+        assert response.url == reverse("maintainer:collection_list")
+
+        # Verify collection was deleted
+        assert not Collection.objects.filter(pk=collection.pk).exists()
+
+    def test_collection_delete_with_assignments_cascades(
+        self,
+        client,
+        maintainer_user,
+        maintainer,
+        collection,
+        period,
+        period_collection,
+    ):
+        """Test deleting collection with assignments cascades properly."""
+        client.force_login(maintainer_user)
+
+        # Create collection maintainer relationship
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create assignment
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:collection_delete", kwargs={"pk": collection.pk})
+        response = client.post(url)
+
+        assert response.status_code == 302
+        assert response.url == reverse("maintainer:collection_list")
+
+        # Verify collection and related data was deleted (cascades)
+        assert not Collection.objects.filter(pk=collection.pk).exists()
+        assert not PeriodAssignment.objects.filter(pk=assignment.pk).exists()
+        assert not PeriodCollection.objects.filter(pk=period_collection.pk).exists()
+
+    def test_collection_delete_not_managed_collection_404(self, client, maintainer_with_permissions, collection):
+        """Test that maintainer cannot delete collections they don't manage."""
+        client.force_login(maintainer_with_permissions)
+
+        # Don't create collection maintainer relationship
+        # so this collection is not managed by the maintainer
+
+        url = reverse("maintainer:collection_delete", kwargs={"pk": collection.pk})
+        response = client.get(url)
+
+        assert response.status_code == 404
+
+
 class TestPeriodListView:
     """Test cases for PeriodListView."""
 
@@ -912,7 +984,95 @@ class TestMaintainerViewPermissions:
 
         # Test promote user (should fail on permission check)
         url = reverse("maintainer:promote_user")
-        response = client.post(url, {"user_id": user.id, "country": "Test"})
+        response = client.post(url, {"user_id": user.id})
+        assert response.status_code == 403
+
+
+class TestDeleteAssignment:
+    """Test cases for delete_assignment AJAX view."""
+
+    def test_delete_assignment_success(
+        self,
+        client,
+        maintainer_with_permissions,
+        maintainer,
+        collection,
+        period_collection,
+    ):
+        """Test successful assignment deletion."""
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create assignment
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:delete_assignment", kwargs={"assignment_id": assignment.id})
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+        assert "deleted successfully" in json_data["message"].lower()
+
+        # Verify assignment was deleted
+        assert not PeriodAssignment.objects.filter(id=assignment.id).exists()
+
+    def test_delete_assignment_not_managed_collection(
+        self, client, maintainer_with_permissions, collection, period_collection
+    ):
+        """Test deletion fails for assignments in unmanaged collections."""
+        client.force_login(maintainer_with_permissions)
+
+        # Don't create collection maintainer relationship
+        # Create assignment
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:delete_assignment", kwargs={"assignment_id": assignment.id})
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "error" in json_data
+
+    def test_delete_assignment_invalid_method(
+        self,
+        client,
+        maintainer_with_permissions,
+        maintainer,
+        collection,
+        period_collection,
+    ):
+        """Test deletion fails with GET request."""
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:delete_assignment", kwargs={"assignment_id": assignment.id})
+        response = client.get(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "invalid method" in json_data["error"].lower()
+
+    def test_delete_assignment_non_maintainer(self, client, django_user_model, collection, period_collection):
+        """Test deletion by non-maintainer returns permission denied."""
+        user = django_user_model.objects.create_user(
+            username="regular_user", email="user@example.com", password="testpass123"
+        )
+        client.force_login(user)
+
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:delete_assignment", kwargs={"assignment_id": assignment.id})
+        response = client.post(url)
+
         assert response.status_code == 403
 
 

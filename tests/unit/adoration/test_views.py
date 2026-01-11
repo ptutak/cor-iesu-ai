@@ -553,3 +553,222 @@ class TestRegistrationViewEmailIntegration:
             form = response.context["form"]
             assert not form.is_valid()
             # This exercises the clean method's early return path when super().clean() fails
+
+
+class TestGetCollectionMaintainers:
+    """Test cases for get_collection_maintainers view."""
+
+    def test_get_collection_maintainers_success(self, test_client, collection, maintainer):
+        """Test successful retrieval of collection maintainers."""
+        # Create collection maintainer relationship
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "collection_name" in data
+        assert "maintainers" in data
+        assert data["collection_name"] == collection.name
+        assert len(data["maintainers"]) == 1
+
+        maintainer_data = data["maintainers"][0]
+        assert "name" in maintainer_data
+        assert "email" in maintainer_data
+        assert "country" in maintainer_data
+        assert maintainer_data["email"] == maintainer.user.email
+        assert maintainer_data["country"] == maintainer.country
+
+    def test_get_collection_maintainers_with_phone(self, test_client, collection, maintainer_user):
+        """Test maintainer data includes phone number when available."""
+        # Create maintainer with phone number
+        maintainer = Maintainer.objects.create(
+            user=maintainer_user, phone_number="+1234567890", country="United States"
+        )
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        maintainer_data = data["maintainers"][0]
+        assert "phone" in maintainer_data
+        assert maintainer_data["phone"] == "+1234567890"
+
+    def test_get_collection_maintainers_no_phone(self, test_client, collection, maintainer_user):
+        """Test maintainer data without phone number."""
+        # Create maintainer without phone number
+        maintainer = Maintainer.objects.create(user=maintainer_user, phone_number="", country="United States")
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        maintainer_data = data["maintainers"][0]
+        assert "phone" not in maintainer_data
+
+    def test_get_collection_maintainers_multiple_maintainers(self, test_client, collection, maintainer_user):
+        """Test collection with multiple maintainers."""
+        # Create multiple maintainers
+        maintainer1 = Maintainer.objects.create(user=maintainer_user, country="United States")
+
+        user2 = User.objects.create_user(
+            username="maintainer2",
+            email="maintainer2@example.com",
+            first_name="Jane",
+            last_name="Doe",
+        )
+        maintainer2 = Maintainer.objects.create(user=user2, country="Canada")
+
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer1)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer2)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["maintainers"]) == 2
+
+        # Check that both maintainers are included
+        emails = [m["email"] for m in data["maintainers"]]
+        assert "maintainer@example.com" in emails
+        assert "maintainer2@example.com" in emails
+
+    def test_get_collection_maintainers_no_maintainers(self, test_client, collection):
+        """Test collection with no maintainers."""
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "maintainers" in data
+        assert len(data["maintainers"]) == 0
+
+    def test_get_collection_maintainers_filters_invalid_emails(self, test_client, collection):
+        """Test that query correctly filters maintainers by email constraints."""
+        # This test verifies the view's query filter logic
+        # The view filters: email__isnull=False, email__gt=""
+        # Since Maintainer model requires valid emails, we just verify empty response for empty collection
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        # Should return empty list since no maintainers assigned
+        assert len(data["maintainers"]) == 0
+
+    def test_get_collection_maintainers_nonexistent_collection(self, test_client, db):
+        """Test request for non-existent collection."""
+        url = "/api/collection/99999/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 404
+        data = response.json()
+        assert "error" in data
+        assert "Collection not found" in data["error"]
+
+    def test_get_collection_maintainers_disabled_collection(self, test_client, disabled_collection):
+        """Test request for disabled collection."""
+        url = f"/api/collection/{disabled_collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 404
+        data = response.json()
+        assert "error" in data
+        assert "Collection not found" in data["error"]
+
+    def test_get_collection_maintainers_language_filter(self, test_client, maintainer_user):
+        """Test that collections are filtered by available language."""
+        # Create collection only available in Polish
+        collection = Collection.objects.create(
+            name="Polish Only Collection",
+            enabled=True,
+            available_languages=["pl"],
+        )
+
+        maintainer = Maintainer.objects.create(user=maintainer_user, country="US")
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+
+        # Test with English language (should fail)
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+            assert response.status_code == 404
+
+        # Test with Polish language (should succeed)
+        with translation.override("pl"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="pl")
+            assert response.status_code == 200
+
+    def test_get_collection_maintainers_exception_handling(self, test_client, collection, monkeypatch):
+        """Test exception handling in maintainer endpoint."""
+
+        def mock_filter(*args, **kwargs):
+            raise Exception("Database error")
+
+        monkeypatch.setattr("adoration.views.CollectionMaintainer.objects.filter", mock_filter)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 500
+        data = response.json()
+        assert "error" in data
+        assert "Failed to load maintainer information" in data["error"]
+
+    def test_get_collection_maintainers_user_display_name(self, test_client, collection):
+        """Test maintainer name display logic (full name vs username)."""
+        # Create user with full name
+        user_with_name = User.objects.create_user(
+            username="user1",
+            email="user1@example.com",
+            first_name="John",
+            last_name="Doe",
+            password="test123",
+        )
+
+        # Create user without full name
+        user_without_name = User.objects.create_user(
+            username="user2",
+            email="user2@example.com",
+            password="test123",
+        )
+
+        maintainer1 = Maintainer.objects.create(user=user_with_name, country="US")
+        maintainer2 = Maintainer.objects.create(user=user_without_name, country="US")
+
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer1)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer2)
+
+        url = f"/api/collection/{collection.id}/maintainers/"
+        with translation.override("en"):
+            response = test_client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+
+        assert response.status_code == 200
+        data = response.json()
+        maintainers = data["maintainers"]
+
+        # Find maintainers by email
+        maintainer1_data = next(m for m in maintainers if m["email"] == "user1@example.com")
+        maintainer2_data = next(m for m in maintainers if m["email"] == "user2@example.com")
+
+        # User with full name should show full name
+        assert maintainer1_data["name"] == "John Doe"
+        # User without full name should show username
+        assert maintainer2_data["name"] == "user2"

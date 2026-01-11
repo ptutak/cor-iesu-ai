@@ -205,6 +205,53 @@
                 cursor: pointer;
                 line-height: 1.4;
             }
+
+            /* Maintainer Information Styles */
+            .maintainer-info-card {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+                border: 1px solid #dee2e6;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                animation: fadeIn 0.4s ease-in-out;
+            }
+
+            .maintainer-info-card:hover {
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+
+            .maintainer-item {
+                background: white;
+                border-radius: 8px;
+                padding: 12px;
+                margin-bottom: 8px;
+                border: 1px solid #f0f0f0;
+                transition: all 0.2s ease;
+            }
+
+            .maintainer-item:hover {
+                border-color: #0d6efd;
+                box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+            }
+
+            .maintainer-details a {
+                color: #0d6efd;
+                transition: color 0.2s ease;
+            }
+
+            .maintainer-details a:hover {
+                color: #0a58ca;
+            }
+
+            .maintainer-info-loading {
+                padding: 20px;
+                color: #6c757d;
+            }
+
+            @media (max-width: 768px) {
+                .maintainer-info-card .col-md-6 {
+                    margin-bottom: 15px;
+                }
+            }
         </style>
     </head>
     <body class="bg-light">
@@ -282,6 +329,7 @@
                                             </div>
                                             {% endif %}
                                             <div id="theme-info"></div>
+                                            <div id="maintainer-info" class="mt-3"></div>
                                         </td>
                                     </tr>
 
@@ -460,6 +508,7 @@
                     "id_period_collection",
                 );
                 const themeInfo = document.getElementById("theme-info");
+                const maintainerInfo = document.getElementById("maintainer-info");
                 const form = document.getElementById("registrationForm");
 
                 if (collectionSelect.value) {
@@ -512,12 +561,113 @@
                         .finally(() => {
                             form.classList.remove("loading");
                         });
+
+                    // Load maintainer information
+                    loadMaintainerInfo(collectionSelect.value);
                 } else {
                     periodSelect.disabled = true;
                     periodSelect.innerHTML =
                         '<option value="">First select a collection</option>';
                     if (themeInfo) themeInfo.innerHTML = "";
+                    if (maintainerInfo) maintainerInfo.innerHTML = "";
                 }
+            }
+
+            function loadMaintainerInfo(collectionId) {
+                const maintainerInfo = document.getElementById("maintainer-info");
+
+                if (!maintainerInfo) return;
+
+                // Show loading state
+                maintainerInfo.innerHTML = `
+                    <div class="maintainer-info-loading text-center">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <small class="text-muted">Loading maintainer information...</small>
+                    </div>
+                `;
+
+                fetch(`/api/collection/${collectionId}/maintainers/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.maintainers && data.maintainers.length > 0) {
+                            let maintainerHtml = `
+                                <div class="maintainer-info-card mt-3 p-3 border rounded bg-light">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-person-badge text-primary me-2"></i>
+                                        <strong class="text-primary">Collection Maintainers</strong>
+                                    </div>
+                                    <div class="row">
+                            `;
+
+                            data.maintainers.forEach(maintainer => {
+                                maintainerHtml += `
+                                    <div class="col-md-6 mb-2">
+                                        <div class="maintainer-item">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-person-circle text-muted me-2 mt-1"></i>
+                                                <div class="maintainer-details">
+                                                    <div class="fw-medium">${maintainer.name}</div>
+                                                    <div class="small text-muted">
+                                                        <i class="bi bi-envelope me-1"></i>
+                                                        <a href="mailto:${maintainer.email}" class="text-decoration-none">
+                                                            ${maintainer.email}
+                                                        </a>
+                                                    </div>
+                                                    ${maintainer.phone ? `
+                                                        <div class="small text-muted">
+                                                            <i class="bi bi-telephone me-1"></i>
+                                                            <a href="tel:${maintainer.phone}" class="text-decoration-none">
+                                                                ${maintainer.phone}
+                                                            </a>
+                                                        </div>
+                                                    ` : ''}
+                                                    <div class="small text-muted">
+                                                        <i class="bi bi-geo-alt me-1"></i>
+                                                        ${maintainer.country}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                            maintainerHtml += `
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            These maintainers will be notified of your registration and can assist you with any questions.
+                                        </small>
+                                    </div>
+                                </div>
+                            `;
+
+                            maintainerInfo.innerHTML = maintainerHtml;
+                        } else {
+                            maintainerInfo.innerHTML = `
+                                <div class="maintainer-info-card mt-3 p-3 border rounded bg-light">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <small>No maintainer information available for this collection.</small>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading maintainer info:', error);
+                        maintainerInfo.innerHTML = `
+                            <div class="maintainer-info-card mt-3 p-3 border rounded bg-warning-subtle">
+                                <div class="d-flex align-items-center text-warning-emphasis">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    <small>Unable to load maintainer information.</small>
+                                </div>
+                            </div>
+                        `;
+                    });
             }
 
             function showPeriodInfo() {

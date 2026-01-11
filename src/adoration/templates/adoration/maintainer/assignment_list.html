@@ -25,8 +25,9 @@
                             <tr>
                                 <th>{% trans "Collection" %}</th>
                                 <th>{% trans "Period" %}</th>
-                                <th>{% trans "Assignment Date" %}</th>
+                                <th>{% trans "Deletion Token" %}</th>
                                 <th>{% trans "Status" %}</th>
+                                <th class="text-end">{% trans "Actions" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -34,8 +35,21 @@
                             <tr>
                                 <td>{{ assignment.period_collection.collection.name }}</td>
                                 <td>{{ assignment.period_collection.period.name }}</td>
-                                <td>{{ assignment.id }}</td>
+                                <td>
+                                    <code class="text-muted">{{ assignment.deletion_token|truncatechars:12 }}...</code>
+                                </td>
                                 <td><span class="badge bg-success">{% trans "Active" %}</span></td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm delete-assignment-btn"
+                                            data-assignment-id="{{ assignment.id }}"
+                                            data-collection-name="{{ assignment.period_collection.collection.name }}"
+                                            data-period-name="{{ assignment.period_collection.period.name }}"
+                                            title="{% trans 'Delete Assignment' %}">
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span class="d-none d-sm-inline">{% trans "Delete" %}</span>
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -52,4 +66,135 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteAssignmentModal" tabindex="-1" aria-labelledby="deleteAssignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAssignmentModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Delete Assignment" %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{% trans "Warning!" %}</strong>
+                    {% trans "This action cannot be undone." %}
+                </div>
+                <p id="deleteAssignmentText">
+                    {% trans "Are you sure you want to delete this assignment?" %}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>
+                    {% trans "Cancel" %}
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAssignment">
+                    <i class="fas fa-trash me-2"></i>
+                    {% trans "Delete Assignment" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteAssignmentModal'));
+    const confirmDeleteBtn = document.getElementById('confirmDeleteAssignment');
+    const deleteText = document.getElementById('deleteAssignmentText');
+    let currentAssignmentId = null;
+
+    // Handle delete button clicks
+    document.querySelectorAll('.delete-assignment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            currentAssignmentId = this.dataset.assignmentId;
+            const collectionName = this.dataset.collectionName;
+            const periodName = this.dataset.periodName;
+
+            deleteText.innerHTML =
+                `{% trans "Are you sure you want to delete the assignment from" %} ` +
+                `<strong>${collectionName}</strong> - <strong>${periodName}</strong>?`;
+
+            deleteModal.show();
+        });
+    });
+
+    // Handle confirm delete
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (!currentAssignmentId) return;
+
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>{% trans "Deleting..." %}';
+        this.disabled = true;
+
+        fetch(`/maintainer/assignments/${currentAssignmentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
+
+                // Remove the row from table
+                const row = document.querySelector(`button[data-assignment-id="${currentAssignmentId}"]`).closest('tr');
+                row.remove();
+
+                // Hide modal
+                deleteModal.hide();
+            } else {
+                // Show error message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.modal-body').insertBefore(alertDiv, document.querySelector('.modal-body').firstChild);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {% trans "An error occurred while deleting the assignment." %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.modal-body').insertBefore(alertDiv, document.querySelector('.modal-body').firstChild);
+        })
+        .finally(() => {
+            this.innerHTML = originalText;
+            this.disabled = false;
+        });
+    });
+
+    // Add CSRF token to page if not present
+    if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        document.body.appendChild(csrfInput);
+    }
+});
+</script>
 {% endblock %}

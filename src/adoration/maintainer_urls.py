@@ -35,6 +35,11 @@ urlpatterns = [
         maintainer_views.CollectionUpdateView.as_view(),
         name="collection_edit",
     ),
+    path(
+        "collections/<int:pk>/delete/",
+        maintainer_views.CollectionDeleteView.as_view(),
+        name="collection_delete",
+    ),
     # Period management
     path("periods/", maintainer_views.PeriodListView.as_view(), name="period_list"),
     path(
@@ -79,5 +84,11 @@ urlpatterns = [
         "promote-user/",
         maintainer_views.promote_user_to_maintainer,
         name="promote_user",
+    ),
+    # Assignment management
+    path(
+        "assignments/<int:assignment_id>/delete/",
+        maintainer_views.delete_assignment,
+        name="delete_assignment",
     ),
 ]

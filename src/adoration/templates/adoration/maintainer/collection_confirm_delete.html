@@ -1,0 +1,173 @@
+{% extends "adoration/maintainer/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Delete Collection" %}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'maintainer:collection_list' %}">{% trans "Collections" %}</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">{% trans "Delete" %}</li>
+{% endblock %}
+
+{% block maintainer_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Delete Collection" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{% trans "Warning!" %}</strong>
+                    {% trans "This action cannot be undone." %}
+                </div>
+
+                <p class="mb-4">
+                    {% blocktrans with collection_name=collection.name %}
+                    Are you sure you want to delete the collection "<strong>{{ collection_name }}</strong>"?
+                    {% endblocktrans %}
+                </p>
+
+                {% if collection.description %}
+                <div class="mb-4">
+                    <h6>{% trans "Description" %}:</h6>
+                    <p class="text-muted">{{ collection.description }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Impact Information -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock text-info fa-2x mb-2"></i>
+                                <h5 class="card-title">{{ total_periods }}</h5>
+                                <p class="card-text text-muted">
+                                    {% trans "Periods" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users text-success fa-2x mb-2"></i>
+                                <h5 class="card-title">{{ total_assignments }}</h5>
+                                <p class="card-text text-muted">
+                                    {% trans "Assignments" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-shield text-warning fa-2x mb-2"></i>
+                                <h5 class="card-title">{{ maintainers.count }}</h5>
+                                <p class="card-text text-muted">
+                                    {% trans "Maintainers" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-trash text-danger fa-2x mb-2"></i>
+                                <h5 class="card-title">{% trans "Will be deleted" %}</h5>
+                                <p class="card-text text-muted">
+                                    {% trans "All data" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if total_assignments > 0 %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>{% trans "Impact Warning!" %}</strong>
+                    {% blocktrans count counter=total_assignments %}
+                    Deleting this collection will also remove {{ counter }} assignment and all associated data.
+                    {% plural %}
+                    Deleting this collection will also remove {{ counter }} assignments and all associated data.
+                    {% endblocktrans %}
+                </div>
+                {% endif %}
+
+                {% if period_collections %}
+                <div class="mb-4">
+                    <h6>{% trans "This collection includes the following periods:" %}</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for pc in period_collections %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-clock me-2 text-info"></i>
+                                {{ pc.period.name }}
+                                {% if pc.period.description %}
+                                    <small class="text-muted d-block">{{ pc.period.description }}</small>
+                                {% endif %}
+                            </span>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ pc.periodassignment_set.count }} {% trans "assignments" %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if maintainers %}
+                <div class="mb-4">
+                    <h6>{% trans "Collection maintainers:" %}</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for cm in maintainers %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-user-shield me-2 text-warning"></i>
+                                {{ cm.maintainer.user.get_full_name|default:cm.maintainer.user.username }}
+                                <small class="text-muted d-block">{{ cm.maintainer.user.email }}</small>
+                            </span>
+                            <span class="badge bg-warning text-dark rounded-pill">
+                                {{ cm.maintainer.country }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if collection.available_languages %}
+                <div class="mb-4">
+                    <h6>{% trans "Available languages:" %}</h6>
+                    <div></div>
+                        {% for lang_code in collection.available_languages %}
+                        <span class="badge bg-secondary me-1">{{ lang_code|upper }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'maintainer:collection_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            {% trans "Cancel" %}
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>
+                            {% trans "Delete Collection" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

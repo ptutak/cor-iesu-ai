@@ -172,6 +172,58 @@ def get_collection_periods(request: HttpRequest, collection_id: int) -> JsonResp
         return JsonResponse({"error": str(_("Failed to load periods"))}, status=500)
 
 
+def get_collection_maintainers(request: HttpRequest, collection_id: int) -> JsonResponse:
+    """AJAX endpoint to get maintainer information for a specific collection.
+
+    Args:
+        request: HTTP request object
+        collection_id: ID of the collection to get maintainers for
+
+    Returns:
+        JsonResponse: JSON containing maintainer data or error message
+
+    Raises:
+        DoesNotExist: When collection is not found or not available in current language
+    """
+    # Get current language
+    current_language = translation.get_language() or "en"
+
+    try:
+        collection = Collection.objects.get(id=collection_id, enabled=True)
+        # Check if collection is available in current language
+        if not collection.is_available_in_language(current_language):
+            raise Collection.DoesNotExist
+    except Collection.DoesNotExist:
+        return JsonResponse({"error": str(_("Collection not found"))}, status=404)
+
+    try:
+        # Get maintainers with valid email addresses
+        maintainers = CollectionMaintainer.objects.filter(
+            collection=collection,
+            maintainer__user__email__isnull=False,
+            maintainer__user__email__gt="",
+        ).select_related("maintainer__user")
+
+        maintainers_data: list[dict[str, Any]] = []
+        for maintainer in maintainers:
+            user = maintainer.maintainer.user
+            maintainer_info = {
+                "name": user.get_full_name() or user.username,
+                "email": user.email,
+                "country": maintainer.maintainer.country,
+            }
+            # Only include phone number if it exists and is not empty
+            if maintainer.maintainer.phone_number:
+                maintainer_info["phone"] = maintainer.maintainer.phone_number
+
+            maintainers_data.append(maintainer_info)
+
+        return JsonResponse({"collection_name": collection.name, "maintainers": maintainers_data})
+
+    except Exception:
+        return JsonResponse({"error": str(_("Failed to load maintainer information"))}, status=500)
+
+
 def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
     """Handle deletion of period assignment using deletion token and email verification.
 
