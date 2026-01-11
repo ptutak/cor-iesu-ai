@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-11 20:25+0000\n"
+"POT-Creation-Date: 2026-01-11 20:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,7 +86,8 @@ msgstr "Jesteś już zarejestrowany na ten okres."
 
 #: adoration/forms.py:207
 msgid "Enter the email address used for registration to confirm deletion."
-msgstr "Wprowadź adres e-mail używany do rejestracji, aby potwierdzić usunięcie."
+msgstr ""
+"Wprowadź adres e-mail używany do rejestracji, aby potwierdzić usunięcie."
 
 #: adoration/forms.py:233
 msgid "Email address does not match the registration."
@@ -265,7 +266,7 @@ msgid "Deletion Token"
 msgstr "Usuń"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:29
-#: adoration/templates/adoration/maintainer/assignment_list.html:28
+#: adoration/templates/adoration/maintainer/collection_list.html:35
 msgid "Status"
 msgstr "Status"
 
@@ -433,6 +434,10 @@ msgid ""
 "\"<strong>%(collection_name)s</strong>\"?\n"
 "                    "
 msgstr ""
+"\n"
+"                    Czy na pewno chcesz usunąć kolekcję "
+"\"<strong>%(collection_name)s</strong>\"?\n"
+"                    "
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:38
 #: adoration/templates/adoration/maintainer/collection_detail.html:111
@@ -445,8 +450,8 @@ msgid "Description"
 msgstr "Opis"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:73
-#: adoration/templates/adoration/maintainer/collection_detail.html:112
-#: adoration/templates/adoration/maintainer/collection_list.html:36
+#: adoration/templates/adoration/maintainer/collection_detail.html:67
+#: adoration/templates/adoration/maintainer/collection_form.html:219
 msgid "Maintainers"
 msgstr "Opiekunowie"
 
@@ -478,9 +483,25 @@ msgid_plural ""
 "assignments and all associated data.\n"
 "                    "
 msgstr[0] ""
+"\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
+"przydziału i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[1] ""
+"\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[2] ""
+"\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[3] ""
+"\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:105
 msgid "This collection includes the following periods:"
@@ -553,7 +574,13 @@ msgstr "Dostępne Języki:"
 msgid "periods"
 msgstr "Okres"
 
-
+#: adoration/templates/adoration/maintainer/collection_detail.html:126
+#: adoration/templates/adoration/maintainer/collection_list.html:54
+#: adoration/templates/adoration/maintainer/period_list.html:53
+#, fuzzy
+#| msgid "Description"
+msgid "No description"
+msgstr "Opis"
 
 #: adoration/templates/adoration/maintainer/collection_detail.html:139
 #, fuzzy
@@ -738,7 +765,8 @@ msgid ""
 "maintainer. You can then add periods to it from the collection detail page."
 msgstr ""
 "Po utworzeniu tej kolekcji zostaniesz automatycznie przypisany jako jej "
-"opiekun. Następnie możesz dodać okresy do niej na stronie szczegółów kolekcji."
+"opiekun. Następnie możesz dodać okresy do niej na stronie szczegółów "
+"kolekcji."
 
 #: adoration/templates/adoration/maintainer/collection_form.html:274
 msgid "Please select at least one language for this collection."
@@ -779,6 +807,8 @@ msgid ""
 "You haven't created any collections yet. Create your first collection to get "
 "started."
 msgstr ""
+"Nie utworzono jeszcze żadnych kolekcji. Utwórz swoją pierwszą kolekcję, aby "
+"rozpocząć."
 
 #: adoration/templates/adoration/maintainer/collection_list.html:163
 msgid "Create Your First Collection"
@@ -843,6 +873,10 @@ msgid ""
 "\"<strong>%(period_name)s</strong>\"?\n"
 "                    "
 msgstr ""
+"\n"
+"                    Czy na pewno chcesz usunąć okres "
+"\"<strong>%(period_name)s</strong>\"?\n"
+"                    "
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:84
 #, python-format
@@ -857,9 +891,25 @@ msgid_plural ""
 "assignments and all associated data.\n"
 "                    "
 msgstr[0] ""
+"\n"
+"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
+"przydziału i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[1] ""
+"\n"
+"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[2] ""
+"\n"
+"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 msgstr[3] ""
+"\n"
+"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
+"przydziałów i wszystkich powiązanych danych.\n"
+"                    "
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:94
 msgid "This period is used in the following collections:"
@@ -943,6 +993,8 @@ msgid ""
 "Create periods to organize adoration time slots. Periods can be assigned to "
 "multiple collections."
 msgstr ""
+"Utwórz okresy, aby zorganizować przedziały czasowe adoracji. Okresy mogą być "
+"przypisane do wielu kolekcji."
 
 #: adoration/templates/adoration/maintainer/period_list.html:143
 msgid "Create Your First Period"
