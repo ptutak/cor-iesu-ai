@@ -45,9 +45,7 @@ class TestChromeDevToolsHandler:
 
         assert response.status_code == 204
         # 204 responses typically don't have content-type header
-        assert response.get("Content-Type") is None or "text/html" in response.get(
-            "Content-Type", ""
-        )
+        assert response.get("Content-Type") is None or "text/html" in response.get("Content-Type", "")
 
     def test_chrome_devtools_endpoint_no_authentication_required(self):
         """Test that Chrome DevTools endpoint doesn't require authentication."""

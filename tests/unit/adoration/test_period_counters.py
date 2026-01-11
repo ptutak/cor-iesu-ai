@@ -19,9 +19,7 @@ class TestPeriodCountersAnnotation:
     def test_period_with_multiple_collections_and_assignments(self):
         """Test period with 2 collections and 3 assignments across them."""
         # Setup data
-        period = Period.objects.create(
-            name="Morning Prayer", description="6:00 AM - 7:00 AM"
-        )
+        period = Period.objects.create(name="Morning Prayer", description="6:00 AM - 7:00 AM")
         collection1 = Collection.objects.create(name="Collection 1", enabled=True)
         collection2 = Collection.objects.create(name="Collection 2", enabled=True)
 
@@ -30,17 +28,11 @@ class TestPeriodCountersAnnotation:
         pc2 = PeriodCollection.objects.create(period=period, collection=collection2)
 
         # Create assignments: 2 in pc1, 1 in pc2
-        pa1 = PeriodAssignment.create_with_email(
-            email="test1@example.com", period_collection=pc1
-        )
+        pa1 = PeriodAssignment.create_with_email(email="test1@example.com", period_collection=pc1)
         pa1.save()
-        pa2 = PeriodAssignment.create_with_email(
-            email="test2@example.com", period_collection=pc1
-        )
+        pa2 = PeriodAssignment.create_with_email(email="test2@example.com", period_collection=pc1)
         pa2.save()
-        pa3 = PeriodAssignment.create_with_email(
-            email="test3@example.com", period_collection=pc2
-        )
+        pa3 = PeriodAssignment.create_with_email(email="test3@example.com", period_collection=pc2)
         pa3.save()
 
         # Query with annotations (same as in PeriodListView)
@@ -57,9 +49,7 @@ class TestPeriodCountersAnnotation:
 
     def test_period_with_no_collections_and_no_assignments(self):
         """Test period with no collections and no assignments."""
-        period = Period.objects.create(
-            name="Evening Prayer", description="6:00 PM - 7:00 PM"
-        )
+        period = Period.objects.create(name="Evening Prayer", description="6:00 PM - 7:00 PM")
 
         # Query with annotations (same as in PeriodListView)
         queryset = Period.objects.annotate(
@@ -75,9 +65,7 @@ class TestPeriodCountersAnnotation:
 
     def test_period_with_one_collection_no_assignments(self):
         """Test period with 1 collection but no assignments."""
-        period = Period.objects.create(
-            name="Afternoon Prayer", description="3:00 PM - 4:00 PM"
-        )
+        period = Period.objects.create(name="Afternoon Prayer", description="3:00 PM - 4:00 PM")
         collection = Collection.objects.create(name="Test Collection", enabled=True)
         PeriodCollection.objects.create(period=period, collection=collection)
 
@@ -107,32 +95,20 @@ class TestPeriodCountersAnnotation:
         # Period 1: 2 collections, 4 assignments
         pc1_1 = PeriodCollection.objects.create(period=period1, collection=collection1)
         pc1_2 = PeriodCollection.objects.create(period=period1, collection=collection2)
-        pa1_1 = PeriodAssignment.create_with_email(
-            email="p1_a1@example.com", period_collection=pc1_1
-        )
+        pa1_1 = PeriodAssignment.create_with_email(email="p1_a1@example.com", period_collection=pc1_1)
         pa1_1.save()
-        pa1_2 = PeriodAssignment.create_with_email(
-            email="p1_a2@example.com", period_collection=pc1_1
-        )
+        pa1_2 = PeriodAssignment.create_with_email(email="p1_a2@example.com", period_collection=pc1_1)
         pa1_2.save()
-        pa1_3 = PeriodAssignment.create_with_email(
-            email="p1_a3@example.com", period_collection=pc1_2
-        )
+        pa1_3 = PeriodAssignment.create_with_email(email="p1_a3@example.com", period_collection=pc1_2)
         pa1_3.save()
-        pa1_4 = PeriodAssignment.create_with_email(
-            email="p1_a4@example.com", period_collection=pc1_2
-        )
+        pa1_4 = PeriodAssignment.create_with_email(email="p1_a4@example.com", period_collection=pc1_2)
         pa1_4.save()
 
         # Period 2: 1 collection, 2 assignments
         pc2_1 = PeriodCollection.objects.create(period=period2, collection=collection1)
-        pa2_1 = PeriodAssignment.create_with_email(
-            email="p2_a1@example.com", period_collection=pc2_1
-        )
+        pa2_1 = PeriodAssignment.create_with_email(email="p2_a1@example.com", period_collection=pc2_1)
         pa2_1.save()
-        pa2_2 = PeriodAssignment.create_with_email(
-            email="p2_a2@example.com", period_collection=pc2_1
-        )
+        pa2_2 = PeriodAssignment.create_with_email(email="p2_a2@example.com", period_collection=pc2_1)
         pa2_2.save()
 
         # Period 3: 1 collection, 0 assignments
@@ -177,9 +153,7 @@ class TestPeriodListViewCounters:
         )
         return maintainer_user
 
-    def test_period_list_view_shows_correct_counters(
-        self, client, maintainer_with_permissions
-    ):
+    def test_period_list_view_shows_correct_counters(self, client, maintainer_with_permissions):
         """Test that the period list view shows correct counter values."""
         client.force_login(maintainer_with_permissions)
 
@@ -193,24 +167,16 @@ class TestPeriodListViewCounters:
         # Period 1: 2 collections, 3 assignments
         pc1_1 = PeriodCollection.objects.create(period=period1, collection=collection1)
         pc1_2 = PeriodCollection.objects.create(period=period1, collection=collection2)
-        pa1 = PeriodAssignment.create_with_email(
-            email="a1@example.com", period_collection=pc1_1
-        )
+        pa1 = PeriodAssignment.create_with_email(email="a1@example.com", period_collection=pc1_1)
         pa1.save()
-        pa2 = PeriodAssignment.create_with_email(
-            email="a2@example.com", period_collection=pc1_1
-        )
+        pa2 = PeriodAssignment.create_with_email(email="a2@example.com", period_collection=pc1_1)
         pa2.save()
-        pa3 = PeriodAssignment.create_with_email(
-            email="a3@example.com", period_collection=pc1_2
-        )
+        pa3 = PeriodAssignment.create_with_email(email="a3@example.com", period_collection=pc1_2)
         pa3.save()
 
         # Period 2: 1 collection, 1 assignment
         pc2_1 = PeriodCollection.objects.create(period=period2, collection=collection1)
-        pa4 = PeriodAssignment.create_with_email(
-            email="a4@example.com", period_collection=pc2_1
-        )
+        pa4 = PeriodAssignment.create_with_email(email="a4@example.com", period_collection=pc2_1)
         pa4.save()
 
         # Make the request
@@ -254,9 +220,7 @@ class TestPeriodListViewCounters:
             assert period.collection_count == 0
             assert period.assignment_count == 0
 
-    def test_period_list_view_queryset_uses_correct_annotations(
-        self, client, maintainer_with_permissions
-    ):
+    def test_period_list_view_queryset_uses_correct_annotations(self, client, maintainer_with_permissions):
         """Test that the view's queryset method produces the expected annotations."""
         from adoration.maintainer_views import PeriodListView
 
@@ -264,9 +228,7 @@ class TestPeriodListViewCounters:
         period = Period.objects.create(name="Test Period")
         collection = Collection.objects.create(name="Test Collection", enabled=True)
         pc = PeriodCollection.objects.create(period=period, collection=collection)
-        pa = PeriodAssignment.create_with_email(
-            email="test@example.com", period_collection=pc
-        )
+        pa = PeriodAssignment.create_with_email(email="test@example.com", period_collection=pc)
         pa.save()
 
         # Get the queryset from the view
@@ -288,13 +250,9 @@ class TestPeriodCountersEdgeCases:
     def test_period_with_disabled_collection(self):
         """Test that disabled collections are still counted."""
         period = Period.objects.create(name="Test Period")
-        collection = Collection.objects.create(
-            name="Disabled Collection", enabled=False
-        )
+        collection = Collection.objects.create(name="Disabled Collection", enabled=False)
         pc = PeriodCollection.objects.create(period=period, collection=collection)
-        pa = PeriodAssignment.create_with_email(
-            email="test@example.com", period_collection=pc
-        )
+        pa = PeriodAssignment.create_with_email(email="test@example.com", period_collection=pc)
         pa.save()
 
         queryset = Period.objects.annotate(
@@ -318,13 +276,9 @@ class TestPeriodCountersEdgeCases:
         pc2 = PeriodCollection.objects.create(period=period, collection=collection2)
 
         # Same email in both collections (different assignments)
-        pa1 = PeriodAssignment.create_with_email(
-            email="same@example.com", period_collection=pc1
-        )
+        pa1 = PeriodAssignment.create_with_email(email="same@example.com", period_collection=pc1)
         pa1.save()
-        pa2 = PeriodAssignment.create_with_email(
-            email="same@example.com", period_collection=pc2
-        )
+        pa2 = PeriodAssignment.create_with_email(email="same@example.com", period_collection=pc2)
         pa2.save()
 
         queryset = Period.objects.annotate(
@@ -346,9 +300,7 @@ class TestPeriodCountersEdgeCases:
 
         # Create multiple assignments for the same period collection
         for i in range(5):
-            pa = PeriodAssignment.create_with_email(
-                email=f"user{i}@example.com", period_collection=pc
-            )
+            pa = PeriodAssignment.create_with_email(email=f"user{i}@example.com", period_collection=pc)
             pa.save()
 
         queryset = Period.objects.annotate(
