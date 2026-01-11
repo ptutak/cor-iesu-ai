@@ -94,28 +94,26 @@ msgstr "E-mailadres komt niet overeen met de registratie."
 
 #: adoration/forms.py:244
 msgid "Select which languages this collection is available in."
-msgstr ""
+msgstr "Selecteer in welke talen deze collectie beschikbaar is."
 
 #: adoration/forms.py:245
 #: adoration/templates/adoration/maintainer/collection_form.html:135
 msgid "Available Languages"
-msgstr ""
+msgstr "Beschikbare Talen"
 
 #: adoration/forms.py:257
 #: adoration/templates/adoration/maintainer/collection_form.html:75
-#, fuzzy
-#| msgid "Select a collection"
 msgid "Enter collection name"
-msgstr "Selecteer een collectie"
+msgstr "Voer collectienaam in"
 
 #: adoration/forms.py:264
 #: adoration/templates/adoration/maintainer/collection_form.html:97
 msgid "Enter collection description (optional)"
-msgstr ""
+msgstr "Voer collectiebeschrijving in (optioneel)"
 
 #: adoration/forms.py:305
 msgid "Collection must have at least one available language."
-msgstr ""
+msgstr "Collectie moet ten minste één beschikbare taal hebben."
 
 #: adoration/maintainer_views.py:167
 msgid ""
