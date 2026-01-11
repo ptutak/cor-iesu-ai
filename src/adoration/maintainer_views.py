@@ -5,7 +5,7 @@ This module contains views that allow maintainers to manage collections,
 periods, and period assignments through a dedicated admin interface.
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -68,7 +68,7 @@ class MaintainerRequiredMixin:
             return redirect("login")
 
         try:
-            request.user.maintainer  # type: ignore[attr-defined]
+            getattr(request.user, "maintainer")
         except Maintainer.DoesNotExist:
             raise PermissionDenied("You must be a maintainer to access this page.")
 
@@ -88,7 +88,7 @@ class MaintainerDashboardView(MaintainerRequiredMixin, ListView[Collection]):
         Returns:
             QuerySet of collections managed by the current maintainer
         """
-        maintainer = self.request.user.maintainer  # type: ignore
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
             "periods", "collectionmaintainer_set__maintainer__user"
         )
@@ -103,7 +103,7 @@ class MaintainerDashboardView(MaintainerRequiredMixin, ListView[Collection]):
             Context dictionary with dashboard statistics
         """
         context = super().get_context_data(**kwargs)
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
 
         context.update(
             {
@@ -132,7 +132,7 @@ class CollectionListView(MaintainerRequiredMixin, ListView[Collection]):
         Returns:
             QuerySet of Collection objects managed by the current maintainer
         """
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related("periods")
 
 
@@ -157,13 +157,13 @@ class CollectionCreateView(MaintainerRequiredMixin, CreateView[Collection, Any])
         response = super().form_valid(form)
 
         # Automatically assign the current user as a maintainer
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         CollectionMaintainer.objects.create(collection=self.object, maintainer=maintainer)
 
         messages.success(
             self.request,
             _("Collection '{}' created successfully. You are now a maintainer of this collection.").format(
-                self.object.name  # type: ignore[union-attr]
+                cast(Collection, self.object).name
             ),
         )
         return response
@@ -185,7 +185,7 @@ class CollectionUpdateView(MaintainerRequiredMixin, UpdateView[Collection, Any])
         Returns:
             QuerySet of Collection objects managed by the current maintainer
         """
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer)
 
     def form_valid(self, form: CollectionForm) -> HttpResponse:
@@ -200,7 +200,7 @@ class CollectionUpdateView(MaintainerRequiredMixin, UpdateView[Collection, Any])
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Collection '{}' updated successfully.").format(self.object.name),  # type: ignore[union-attr]
+            _("Collection '{}' updated successfully.").format(self.object.name),
         )
         return response
 
@@ -219,7 +219,7 @@ class CollectionDetailView(MaintainerRequiredMixin, DetailView[Collection]):
         Returns:
             QuerySet of Collection objects managed by the current maintainer
         """
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         return Collection.objects.filter(collectionmaintainer__maintainer=maintainer).prefetch_related(
             "periods",
             "collectionmaintainer_set__maintainer__user",
@@ -292,7 +292,7 @@ class PeriodCreateView(MaintainerRequiredMixin, CreateView[Period, Any]):
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Period '{}' created successfully.").format(self.object.name),  # type: ignore[union-attr]
+            _("Period '{}' created successfully.").format(cast(Period, self.object).name),
         )
         return response
 
@@ -318,7 +318,7 @@ class PeriodUpdateView(MaintainerRequiredMixin, UpdateView[Period, Any]):
         response = super().form_valid(form)
         messages.success(
             self.request,
-            _("Period '{}' updated successfully.").format(self.object.name),  # type: ignore[union-attr]
+            _("Period '{}' updated successfully.").format(self.object.name),
         )
         return response
 
@@ -338,7 +338,7 @@ def assign_period_to_collection(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"success": False, "error": "Invalid method"})
 
     try:
-        maintainer = request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(request.user, "maintainer")
     except Maintainer.DoesNotExist:
         return JsonResponse({"success": False, "error": "User is not a maintainer"})
 
@@ -392,7 +392,7 @@ def remove_period_from_collection(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"success": False, "error": "Invalid method"})
 
     try:
-        maintainer = request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(request.user, "maintainer")
     except Maintainer.DoesNotExist:
         return JsonResponse({"success": False, "error": "User is not a maintainer"})
 
@@ -520,7 +520,7 @@ class AssignmentListView(MaintainerRequiredMixin, ListView[PeriodAssignment]):
         Returns:
             QuerySet of PeriodAssignment objects for collections managed by the current maintainer
         """
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
         return (
             PeriodAssignment.objects.filter(period_collection__collection__collectionmaintainer__maintainer=maintainer)
             .select_related("period_collection__collection", "period_collection__period")
@@ -537,7 +537,7 @@ class AssignmentListView(MaintainerRequiredMixin, ListView[PeriodAssignment]):
             Context dictionary with collections for filtering
         """
         context = super().get_context_data(**kwargs)
-        maintainer = self.request.user.maintainer  # type: ignore[attr-defined,union-attr]
+        maintainer: Maintainer = getattr(self.request.user, "maintainer")
 
         # Get collections for filtering
         collections = Collection.objects.filter(collectionmaintainer__maintainer=maintainer)

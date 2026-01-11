@@ -30,6 +30,9 @@
 - make tests-unit
 - make tests-integration
 - make migrations
+- make make-messages
+- make compile-messages
+- make update-translations
 
 ## Useful files:
 - .pre-commit-config.yaml

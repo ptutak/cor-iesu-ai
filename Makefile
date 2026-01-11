@@ -76,3 +76,19 @@ tests:
 	pytest tests/integration/ -v
 	@echo ""
 	@echo "✅ All tests completed successfully!"
+
+.PHONY: make-messages
+make-messages:
+	@echo "📝 Extracting translatable strings..."
+	cd src && python manage.py makemessages -a
+	@echo "✅ Translation files updated!"
+
+.PHONY: compile-messages
+compile-messages:
+	@echo "🔨 Compiling translation files..."
+	cd src && python manage.py compilemessages
+	@echo "✅ Translation files compiled!"
+
+.PHONY: update-translations
+update-translations: make-messages compile-messages
+	@echo "🌐 Translation update complete!"
