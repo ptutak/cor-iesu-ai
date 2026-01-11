@@ -55,7 +55,7 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-info">
-                                        {{ period.collection_set.count }}
+                                        {{ period.periodcollection_set.count }}
                                     </span>
                                 </td>
                                 <td>
@@ -66,9 +66,16 @@
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
                                         <a href="{% url 'maintainer:period_edit' period.pk %}"
-                                           class="btn btn-sm btn-outline-secondary"
+                                           class="btn btn-outline-secondary"
                                            title="{% trans 'Edit' %}">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="fas fa-edit me-1"></i>
+                                            <span class="d-none d-sm-inline">{% trans "Edit" %}</span>
+                                        </a>
+                                        <a href="{% url 'maintainer:period_delete' period.pk %}"
+                                           class="btn btn-outline-danger"
+                                           title="{% trans 'Delete' %}">
+                                            <i class="fas fa-trash me-1"></i>
+                                            <span class="d-none d-sm-inline">{% trans "Delete" %}</span>
                                         </a>
                                     </div>
                                 </td>
