@@ -412,11 +412,10 @@ class TestGetEmailConfig:
 
     def test_get_email_config_default_from_email(self, db):
         """Test getting DEFAULT_FROM_EMAIL config."""
-        Config.objects.create(
-            name=Config.DefaultValues.DEFAULT_FROM_EMAIL,
-            value="noreply@test.com",
-            description="Default from email",
-        )
+        # Update existing config created by migration
+        config = Config.objects.get(name=Config.DefaultValues.DEFAULT_FROM_EMAIL)
+        config.value = "noreply@test.com"
+        config.save()
 
         result = get_email_config("DEFAULT_FROM_EMAIL", "fallback@example.com")
         assert result == "noreply@test.com"
@@ -430,11 +429,17 @@ class TestRegistrationViewEmailIntegration:
         setup = complete_setup
 
         # Set custom email configuration
-        Config.objects.create(
+        config, created = Config.objects.get_or_create(
             name=Config.DefaultValues.DEFAULT_FROM_EMAIL,
-            value="custom@example.com",
-            description="Custom from email",
+            defaults={
+                "value": "custom@example.com",
+                "description": "Custom from email",
+            },
         )
+        if not created:
+            # Update existing config
+            config.value = "custom@example.com"
+            config.save()
 
         form_data = {
             "collection": setup["collection"].id,

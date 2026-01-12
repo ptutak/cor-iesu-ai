@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cor Iesu Adoration 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 09:31+0000\n"
+"POT-Creation-Date: 2026-01-12 10:16+0000\n"
 "PO-Revision-Date: 2026-01-12 09:30+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Dutch\n"
@@ -131,7 +131,7 @@ msgstr "Voer collectiebeschrijving in (optioneel)"
 msgid "Collection must have at least one available language."
 msgstr "Collectie moet ten minste één beschikbare taal hebben."
 
-#: adoration/forms.py:374
+#: adoration/forms.py:375
 msgid "Maximum number of assignments per period in this collection"
 msgstr "Maximaal aantal toewijzingen per periode in deze collectie"
 
@@ -1277,12 +1277,12 @@ msgstr "Wachtwoord"
 msgid "Back to Main Site"
 msgstr "Terug naar Hoofdsite"
 
-#: adoration/views.py:41
+#: adoration/views.py:42
 #, python-format
 msgid "Registration Confirmation - %(collection)s"
 msgstr "Registratiebevestiging - %(collection)s"
 
-#: adoration/views.py:45
+#: adoration/views.py:46
 #, python-format
 msgid ""
 "Dear %(name)s,\n"
@@ -1311,12 +1311,12 @@ msgstr ""
 "\n"
 "Met vriendelijke groet"
 
-#: adoration/views.py:85
+#: adoration/views.py:87
 #, python-format
 msgid "New Registration - %(collection)s"
 msgstr "Nieuwe registratie - %(collection)s"
 
-#: adoration/views.py:89
+#: adoration/views.py:91
 #, python-format
 msgid ""
 "New participant registered:\n"
@@ -1346,28 +1346,28 @@ msgstr ""
 "privacy. Deze e-mail wordt rechtstreeks verzonden vanaf het e-mailadres van "
 "de gebruiker."
 
-#: adoration/views.py:119
+#: adoration/views.py:121
 msgid "Registration successful! Check your email for confirmation."
 msgstr "Registratie succesvol! Controleer uw e-mail voor bevestiging."
 
-#: adoration/views.py:150 adoration/views.py:197
+#: adoration/views.py:152 adoration/views.py:199
 msgid "Collection not found"
 msgstr "Collectie niet gevonden"
 
-#: adoration/views.py:172
+#: adoration/views.py:174
 msgid "Failed to load periods"
 msgstr "Fout bij het laden van perioden"
 
-#: adoration/views.py:224
+#: adoration/views.py:226
 msgid "Failed to load maintainer information"
 msgstr "Fout bij het laden van beheerdersinformatie"
 
-#: adoration/views.py:261
+#: adoration/views.py:263
 #, python-format
 msgid "Registration Cancelled - %(collection)s"
 msgstr "Registratie geannuleerd - %(collection)s"
 
-#: adoration/views.py:265
+#: adoration/views.py:267
 #, python-format
 msgid ""
 "A participant has cancelled their registration:\n"
@@ -1388,7 +1388,7 @@ msgstr ""
 "De deelnemer heeft vrijwillig zijn/haar registratie geannuleerd met behulp "
 "van de verwijderingslink."
 
-#: adoration/views.py:286
+#: adoration/views.py:288
 msgid "Registration cancelled successfully."
 msgstr "Registratie succesvol geannuleerd."
 

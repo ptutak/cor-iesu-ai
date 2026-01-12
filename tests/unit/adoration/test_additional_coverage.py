@@ -260,12 +260,11 @@ class TestMigrationsCoverage:
 
         # Test all enum values exist and are strings
         assert hasattr(Config.DefaultValues, "ASSIGNMENT_LIMIT")
-        assert hasattr(Config.DefaultValues, "EMAIL_HOST")
-        assert hasattr(Config.DefaultValues, "EMAIL_PORT")
+        assert hasattr(Config.DefaultValues, "DEFAULT_FROM_EMAIL")
 
         # Test enum values are correct type
         assert isinstance(Config.DefaultValues.ASSIGNMENT_LIMIT, str)
-        assert isinstance(Config.DefaultValues.EMAIL_HOST, str)
+        assert isinstance(Config.DefaultValues.DEFAULT_FROM_EMAIL, str)
 
     def test_collection_config_keys_enum(self):
         """Test CollectionConfig.ConfigKeys enum coverage."""

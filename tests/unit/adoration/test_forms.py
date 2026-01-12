@@ -265,12 +265,10 @@ class TestPeriodAssignmentForm:
 
     def test_clean_period_collection_assignment_limit_default_config(self, db, period_collection):
         """Test assignment limit using default configuration."""
-        # Create default config (no collection-specific config)
-        Config.objects.create(
-            name=Config.DefaultValues.ASSIGNMENT_LIMIT,
-            value="2",
-            description="Default assignment limit",
-        )
+        # Update existing default config created by migration
+        config = Config.objects.get(name=Config.DefaultValues.ASSIGNMENT_LIMIT)
+        config.value = "2"
+        config.save()
 
         # Create assignments up to the default limit
         for i in range(2):
@@ -293,9 +291,15 @@ class TestPeriodAssignmentForm:
         assert "period_collection" in form.errors
 
     def test_clean_period_collection_no_limit_config(self, db, period_collection):
-        """Test assignment validation when no limit configuration exists."""
-        # Create many assignments - should still work without limit
-        for i in range(10):
+        """Test assignment validation with default limit configuration from migration."""
+        from adoration.models import Config
+
+        # Get the default assignment limit from migration (should be "2")
+        default_config = Config.objects.get(name=Config.DefaultValues.ASSIGNMENT_LIMIT)
+        default_limit = int(default_config.value)
+
+        # Create assignments up to the default limit
+        for i in range(default_limit):
             PeriodAssignment.create_with_email(
                 email=f"test{i}@example.com",
                 period_collection=period_collection,
@@ -310,14 +314,10 @@ class TestPeriodAssignmentForm:
         }
 
         form = PeriodAssignmentForm(data=form_data)
-        # Should be valid since no limit is configured, even with many assignments
-        if not form.is_valid():
-            # If it's not valid, it might be due to other validation, not the limit
-            # Check if the error is specifically about limits
-            form_errors = str(form.errors)
-            assert "period is full" not in form_errors.lower(), f"Unexpected limit error: {form_errors}"
-        # If no limit is set, form should generally be valid
-        assert form.is_valid() or "period is full" not in str(form.errors).lower()
+        # Should not be valid since we've reached the default limit
+        assert not form.is_valid()
+        form_errors = str(form.errors).lower()
+        assert "period is full" in form_errors
 
     def test_clean_duplicate_registration(self, db, complete_setup):
         """Test clean method prevents duplicate registrations."""
@@ -407,8 +407,10 @@ class TestPeriodAssignmentForm:
 
     def test_clean_period_collection_default_config_fallback(self, db, period_collection):
         """Test assignment limit falls back to default config when collection config doesn't exist."""
-        # Create default config only (no collection-specific config)
-        Config.objects.create(name=Config.DefaultValues.ASSIGNMENT_LIMIT, value="1")
+        # Update existing default config created by migration (no collection-specific config)
+        config = Config.objects.get(name=Config.DefaultValues.ASSIGNMENT_LIMIT)
+        config.value = "1"
+        config.save()
 
         # Create one assignment to fill the period
         assignment = PeriodAssignment.create_with_email(

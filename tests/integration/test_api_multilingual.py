@@ -102,8 +102,10 @@ class MultilingualAPIIntegrationTests(TestCase):
             assignment.save()
             self.test_assignments.append(assignment)
 
-        # Create configuration
-        Config.objects.create(name="ASSIGNMENT_LIMIT", value="5", description="Max assignments per period")
+        # Update existing configuration created by migration
+        config = Config.objects.get(name="ASSIGNMENT_LIMIT")
+        config.value = "5"
+        config.save()
 
     def test_collection_periods_api_english(self):
         """Test collection periods API in English context."""

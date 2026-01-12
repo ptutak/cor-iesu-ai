@@ -10,7 +10,6 @@ class DefaultValues:
 class EmailSettings:
     """Email configuration constants."""
 
-    DEFAULT_FROM_EMAIL = "noreply@example.com"
     EMAIL_SUBJECT_PREFIX = "[Adoration] "
 
 

@@ -31,11 +31,11 @@ class TestConfig:
     def test_config_creation(self, db):
         """Test creating a config object."""
         config = Config.objects.create(
-            name=Config.DefaultValues.ASSIGNMENT_LIMIT,
+            name="TEST_CONFIG",
             value="10",
             description="Test config",
         )
-        assert config.name == Config.DefaultValues.ASSIGNMENT_LIMIT
+        assert config.name == "TEST_CONFIG"
         assert config.value == "10"
         assert config.description == "Test config"
 
@@ -49,9 +49,31 @@ class TestConfig:
     def test_config_default_values_enum(self):
         """Test that default values enum contains expected values."""
         assert hasattr(Config.DefaultValues, "ASSIGNMENT_LIMIT")
-        assert hasattr(Config.DefaultValues, "EMAIL_HOST")
         assert hasattr(Config.DefaultValues, "DEFAULT_FROM_EMAIL")
         assert Config.DefaultValues.ASSIGNMENT_LIMIT == "ASSIGNMENT_LIMIT"
+
+    def test_config_str_method(self, db):
+        """Test Config __str__ method."""
+        config = Config.objects.create(
+            name="TEST_CONFIG",
+            value="test_value",
+            description="Test config description",
+        )
+        expected_str = "TEST_CONFIG: test_value"
+        assert str(config) == expected_str
+
+    def test_default_configs_exist(self, db):
+        """Test that default configuration values are populated in database."""
+        # These should be created by the migration
+        expected_configs = [
+            "ASSIGNMENT_LIMIT",
+            "DEFAULT_FROM_EMAIL",
+        ]
+
+        for config_name in expected_configs:
+            config = Config.objects.get(name=config_name)
+            assert config is not None
+            assert config.description != ""
 
 
 class TestPeriod:

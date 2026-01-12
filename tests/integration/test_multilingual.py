@@ -85,8 +85,10 @@ class MultilingualIntegrationTests(TestCase):
 
         self.period_collection2 = PeriodCollection.objects.create(period=self.period2, collection=self.collection)
 
-        # Create configuration
-        Config.objects.create(name="ASSIGNMENT_LIMIT", value="3", description="Max assignments per period")
+        # Update existing configuration created by migration
+        config = Config.objects.get(name="ASSIGNMENT_LIMIT")
+        config.value = "3"
+        config.save()
 
     def test_registration_view_english(self):
         """Test registration view in English."""

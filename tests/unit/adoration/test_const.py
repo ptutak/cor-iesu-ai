@@ -46,7 +46,6 @@ class TestDefaultValues:
 
     def test_email_settings_constants(self) -> None:
         """Test EmailSettings class constants."""
-        assert EmailSettings.DEFAULT_FROM_EMAIL == "noreply@example.com"
         assert EmailSettings.EMAIL_SUBJECT_PREFIX == "[Adoration] "
 
     def test_validation_messages_constants(self) -> None:

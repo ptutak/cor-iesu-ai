@@ -25,17 +25,14 @@ class Config(models.Model):
         """Default configuration keys available in the system."""
 
         ASSIGNMENT_LIMIT = "ASSIGNMENT_LIMIT"
-        EMAIL_HOST = "EMAIL_HOST"
-        EMAIL_PORT = "EMAIL_PORT"
-        EMAIL_USE_TLS = "EMAIL_USE_TLS"
-        EMAIL_USE_SSL = "EMAIL_USE_SSL"
-        EMAIL_HOST_USER = "EMAIL_HOST_USER"
-        EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
         DEFAULT_FROM_EMAIL = "DEFAULT_FROM_EMAIL"
 
     name = models.CharField(max_length=100, unique=True, blank=False, choices=DefaultValues)
     value = models.CharField(max_length=255, blank=False)
     description = models.CharField(max_length=600, blank=False)
+
+    def __str__(self) -> str:
+        return f"{self.name}: {self.value}"
 
 
 class Period(models.Model):

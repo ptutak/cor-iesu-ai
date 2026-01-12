@@ -142,14 +142,19 @@ def period_collection2(db, period2, collection):
 
 @pytest.fixture
 def config(db):
-    """Create test configuration."""
+    """Get or create test configuration."""
     from adoration.models import Config
 
-    return Config.objects.create(
-        name=Config.DefaultValues.ASSIGNMENT_LIMIT,
-        value="5",
-        description="Maximum assignments per period",
-    )
+    # Try to get existing config from migration first
+    try:
+        return Config.objects.get(name=Config.DefaultValues.ASSIGNMENT_LIMIT)
+    except Config.DoesNotExist:
+        # Fallback to creating if it doesn't exist
+        return Config.objects.create(
+            name=Config.DefaultValues.ASSIGNMENT_LIMIT,
+            value="5",
+            description="Maximum assignments per period",
+        )
 
 
 @pytest.fixture

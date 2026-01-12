@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -57,7 +58,8 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                         "link": request.build_absolute_uri("/delete/" + str(assignment.deletion_token) + "/"),
                     }
                 ),
-                from_email=get_email_config("DEFAULT_FROM_EMAIL", "noreply@example.com") or "noreply@example.com",
+                from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL)
+                or settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[attendant_email],
                 fail_silently=True,
             )
