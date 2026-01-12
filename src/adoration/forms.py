@@ -245,6 +245,20 @@ class CollectionForm(forms.ModelForm[Collection]):
         label=_("Available Languages"),
     )
 
+    assignment_limit = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=100,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Enter assignment limit (optional)"),
+            }
+        ),
+        help_text=_("Maximum number of assignments per period (leave empty for default limit)"),
+        label=_("Assignment Limit"),
+    )
+
     class Meta:
         """Meta configuration for CollectionForm."""
 
@@ -290,6 +304,18 @@ class CollectionForm(forms.ModelForm[Collection]):
         if self.instance and self.instance.pk and self.instance.available_languages:
             self.fields["available_languages"].initial = self.instance.available_languages
 
+        # Set assignment limit initial value from CollectionConfig
+        if self.instance and self.instance.pk:
+            try:
+                from .models import CollectionConfig
+
+                config = CollectionConfig.objects.get(
+                    collection=self.instance, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT
+                )
+                self.fields["assignment_limit"].initial = int(config.value)
+            except (CollectionConfig.DoesNotExist, ValueError):
+                pass  # No config set, use default
+
     def clean_available_languages(self) -> list[str]:
         """Validate available languages selection.
 
@@ -319,7 +345,7 @@ class CollectionForm(forms.ModelForm[Collection]):
         return list(languages)
 
     def save(self, commit: bool = True) -> Collection:
-        """Save the collection with proper language handling.
+        """Save the collection with proper language handling and assignment limit.
 
         Args:
             commit: Whether to save to database immediately
@@ -335,5 +361,26 @@ class CollectionForm(forms.ModelForm[Collection]):
 
         if commit:
             collection.save()
+
+            # Handle assignment limit configuration
+            assignment_limit = self.cleaned_data.get("assignment_limit")
+            if assignment_limit is not None:
+                from .models import CollectionConfig
+
+                CollectionConfig.objects.update_or_create(
+                    collection=collection,
+                    name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT,
+                    defaults={
+                        "value": str(assignment_limit),
+                        "description": _("Maximum number of assignments per period in this collection"),
+                    },
+                )
+            else:
+                # Remove assignment limit config if field is empty
+                from .models import CollectionConfig
+
+                CollectionConfig.objects.filter(
+                    collection=collection, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT
+                ).delete()
 
         return collection

@@ -68,6 +68,22 @@ urlpatterns = [
         maintainer_views.remove_period_from_collection,
         name="remove_period",
     ),
+    # Maintainer-Period assignment
+    path(
+        "assign-period-to-maintainer/",
+        maintainer_views.assign_period_to_maintainer,
+        name="assign_period_to_maintainer",
+    ),
+    path(
+        "remove-period-from-maintainer/",
+        maintainer_views.remove_period_from_maintainer,
+        name="remove_period_from_maintainer",
+    ),
+    path(
+        "assign-standard-periods/",
+        maintainer_views.assign_standard_periods_to_maintainer,
+        name="assign_standard_periods",
+    ),
     # Assignment management
     path(
         "assignments/",

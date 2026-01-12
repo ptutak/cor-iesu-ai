@@ -128,6 +128,30 @@
                         </div>
                     </div>
 
+                    <!-- Assignment Limit field -->
+                    <div class="mb-3">
+                        <label for="{{ form.assignment_limit.id_for_label }}" class="form-label">
+                            <i class="fas fa-users me-2"></i>
+                            {% trans "Assignment Limit" %}
+                        </label>
+                        <input type="number"
+                               class="form-control {% if form.assignment_limit.errors %}is-invalid{% endif %}"
+                               id="{{ form.assignment_limit.id_for_label }}"
+                               name="{{ form.assignment_limit.name }}"
+                               value="{{ form.assignment_limit.value|default:'' }}"
+                               min="1"
+                               max="100"
+                               placeholder="{% trans 'Enter assignment limit (optional)' %}">
+                        {% if form.assignment_limit.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.assignment_limit.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Maximum number of assignments per period (leave empty for default limit)" %}
+                        </div>
+                    </div>
+
                     <!-- Available Languages field -->
                     <div class="mb-4">
                         <label class="form-label">

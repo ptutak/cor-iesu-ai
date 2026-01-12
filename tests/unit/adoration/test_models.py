@@ -539,3 +539,79 @@ class TestPeriodAssignment:
 
         # Should keep the existing token
         assert assignment.deletion_token == token
+
+
+class TestMaintainerPeriod:
+    """Test cases for MaintainerPeriod model."""
+
+    def test_maintainer_period_creation(self, maintainer, period):
+        """Test creating a MaintainerPeriod."""
+        from adoration.models import MaintainerPeriod
+
+        maintainer_period = MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        assert maintainer_period.maintainer == maintainer
+        assert maintainer_period.period == period
+        assert maintainer_period.created_at is not None
+
+    def test_maintainer_period_unique_constraint(self, maintainer, period):
+        """Test that MaintainerPeriod enforces unique constraint."""
+        from django.db import IntegrityError
+
+        from adoration.models import MaintainerPeriod
+
+        # Create first maintainer-period relationship
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Try to create duplicate - should raise IntegrityError
+        with pytest.raises(IntegrityError):
+            MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+    def test_maintainer_period_string_representation(self, maintainer, period):
+        """Test string representation of MaintainerPeriod."""
+        from adoration.models import MaintainerPeriod
+
+        maintainer_period = MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        expected = f"{maintainer.user.email} - {period.name}"
+        assert str(maintainer_period) == expected
+
+    def test_maintainer_period_cascade_delete_maintainer(self, maintainer, period):
+        """Test that deleting maintainer cascades to MaintainerPeriod."""
+        from adoration.models import MaintainerPeriod
+
+        maintainer_period = MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Delete maintainer should cascade
+        maintainer.delete()
+
+        assert not MaintainerPeriod.objects.filter(id=maintainer_period.id).exists()
+
+    def test_maintainer_period_cascade_delete_period(self, maintainer, period):
+        """Test that deleting period cascades to MaintainerPeriod."""
+        from adoration.models import MaintainerPeriod
+
+        maintainer_period = MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Delete period should cascade
+        period.delete()
+
+        assert not MaintainerPeriod.objects.filter(id=maintainer_period.id).exists()
+
+    def test_maintainer_periods_relationship(self, maintainer):
+        """Test many-to-many relationship through MaintainerPeriod."""
+        from adoration.models import MaintainerPeriod, Period
+
+        # Create periods
+        period1 = Period.objects.create(name="Morning", description="Morning period")
+        period2 = Period.objects.create(name="Evening", description="Evening period")
+
+        # Create relationships
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period1)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period2)
+
+        # Test relationship access
+        maintainer_periods = maintainer.periods.all()
+        assert period1 in maintainer_periods
+        assert period2 in maintainer_periods
+        assert maintainer_periods.count() == 2

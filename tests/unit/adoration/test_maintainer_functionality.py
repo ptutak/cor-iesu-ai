@@ -250,6 +250,11 @@ class TestRemovePeriodFromCollection:
         # Make maintainer a collection maintainer
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
+        # Create maintainer-period relationship first (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
         # Create period collection to remove
         period_collection = PeriodCollection.objects.create(collection=collection, period=period)
 
@@ -280,7 +285,12 @@ class TestRemovePeriodFromCollection:
         # Make maintainer a collection maintainer
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
-        # Create period collection and assignment
+        # Create maintainer-period relationship first (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Create period collection with assignment
         period_collection = PeriodCollection.objects.create(collection=collection, period=period)
         assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()

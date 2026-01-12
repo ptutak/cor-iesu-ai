@@ -118,6 +118,7 @@
                                 <tr>
                                     <td>
                                         <strong>{{ period_collection.period.name }}</strong>
+                                        <small class="text-muted d-block">{% trans "Your period" %}</small>
                                     </td>
                                     <td>
                                         {% if period_collection.period.description %}
@@ -150,7 +151,7 @@
                         <i class="fas fa-clock fa-3x text-muted mb-3"></i>
                         <h6 class="text-muted">{% trans "No periods assigned" %}</h6>
                         <p class="text-muted mb-3">
-                            {% trans "Assign periods from the list on the right to make this collection available for registration." %}
+                            {% trans "Assign your periods from the list on the right to make this collection available for registration." %}
                         </p>
                     </div>
                 {% endif %}
@@ -164,7 +165,7 @@
             <div class="card-header">
                 <h6 class="card-title mb-0">
                     <i class="fas fa-plus-circle me-2"></i>
-                    {% trans "Available Periods" %}
+                    {% trans "Your Available Periods" %}
                 </h6>
             </div>
             <div class="card-body">
@@ -193,9 +194,9 @@
                 {% else %}
                     <div class="text-center py-4">
                         <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                        <h6 class="text-muted">{% trans "All periods assigned" %}</h6>
+                        <h6 class="text-muted">{% trans "All your periods assigned" %}</h6>
                         <p class="text-muted mb-3">
-                            {% trans "All available periods have been assigned to this collection." %}
+                            {% trans "All your available periods have been assigned to this collection." %}
                         </p>
                         <a href="{% url 'maintainer:period_create' %}" class="btn btn-sm btn-primary">
                             <i class="fas fa-plus me-1"></i>

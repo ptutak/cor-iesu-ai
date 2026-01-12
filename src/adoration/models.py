@@ -33,7 +33,7 @@ class Config(models.Model):
         EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
         DEFAULT_FROM_EMAIL = "DEFAULT_FROM_EMAIL"
 
-    name = models.CharField(max_length=100, unique=True, blank=False)
+    name = models.CharField(max_length=100, unique=True, blank=False, choices=DefaultValues)
     value = models.CharField(max_length=255, blank=False)
     description = models.CharField(max_length=600, blank=False)
 
@@ -319,6 +319,7 @@ class Maintainer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15, blank=True)
     country = models.CharField(max_length=30, blank=False)
+    periods = models.ManyToManyField(Period, through="MaintainerPeriod")  # type: ignore
 
     def clean(self) -> None:
         """Validate that the user has an email address.
@@ -366,3 +367,26 @@ class CollectionMaintainer(models.Model):
 
     def __str__(self) -> str:
         return f"{self.collection.name} - {self.maintainer.user.email}"
+
+
+class MaintainerPeriod(models.Model):
+    """Junction model linking maintainers to periods they can manage."""
+
+    objects: models.Manager["MaintainerPeriod"]
+
+    maintainer = models.ForeignKey(Maintainer, on_delete=models.CASCADE)
+    period = models.ForeignKey(Period, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """Meta configuration for MaintainerPeriod model."""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["maintainer", "period"],
+                name="maintainer_period_unique_constraint",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.maintainer.user.email} - {self.period.name}"

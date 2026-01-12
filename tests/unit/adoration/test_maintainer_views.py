@@ -290,6 +290,11 @@ class TestCollectionDetailView:
         client.force_login(maintainer_user)
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
         # Create assignment
         assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
         assignment.save()
@@ -396,12 +401,18 @@ class TestCollectionDeleteView:
 class TestPeriodListView:
     """Test cases for PeriodListView."""
 
-    def test_period_list_shows_all_periods(self, client, maintainer_with_permissions, period):
-        """Test that period list shows all periods."""
+    def test_period_list_shows_all_periods(self, client, maintainer_with_permissions, maintainer, period):
+        """Test that period list shows maintainer's assigned periods."""
         client.force_login(maintainer_with_permissions)
 
-        # Create another period
-        Period.objects.create(name="Another Period", description="Another description")
+        # Create maintainer-period relationships (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Create another period and assign to maintainer
+        another_period = Period.objects.create(name="Another Period", description="Another description")
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=another_period)
 
         url = reverse("maintainer:period_list")
         response = client.get(url)
@@ -505,9 +516,14 @@ class TestPeriodUpdateView:
 class TestPeriodDeleteView:
     """Test cases for PeriodDeleteView."""
 
-    def test_period_delete_get(self, client, maintainer_with_permissions, period):
+    def test_period_delete_get(self, client, maintainer_with_permissions, maintainer, period):
         """Test GET request to period delete view shows confirmation page."""
         client.force_login(maintainer_with_permissions)
+
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
 
         url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
         response = client.get(url)
@@ -517,9 +533,17 @@ class TestPeriodDeleteView:
         assert "total_collections" in response.context
         assert "total_assignments" in response.context
 
-    def test_period_delete_post_success(self, client, maintainer_with_permissions, period):
-        """Test POST request successfully deletes period."""
+    def test_period_delete_post_success(self, client, maintainer_with_permissions, maintainer):
+        """Test POST request successfully removes period from maintainer management."""
         client.force_login(maintainer_with_permissions)
+
+        # Create a new period just for this test to avoid fixture conflicts
+        from adoration.models import MaintainerPeriod, Period
+
+        period = Period.objects.create(name="Test Delete Period", description="For testing deletion")
+
+        # Create maintainer-period relationship (required for new functionality)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
 
         url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
         response = client.post(url)
@@ -527,17 +551,23 @@ class TestPeriodDeleteView:
         assert response.status_code == 302
         assert response.url == reverse("maintainer:period_list")
 
-        # Check period was deleted
-        assert not Period.objects.filter(pk=period.pk).exists()
+        # Check maintainer-period relationship was removed, but period still exists
+        assert not MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+        assert Period.objects.filter(pk=period.pk).exists()
 
     def test_period_delete_with_assignments_cascades(
         self, client, maintainer_with_permissions, period, collection, maintainer
     ):
-        """Test that deleting period also deletes associated assignments."""
+        """Test that removing period fails when assignments exist."""
         client.force_login(maintainer_with_permissions)
 
         # Create collection maintainer relationship
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
 
         # Create period collection and assignment
         period_collection = PeriodCollection.objects.create(collection=collection, period=period)
@@ -549,10 +579,11 @@ class TestPeriodDeleteView:
 
         assert response.status_code == 302
 
-        # Check cascade deletion
-        assert not Period.objects.filter(pk=period.pk).exists()
-        assert not PeriodCollection.objects.filter(pk=period_collection.pk).exists()
-        assert not PeriodAssignment.objects.filter(pk=assignment.pk).exists()
+        # Check that nothing was deleted because assignments exist
+        assert Period.objects.filter(pk=period.pk).exists()
+        assert PeriodCollection.objects.filter(pk=period_collection.pk).exists()
+        assert PeriodAssignment.objects.filter(pk=assignment.pk).exists()
+        assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
 
     def test_period_delete_requires_permission(self, client, django_user_model, period):
         """Test that period delete requires proper permission."""
@@ -688,9 +719,14 @@ class TestRemovePeriodFromCollection:
         period,
         period_collection,
     ):
-        """Test successful period removal."""
+        """Test successful period removal from collection."""
         client.force_login(maintainer_with_permissions)
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
 
         url = reverse("maintainer:remove_period")
         data = {
@@ -703,6 +739,7 @@ class TestRemovePeriodFromCollection:
         assert response.status_code == 200
         json_data = response.json()
         assert json_data["success"] is True
+        assert not PeriodCollection.objects.filter(id=period_collection.id).exists()
         assert "removed" in json_data["message"].lower()
 
         # Check that period-collection relationship was removed
@@ -717,9 +754,14 @@ class TestRemovePeriodFromCollection:
         period,
         period_collection,
     ):
-        """Test removing period with assignments returns error."""
+        """Test removing period fails when assignments exist."""
         client.force_login(maintainer_with_permissions)
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
 
         # Create assignment
         assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
@@ -737,9 +779,10 @@ class TestRemovePeriodFromCollection:
         json_data = response.json()
         assert json_data["success"] is False
         assert "active assignments" in json_data["error"].lower()
+        assert PeriodCollection.objects.filter(id=period_collection.id).exists()
 
     def test_remove_period_not_assigned(self, client, maintainer_with_permissions, maintainer, collection, period):
-        """Test removal of period not assigned to collection."""
+        """Test removing period that's not assigned to maintainer."""
         client.force_login(maintainer_with_permissions)
         CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
 
@@ -754,7 +797,7 @@ class TestRemovePeriodFromCollection:
         assert response.status_code == 200
         json_data = response.json()
         assert json_data["success"] is False
-        assert "not assigned" in json_data["error"].lower()
+        assert "access denied" in json_data["error"].lower()
 
 
 @pytest.mark.django_db
@@ -1099,3 +1142,448 @@ def mock_templates(settings):
             f.write(content)
 
     settings.TEMPLATES[0]["DIRS"].insert(0, temp_dir)
+
+
+@pytest.mark.django_db
+class TestAssignPeriodToMaintainer:
+    """Test cases for assign_period_to_maintainer AJAX view."""
+
+    def test_assign_period_to_maintainer_success(self, client, maintainer_with_permissions, maintainer, period):
+        """Test successful period assignment to maintainer."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_period_to_maintainer")
+        data = {"period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+        assert "assigned to you successfully" in json_data["message"]
+
+        # Verify relationship was created
+        from adoration.models import MaintainerPeriod
+
+        assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+    def test_assign_period_to_maintainer_with_name(self, client, maintainer_with_permissions, maintainer):
+        """Test period assignment by name when period doesn't exist."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_period_to_maintainer")
+        data = {"period_name": "New Period"}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+
+        # Verify period was created and assigned
+        from adoration.models import MaintainerPeriod, Period
+
+        period = Period.objects.get(name="New Period")
+        assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+    def test_assign_period_already_assigned(self, client, maintainer_with_permissions, maintainer, period):
+        """Test assigning period that's already assigned to maintainer."""
+        from adoration.models import MaintainerPeriod
+
+        client.force_login(maintainer_with_permissions)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        url = reverse("maintainer:assign_period_to_maintainer")
+        data = {"period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "already assigned" in json_data["error"]
+
+    def test_assign_period_missing_data(self, client, maintainer_with_permissions):
+        """Test assignment with missing data returns error."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_period_to_maintainer")
+        data = {}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "missing" in json_data["error"].lower()
+
+
+@pytest.mark.django_db
+class TestRemovePeriodFromMaintainer:
+    """Test cases for remove_period_from_maintainer AJAX view."""
+
+    def test_remove_period_from_maintainer_success(self, client, maintainer_with_permissions, maintainer, period):
+        """Test successful period removal from maintainer."""
+        from adoration.models import MaintainerPeriod
+
+        client.force_login(maintainer_with_permissions)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        url = reverse("maintainer:remove_period_from_maintainer")
+        data = {"period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+        assert "removed from your management" in json_data["message"]
+
+        # Verify relationship was removed
+        assert not MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+    def test_remove_period_with_assignments(
+        self, client, maintainer_with_permissions, maintainer, collection, period, period_collection
+    ):
+        """Test removing period that has active assignments."""
+        from adoration.models import MaintainerPeriod
+
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Create assignment
+        assignment = PeriodAssignment.create_with_email(email="test@example.com", period_collection=period_collection)
+        assignment.save()
+
+        url = reverse("maintainer:remove_period_from_maintainer")
+        data = {"period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "active assignments" in json_data["error"]
+
+    def test_remove_period_not_assigned(self, client, maintainer_with_permissions, period):
+        """Test removing period that's not assigned to maintainer."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:remove_period_from_maintainer")
+        data = {"period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "not assigned to you" in json_data["error"]
+
+
+@pytest.mark.django_db
+class TestModifiedPeriodViews:
+    """Test cases for modified period views with maintainer-period relationships."""
+
+    def test_period_list_shows_only_maintainer_periods(self, client, maintainer_with_permissions, maintainer):
+        """Test that period list shows only periods assigned to current maintainer."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+
+        # Create periods
+        assigned_period = Period.objects.create(name="Assigned Period")
+        unassigned_period = Period.objects.create(name="Unassigned Period")
+
+        # Assign only one period to maintainer
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=assigned_period)
+
+        url = reverse("maintainer:period_list")
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert "Assigned Period" in response.content.decode()
+        assert "Unassigned Period" not in response.content.decode()
+
+    def test_period_create_assigns_to_maintainer(self, client, maintainer_with_permissions, maintainer):
+        """Test that creating period automatically assigns it to current maintainer."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:period_create")
+        data = {"name": "Auto Assigned Period", "description": "This should be auto-assigned"}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 302  # Redirect after successful creation
+
+        # Verify period was created and assigned
+        period = Period.objects.get(name="Auto Assigned Period")
+        assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+    def test_period_delete_removes_maintainer_relationship(
+        self, client, maintainer_with_permissions, maintainer, collection
+    ):
+        """Test that period delete removes maintainer-period relationship."""
+        from adoration.models import MaintainerPeriod, Period, PeriodCollection
+
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create period and assign to maintainer
+        period = Period.objects.create(name="Test Relationship Period")
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+        PeriodCollection.objects.create(collection=collection, period=period)
+
+        url = reverse("maintainer:period_delete", kwargs={"pk": period.pk})
+        response = client.post(url)
+
+        assert response.status_code == 302  # Redirect after successful removal
+
+        # Period should still exist, but maintainer relationship should be removed
+        assert Period.objects.filter(id=period.id).exists()
+        assert not MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+        assert not PeriodCollection.objects.filter(collection=collection, period=period).exists()
+
+    def test_collection_detail_shows_only_maintainer_periods(
+        self, client, maintainer_with_permissions, maintainer, collection
+    ):
+        """Test that collection detail shows only periods assigned to current maintainer."""
+        from adoration.models import MaintainerPeriod, Period, PeriodCollection
+
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create periods
+        maintainer_period = Period.objects.create(name="Maintainer Period")
+        other_period = Period.objects.create(name="Other Period")
+
+        # Assign only one period to maintainer
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=maintainer_period)
+
+        # Assign both periods to collection
+        PeriodCollection.objects.create(collection=collection, period=maintainer_period)
+        PeriodCollection.objects.create(collection=collection, period=other_period)
+
+        url = reverse("maintainer:collection_detail", kwargs={"pk": collection.pk})
+        response = client.get(url)
+
+        assert response.status_code == 200
+        # Should only show the maintainer's period
+        context = response.context
+        period_collections = context["period_collections"]
+        assert len(period_collections) == 1
+        assert period_collections[0].period == maintainer_period
+
+    def test_assign_period_with_maintainer_period_check(
+        self, client, maintainer_with_permissions, maintainer, collection
+    ):
+        """Test period assignment requires maintainer-period relationship."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+        CollectionMaintainer.objects.create(collection=collection, maintainer=maintainer)
+
+        # Create period but don't assign to maintainer
+        period = Period.objects.create(name="Unassigned Period")
+
+        url = reverse("maintainer:assign_period")
+        data = {"collection_id": collection.id, "period_id": period.id}
+
+        response = client.post(url, data=data)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+
+        # Should create maintainer-period relationship automatically
+        assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+
+@pytest.mark.django_db
+class TestAssignStandardPeriods:
+    """Test cases for assign_standard_periods_to_maintainer AJAX view."""
+
+    def test_assign_standard_periods_success(self, client, maintainer_with_permissions, maintainer):
+        """Test successful assignment of standard periods to maintainer."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+        assert "assigned" in json_data["message"].lower()
+
+        # Verify all 24 periods were created and assigned
+        from adoration.models import MaintainerPeriod, Period
+
+        # Check that 24 standard periods exist
+        standard_periods = []
+        for hour in range(0, 24):
+            period_name = f"{hour:02d}:00 - {(hour + 1) % 24:02d}:00"
+            period = Period.objects.get(name=period_name)
+            standard_periods.append(period)
+
+        assert len(standard_periods) == 24
+
+        # Check that all are assigned to the maintainer
+        for period in standard_periods:
+            assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+        # Verify the counts in response
+        assert json_data["created_count"] == 24
+        assert json_data["assigned_count"] == 24
+
+    def test_assign_standard_periods_already_exist(self, client, maintainer_with_permissions, maintainer):
+        """Test assignment when some periods already exist."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+
+        # Pre-create some periods
+        existing_periods = []
+        for hour in range(0, 5):  # Create first 5 hours
+            period_name = f"{hour:02d}:00 - {(hour + 1) % 24:02d}:00"
+            period = Period.objects.create(name=period_name, description=f"Existing period {hour}")
+            existing_periods.append(period)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+
+        # Should have created 19 new periods (24 - 5 existing)
+        assert json_data["created_count"] == 19
+        # Should have assigned all 24 periods
+        assert json_data["assigned_count"] == 24
+
+        # Verify all periods exist and are assigned
+        for hour in range(0, 24):
+            period_name = f"{hour:02d}:00 - {(hour + 1) % 24:02d}:00"
+            period = Period.objects.get(name=period_name)
+            assert MaintainerPeriod.objects.filter(maintainer=maintainer, period=period).exists()
+
+    def test_assign_standard_periods_already_assigned(self, client, maintainer_with_permissions, maintainer):
+        """Test assignment when periods already exist and are assigned."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+
+        # Pre-create and assign some periods
+        for hour in range(0, 10):  # Create and assign first 10 hours
+            period_name = f"{hour:02d}:00 - {(hour + 1) % 24:02d}:00"
+            period = Period.objects.create(name=period_name, description=f"Pre-assigned period {hour}")
+            MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+
+        # Should have created 14 new periods (24 - 10 existing)
+        assert json_data["created_count"] == 14
+        # Should have assigned 14 new periods (24 - 10 already assigned)
+        assert json_data["assigned_count"] == 14
+
+    def test_assign_standard_periods_all_already_assigned(self, client, maintainer_with_permissions, maintainer):
+        """Test assignment when all periods already exist and are assigned."""
+        from adoration.models import MaintainerPeriod, Period
+
+        client.force_login(maintainer_with_permissions)
+
+        # Pre-create and assign all 24 periods
+        for hour in range(0, 24):
+            period_name = f"{hour:02d}:00 - {(hour + 1) % 24:02d}:00"
+            period = Period.objects.create(name=period_name, description=f"Pre-assigned period {hour}")
+            MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+        assert "already assigned" in json_data["message"]
+
+        # Should not have created or assigned any new periods
+        assert json_data["created_count"] == 0
+        assert json_data["assigned_count"] == 0
+
+    def test_assign_standard_periods_invalid_method(self, client, maintainer_with_permissions):
+        """Test assignment with invalid HTTP method."""
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.get(url)  # Should be POST
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "invalid method" in json_data["error"].lower()
+
+    def test_assign_standard_periods_non_maintainer(self, client, django_user_model):
+        """Test assignment by non-maintainer returns error."""
+        user = django_user_model.objects.create_user(
+            username="regular_user", email="user@example.com", password="testpass123"
+        )
+        client.force_login(user)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "not a maintainer" in json_data["error"]
+
+    def test_assign_standard_periods_creates_correct_names(self, client, maintainer_with_permissions, maintainer):
+        """Test that standard periods are created with correct names and descriptions."""
+        from adoration.models import Period
+
+        client.force_login(maintainer_with_permissions)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is True
+
+        # Verify specific period names and descriptions
+        test_cases = [
+            ("00:00 - 01:00", "Adoration period from 00:00 to 01:00"),
+            ("01:00 - 02:00", "Adoration period from 01:00 to 02:00"),
+            ("12:00 - 13:00", "Adoration period from 12:00 to 13:00"),
+            ("23:00 - 00:00", "Adoration period from 23:00 to 00:00"),
+        ]
+
+        for period_name, expected_description in test_cases:
+            period = Period.objects.get(name=period_name)
+            assert period.description == expected_description
+
+    def test_assign_standard_periods_error_handling(self, client, maintainer_with_permissions, maintainer, monkeypatch):
+        """Test error handling when period creation fails."""
+        client.force_login(maintainer_with_permissions)
+
+        # Mock Period.objects.get_or_create to raise an exception
+        def mock_get_or_create(*args, **kwargs):
+            raise Exception("Database error")
+
+        from adoration.models import Period
+
+        monkeypatch.setattr(Period.objects, "get_or_create", mock_get_or_create)
+
+        url = reverse("maintainer:assign_standard_periods")
+        response = client.post(url)
+
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data["success"] is False
+        assert "database error" in json_data["error"].lower()

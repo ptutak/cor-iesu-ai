@@ -1,17 +1,21 @@
 {% extends "adoration/maintainer/base.html" %}
 {% load i18n %}
 
-{% block page_title %}{% trans "Periods" %}{% endblock %}
+{% block page_title %}{% trans "My Periods" %}{% endblock %}
 
 {% block breadcrumb %}
 <li class="breadcrumb-item active" aria-current="page">{% trans "Periods" %}</li>
 {% endblock %}
 
 {% block page_actions %}
-<a href="{% url 'maintainer:period_create' %}" class="btn btn-primary">
+<a href="{% url 'maintainer:period_create' %}" class="btn btn-primary me-2">
     <i class="fas fa-plus me-2"></i>
     {% trans "Create Period" %}
 </a>
+<button type="button" class="btn btn-outline-secondary" id="assign-standard-periods-btn">
+    <i class="fas fa-clock me-2"></i>
+    {% trans "Assign 24-Hour Periods" %}
+</button>
 {% endblock %}
 
 {% block maintainer_content %}
@@ -21,7 +25,7 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">
                     <i class="fas fa-clock me-2"></i>
-                    {% trans "Available Periods" %}
+                    {% trans "My Periods" %}
                 </h5>
             </div>
             <div class="card-body">
@@ -73,9 +77,9 @@
                                         </a>
                                         <a href="{% url 'maintainer:period_delete' period.pk %}"
                                            class="btn btn-outline-danger"
-                                           title="{% trans 'Delete' %}">
-                                            <i class="fas fa-trash me-1"></i>
-                                            <span class="d-none d-sm-inline">{% trans "Delete" %}</span>
+                                           title="{% trans 'Remove from my management' %}">
+                                            <i class="fas fa-user-minus me-1"></i>
+                                            <span class="d-none d-sm-inline">{% trans "Remove" %}</span>
                                         </a>
                                     </div>
                                 </td>
@@ -134,13 +138,13 @@
                 <!-- Empty state -->
                 <div class="text-center py-5">
                     <i class="fas fa-clock fa-4x text-muted mb-3"></i>
-                    <h5 class="text-muted">{% trans "No periods found" %}</h5>
+                    <h5 class="text-muted">{% trans "No periods assigned to you" %}</h5>
                     <p class="text-muted mb-4">
-                        {% trans "Create periods to organize adoration time slots. Periods can be assigned to multiple collections." %}
+                        {% trans "Create periods to organize adoration time slots for your collections." %}
                     </p>
                     <a href="{% url 'maintainer:period_create' %}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>
-                        {% trans "Create Your First Period" %}
+                        {% trans "Create Period" %}
                     </a>
                 </div>
                 {% endif %}
@@ -157,7 +161,7 @@
             <div class="card-body text-center">
                 <i class="fas fa-clock text-success fa-2x mb-2"></i>
                 <h5 class="card-title">{{ periods|length }}</h5>
-                <p class="card-text text-muted">{% trans "Total Periods" %}</p>
+                <p class="card-text text-muted">{% trans "My Periods" %}</p>
             </div>
         </div>
     </div>
@@ -168,10 +172,63 @@
                 <h5 class="card-title">
                     {% with total_collections=periods|length %}{{ total_collections }}{% endwith %}
                 </h5>
-                <p class="card-text text-muted">{% trans "Available for Assignment" %}</p>
+                <p class="card-text text-muted">{% trans "Ready for Collections" %}</p>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
+
+{% endblock %}
+
+{% block extra_maintainer_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const assignStandardBtn = document.getElementById('assign-standard-periods-btn');
+
+    if (assignStandardBtn) {
+        assignStandardBtn.addEventListener('click', function() {
+            if (confirm('{% trans "This will assign all 24 standard hour periods (00:00-01:00, 01:00-02:00, etc.) to you. Continue?" %}')) {
+                assignStandardPeriods();
+            }
+        });
+    }
+
+    function assignStandardPeriods() {
+        const btn = document.getElementById('assign-standard-periods-btn');
+        const originalText = btn.innerHTML;
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Assigning..." %}';
+
+        fetch('{% url "maintainer:assign_standard_periods" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                // Reload the page after a short delay to show the new periods
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('{% trans "An error occurred while assigning standard periods." %}', 'danger');
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // Restore button state
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+});
+</script>
 {% endblock %}

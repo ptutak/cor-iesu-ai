@@ -15,6 +15,7 @@ from .models import (
     CollectionMaintainer,
     Config,
     Maintainer,
+    MaintainerPeriod,
     Period,
     PeriodAssignment,
     PeriodCollection,
@@ -409,6 +410,53 @@ class CollectionAdmin(admin.ModelAdmin[Collection]):
             int: Number of maintainers for collection
         """
         return CollectionMaintainer.objects.filter(collection=obj).count()
+
+
+@admin.register(MaintainerPeriod)
+class MaintainerPeriodAdmin(admin.ModelAdmin[MaintainerPeriod]):
+    """Admin configuration for MaintainerPeriod model."""
+
+    list_display = (
+        "get_maintainer_name",
+        "get_maintainer_email",
+        "period",
+        "created_at",
+    )
+    list_filter = ("maintainer", "period", "created_at")
+    search_fields = (
+        "maintainer__user__first_name",
+        "maintainer__user__last_name",
+        "maintainer__user__username",
+        "maintainer__user__email",
+        "period__name",
+    )
+    date_hierarchy = "created_at"
+
+    @admin_display("Maintainer Name")
+    def get_maintainer_name(self, obj: MaintainerPeriod) -> str:
+        """Get the full name or username of the maintainer.
+
+        Args:
+            obj: The MaintainerPeriod instance
+
+        Returns:
+            str: Full name or username if full name is empty
+        """
+        full_name: str = obj.maintainer.user.get_full_name()
+        return full_name or obj.maintainer.user.username
+
+    @admin_display("Email")
+    def get_maintainer_email(self, obj: MaintainerPeriod) -> str:
+        """Get the email address of the maintainer.
+
+        Args:
+            obj: The MaintainerPeriod instance
+
+        Returns:
+            str: Email address of the maintainer
+        """
+        email: str = obj.maintainer.user.email
+        return email
 
 
 admin.site.register(Config)

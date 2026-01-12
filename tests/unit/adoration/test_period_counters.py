@@ -151,11 +151,12 @@ class TestPeriodListViewCounters:
         maintainer = Maintainer.objects.create(
             user=maintainer_user, phone_number="+1234567890", country="United States"
         )
-        return maintainer_user
+        return maintainer_user, maintainer
 
     def test_period_list_view_shows_correct_counters(self, client, maintainer_with_permissions):
         """Test that the period list view shows correct counter values."""
-        client.force_login(maintainer_with_permissions)
+        maintainer_user, maintainer = maintainer_with_permissions
+        client.force_login(maintainer_user)
 
         # Setup test data
         period1 = Period.objects.create(name="Morning", description="Morning period")
@@ -163,6 +164,12 @@ class TestPeriodListViewCounters:
 
         collection1 = Collection.objects.create(name="Collection 1", enabled=True)
         collection2 = Collection.objects.create(name="Collection 2", enabled=True)
+
+        # Create maintainer-period relationships (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period1)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period2)
 
         # Period 1: 2 collections, 3 assignments
         pc1_1 = PeriodCollection.objects.create(period=period1, collection=collection1)
@@ -191,6 +198,9 @@ class TestPeriodListViewCounters:
         periods_list = list(periods)
         periods_list.sort(key=lambda p: p.name)
 
+        # Should have 2 periods assigned to this maintainer
+        assert len(periods_list) == 2
+
         # Verify period 1 (Evening comes first alphabetically)
         assert periods_list[0].name == "Evening"
         assert periods_list[0].collection_count == 1
@@ -203,17 +213,27 @@ class TestPeriodListViewCounters:
 
     def test_period_list_view_empty_periods(self, client, maintainer_with_permissions):
         """Test period list view with periods that have no collections or assignments."""
-        client.force_login(maintainer_with_permissions)
+        maintainer_user, maintainer = maintainer_with_permissions
+        client.force_login(maintainer_user)
 
         # Create periods with no collections
-        Period.objects.create(name="Empty Period 1", description="No collections")
-        Period.objects.create(name="Empty Period 2", description="No collections")
+        period1 = Period.objects.create(name="Empty Period 1", description="No collections")
+        period2 = Period.objects.create(name="Empty Period 2", description="No collections")
+
+        # Create maintainer-period relationships (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period1)
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period2)
 
         url = reverse("maintainer:period_list")
         response = client.get(url)
 
         assert response.status_code == 200
         periods = list(response.context["periods"])
+
+        # Should have 2 periods assigned to this maintainer
+        assert len(periods) == 2
 
         # Verify all periods have zero counts
         for period in periods:
@@ -222,7 +242,11 @@ class TestPeriodListViewCounters:
 
     def test_period_list_view_queryset_uses_correct_annotations(self, client, maintainer_with_permissions):
         """Test that the view's queryset method produces the expected annotations."""
+        from unittest.mock import Mock
+
         from adoration.maintainer_views import PeriodListView
+
+        maintainer_user, maintainer = maintainer_with_permissions
 
         # Create test data
         period = Period.objects.create(name="Test Period")
@@ -231,8 +255,17 @@ class TestPeriodListViewCounters:
         pa = PeriodAssignment.create_with_email(email="test@example.com", period_collection=pc)
         pa.save()
 
-        # Get the queryset from the view
+        # Create maintainer-period relationship (required for new functionality)
+        from adoration.models import MaintainerPeriod
+
+        MaintainerPeriod.objects.create(maintainer=maintainer, period=period)
+
+        # Get the queryset from the view with mock request
         view = PeriodListView()
+        view.request = Mock()
+        view.request.user = maintainer_user
+        maintainer_user.maintainer = maintainer
+
         queryset = view.get_queryset()
 
         # Verify the annotations exist

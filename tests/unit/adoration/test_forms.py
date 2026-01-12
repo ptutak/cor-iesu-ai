@@ -792,3 +792,143 @@ class TestCollectionForm:
         updated_collection = form.save()
         assert updated_collection.description == "Updated Description"
         assert updated_collection.available_languages == ["pl"]
+
+    def test_collection_form_with_assignment_limit(self, db):
+        """Test CollectionForm with assignment limit."""
+        from adoration.forms import CollectionForm
+        from adoration.models import CollectionConfig
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en"],
+            "assignment_limit": 5,
+        }
+
+        form = CollectionForm(data=form_data)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        collection = form.save()
+        assert collection.name == "Test Collection"
+
+        # Check that CollectionConfig was created
+        config = CollectionConfig.objects.get(collection=collection, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT)
+        assert config.value == "5"
+        assert "Maximum number of assignments per period" in config.description
+
+    def test_collection_form_without_assignment_limit(self, db):
+        """Test CollectionForm without assignment limit (should not create config)."""
+        from adoration.forms import CollectionForm
+        from adoration.models import CollectionConfig
+
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en"],
+        }
+
+        form = CollectionForm(data=form_data)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        collection = form.save()
+
+        # Check that no CollectionConfig was created
+        assert not CollectionConfig.objects.filter(
+            collection=collection, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT
+        ).exists()
+
+    def test_collection_form_assignment_limit_validation(self, db):
+        """Test CollectionForm assignment limit validation."""
+        from adoration.forms import CollectionForm
+
+        # Test invalid assignment limit (too small)
+        form_data = {
+            "name": "Test Collection",
+            "description": "Test Description",
+            "enabled": True,
+            "available_languages": ["en"],
+            "assignment_limit": 0,
+        }
+
+        form = CollectionForm(data=form_data)
+        assert not form.is_valid()
+        assert "assignment_limit" in form.errors
+
+        # Test invalid assignment limit (too large)
+        form_data["assignment_limit"] = 101
+        form = CollectionForm(data=form_data)
+        assert not form.is_valid()
+        assert "assignment_limit" in form.errors
+
+    def test_collection_form_update_assignment_limit(self, db):
+        """Test updating assignment limit on existing collection."""
+        from adoration.forms import CollectionForm
+        from adoration.models import Collection, CollectionConfig
+
+        # Create collection without assignment limit (disabled to avoid maintainer requirement)
+        collection = Collection.objects.create(
+            name="Test Collection",
+            description="Test Description",
+            enabled=False,
+            available_languages=["en"],
+        )
+
+        # Update with assignment limit
+        form_data = {
+            "name": collection.name,
+            "description": collection.description,
+            "enabled": False,
+            "available_languages": collection.available_languages,
+            "assignment_limit": 10,
+        }
+
+        form = CollectionForm(data=form_data, instance=collection)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        updated_collection = form.save()
+
+        # Check that CollectionConfig was created
+        config = CollectionConfig.objects.get(
+            collection=updated_collection, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT
+        )
+        assert config.value == "10"
+
+        # Update to remove assignment limit
+        form_data["assignment_limit"] = None
+        form = CollectionForm(data=form_data, instance=updated_collection)
+        assert form.is_valid(), f"Form errors: {form.errors}"
+
+        form.save()
+
+        # Check that CollectionConfig was deleted
+        assert not CollectionConfig.objects.filter(
+            collection=updated_collection, name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT
+        ).exists()
+
+    def test_collection_form_loads_existing_assignment_limit(self, db):
+        """Test that CollectionForm loads existing assignment limit from CollectionConfig."""
+        from adoration.forms import CollectionForm
+        from adoration.models import Collection, CollectionConfig
+
+        # Create collection with assignment limit config
+        collection = Collection.objects.create(
+            name="Test Collection",
+            description="Test Description",
+            enabled=True,
+            available_languages=["en"],
+        )
+
+        CollectionConfig.objects.create(
+            collection=collection,
+            name=CollectionConfig.ConfigKeys.ASSIGNMENT_LIMIT,
+            value="15",
+            description="Test limit",
+        )
+
+        # Create form with instance
+        form = CollectionForm(instance=collection)
+
+        # Check that assignment_limit field has correct initial value
+        assert form.fields["assignment_limit"].initial == 15

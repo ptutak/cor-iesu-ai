@@ -1,35 +1,35 @@
 {% extends "adoration/maintainer/base.html" %}
 {% load i18n %}
 
-{% block page_title %}{% trans "Delete Period" %}{% endblock %}
+{% block page_title %}{% trans "Remove Period" %}{% endblock %}
 
 {% block breadcrumb %}
 <li class="breadcrumb-item">
     <a href="{% url 'maintainer:period_list' %}">{% trans "Periods" %}</a>
 </li>
-<li class="breadcrumb-item active" aria-current="page">{% trans "Delete" %}</li>
+<li class="breadcrumb-item active" aria-current="page">{% trans "Remove" %}</li>
 {% endblock %}
 
 {% block maintainer_content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card border-danger">
-            <div class="card-header bg-danger text-white">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
                 <h5 class="card-title mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    {% trans "Delete Period" %}
+                    <i class="fas fa-user-minus me-2"></i>
+                    {% trans "Remove Period from Management" %}
                 </h5>
             </div>
             <div class="card-body">
-                <div class="alert alert-warning" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{% trans "Warning!" %}</strong>
-                    {% trans "This action cannot be undone." %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>{% trans "Note:" %}</strong>
+                    {% trans "This will remove the period from your management only. The period itself will not be deleted." %}
                 </div>
 
                 <p class="mb-4">
                     {% blocktrans with period_name=period.name %}
-                    Are you sure you want to delete the period "<strong>{{ period_name }}</strong>"?
+                    Are you sure you want to remove the period "<strong>{{ period_name }}</strong>" from your management?
                     {% endblocktrans %}
                 </p>
 
@@ -67,10 +67,10 @@
                     <div class="col-md-4">
                         <div class="card bg-light">
                             <div class="card-body text-center">
-                                <i class="fas fa-trash text-danger fa-2x mb-2"></i>
-                                <h5 class="card-title">{% trans "Will be deleted" %}</h5>
+                                <i class="fas fa-user-minus text-warning fa-2x mb-2"></i>
+                                <h5 class="card-title">{% trans "Will be removed" %}</h5>
                                 <p class="card-text text-muted">
-                                    {% trans "All data" %}
+                                    {% trans "From your management" %}
                                 </p>
                             </div>
                         </div>
@@ -80,18 +80,18 @@
                 {% if total_assignments > 0 %}
                 <div class="alert alert-danger" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>{% trans "Impact Warning!" %}</strong>
+                    <strong>{% trans "Cannot Remove!" %}</strong>
                     {% blocktrans count counter=total_assignments %}
-                    Deleting this period will also remove {{ counter }} assignment and all associated data.
+                    Cannot remove this period - it has {{ counter }} active assignment in your collections.
                     {% plural %}
-                    Deleting this period will also remove {{ counter }} assignments and all associated data.
+                    Cannot remove this period - it has {{ counter }} active assignments in your collections.
                     {% endblocktrans %}
                 </div>
                 {% endif %}
 
                 {% if period_collections %}
                 <div class="mb-4">
-                    <h6>{% trans "This period is used in the following collections:" %}</h6>
+                    <h6>{% trans "This period is used in your following collections:" %}</h6>
                     <ul class="list-group list-group-flush">
                         {% for pc in period_collections %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -115,10 +115,17 @@
                             <i class="fas fa-arrow-left me-2"></i>
                             {% trans "Cancel" %}
                         </a>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-2"></i>
-                            {% trans "Delete Period" %}
+                        {% if total_assignments == 0 %}
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-user-minus me-2"></i>
+                            {% trans "Remove from Management" %}
                         </button>
+                        {% else %}
+                        <button type="button" class="btn btn-danger" disabled>
+                            <i class="fas fa-ban me-2"></i>
+                            {% trans "Cannot Remove" %}
+                        </button>
+                        {% endif %}
                     </div>
                 </form>
             </div>

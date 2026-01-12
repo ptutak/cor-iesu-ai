@@ -3,16 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Cor Iesu Adoration 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-11 20:49+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-01-12 09:31+0000\n"
+"PO-Revision-Date: 2026-01-12 09:30+0000\n"
+"Last-Translator: AI Assistant\n"
+"Language-Team: Polish\n"
+"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -98,25 +97,46 @@ msgid "Select which languages this collection is available in."
 msgstr "Wybierz w jakich językach ta kolekcja ma być dostępna."
 
 #: adoration/forms.py:245
-#: adoration/templates/adoration/maintainer/collection_form.html:135
+#: adoration/templates/adoration/maintainer/collection_form.html:159
 msgid "Available Languages"
 msgstr "Dostępne Języki"
 
-#: adoration/forms.py:257
+#: adoration/forms.py:255
+#: adoration/templates/adoration/maintainer/collection_form.html:144
+msgid "Enter assignment limit (optional)"
+msgstr "Wprowadź limit przypisań (opcjonalnie)"
+
+#: adoration/forms.py:258
+#: adoration/templates/adoration/maintainer/collection_form.html:151
+msgid ""
+"Maximum number of assignments per period (leave empty for default limit)"
+msgstr ""
+"Maksymalna liczba przypisań na okres (zostaw puste dla domyślnego limitu)"
+
+#: adoration/forms.py:259
+#: adoration/templates/adoration/maintainer/collection_form.html:135
+msgid "Assignment Limit"
+msgstr "Limit Przypisań"
+
+#: adoration/forms.py:271
 #: adoration/templates/adoration/maintainer/collection_form.html:75
 msgid "Enter collection name"
 msgstr "Wprowadź nazwę kolekcji"
 
-#: adoration/forms.py:264
+#: adoration/forms.py:278
 #: adoration/templates/adoration/maintainer/collection_form.html:97
 msgid "Enter collection description (optional)"
 msgstr "Wprowadź opis kolekcji (opcjonalnie)"
 
-#: adoration/forms.py:305
+#: adoration/forms.py:331
 msgid "Collection must have at least one available language."
 msgstr "Kolekcja musi mieć co najmniej jeden dostępny język."
 
-#: adoration/maintainer_views.py:167
+#: adoration/forms.py:374
+msgid "Maximum number of assignments per period in this collection"
+msgstr "Maksymalna liczba przypisań na okres w tej kolekcji"
+
+#: adoration/maintainer_views.py:168
 msgid ""
 "Collection '{}' created successfully. You are now a maintainer of this "
 "collection."
@@ -124,55 +144,100 @@ msgstr ""
 "Kolekcja '{}' została utworzona pomyślnie. Jesteś teraz opiekunem tej "
 "kolekcji."
 
-#: adoration/maintainer_views.py:205
+#: adoration/maintainer_views.py:206
 msgid "Collection '{}' updated successfully."
 msgstr "Kolekcja '{}' została zaktualizowana pomyślnie."
 
-#: adoration/maintainer_views.py:330
+#: adoration/maintainer_views.py:337
 msgid "Collection '{}' deleted successfully."
 msgstr "Kolekcja '{}' została usunięta pomyślnie."
 
-#: adoration/maintainer_views.py:377
-msgid "Period '{}' created successfully."
-msgstr "Okres '{}' został utworzony pomyślnie."
+#: adoration/maintainer_views.py:397
+msgid "Period '{}' created and assigned to you successfully."
+msgstr "Okres '{}' został utworzony i przypisany do Ciebie pomyślnie."
 
-#: adoration/maintainer_views.py:403
+#: adoration/maintainer_views.py:423
 msgid "Period '{}' updated successfully."
 msgstr "Okres '{}' został zaktualizowany pomyślnie."
 
-#: adoration/maintainer_views.py:462
-msgid "Period '{}' deleted successfully."
-msgstr "Okres '{}' został usunięty pomyślnie."
+#: adoration/maintainer_views.py:526 adoration/maintainer_views.py:790
+msgid ""
+"Cannot remove period '{}' - it has {} active assignments in your collections."
+msgstr ""
+"Nie można usunąć okresu '{}' - ma {} aktywnych przydziałów w Twoich "
+"kolekcjach."
 
-#: adoration/maintainer_views.py:504
+#: adoration/maintainer_views.py:542
+msgid "Period '{}' removed from your management successfully."
+msgstr "Okres '{}' został usunięty z Twojego zarządzania pomyślnie."
+
+#: adoration/maintainer_views.py:547 adoration/maintainer_views.py:814
+msgid "Period '{}' is not assigned to you."
+msgstr "Okres '{}' nie jest przypisany do Ciebie."
+
+#: adoration/maintainer_views.py:606
 msgid "Period '{}' assigned to collection '{}'."
 msgstr "Okres '{}' został przypisany do kolekcji '{}'."
 
-#: adoration/maintainer_views.py:511
+#: adoration/maintainer_views.py:613
 msgid "Period is already assigned to this collection."
 msgstr "Okres jest już przypisany do tej kolekcji."
 
-#: adoration/maintainer_views.py:561
+#: adoration/maintainer_views.py:669
 msgid "Cannot remove period '{}' - it has {} active assignments."
 msgstr "Nie można usunąć okresu '{}' - ma {} aktywnych przydziałów."
 
-#: adoration/maintainer_views.py:572
+#: adoration/maintainer_views.py:681
 msgid "Period '{}' removed from collection '{}'."
 msgstr "Okres '{}' został usunięty z kolekcji '{}'."
 
-#: adoration/maintainer_views.py:613
+#: adoration/maintainer_views.py:731
+msgid "Period '{}' assigned to you successfully."
+msgstr "Okres '{}' został przypisany do Ciebie pomyślnie."
+
+#: adoration/maintainer_views.py:738
+msgid "Period '{}' is already assigned to you."
+msgstr "Okres '{}' jest już przypisany do Ciebie."
+
+#: adoration/maintainer_views.py:806
+msgid "Period '{}' removed from your management."
+msgstr "Okres '{}' został usunięty z Twojego zarządzania."
+
+#: adoration/maintainer_views.py:864
+msgid "Created {} new periods and assigned {} periods to you successfully."
+msgstr ""
+"Utworzono {} nowych okresów i przypisano {} okresów do Ciebie pomyślnie."
+
+#: adoration/maintainer_views.py:869
+msgid ""
+"Created {} new periods successfully. All standard periods were already "
+"assigned to you."
+msgstr ""
+"Utworzono {} nowych okresów pomyślnie. Wszystkie standardowe okresy były już "
+"do Ciebie przypisane."
+
+#: adoration/maintainer_views.py:872
+msgid "Assigned {} standard periods to you successfully."
+msgstr "Przypisano {} standardowych okresów do Ciebie pomyślnie."
+
+#: adoration/maintainer_views.py:874
+msgid "All 24 standard hour periods were already assigned to you."
+msgstr ""
+"Wszystkie 24 standardowe okresy godzinowe były już do Ciebie przypisane."
+
+#: adoration/maintainer_views.py:913
 msgid "User '{}' is already a maintainer."
 msgstr "Użytkownik '{}' jest już opiekunem."
 
-#: adoration/maintainer_views.py:622
+#: adoration/maintainer_views.py:922
 msgid "User must have an email address to become a maintainer."
 msgstr "Użytkownik musi mieć adres e-mail, aby zostać opiekunem."
 
-#: adoration/maintainer_views.py:639
+#: adoration/maintainer_views.py:939
 msgid "User '{}' promoted to maintainer successfully."
 msgstr "Użytkownik '{}' został awansowany na opiekuna pomyślnie."
 
-#: adoration/maintainer_views.py:728
+#: adoration/maintainer_views.py:1028
 msgid "Assignment deleted successfully from '{}' - '{}'."
 msgstr "Przydział został usunięty pomyślnie z '{}' - '{}'."
 
@@ -220,7 +285,6 @@ msgstr "Zachowaj rejestrację"
 #: adoration/templates/adoration/delete_confirm.html:93
 #: adoration/templates/adoration/maintainer/assignment_list.html:85
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:27
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:27
 msgid "This action cannot be undone."
 msgstr "Ta akcja nie może zostać cofnięta."
 
@@ -247,7 +311,7 @@ msgstr "Przełącz na %(name)s"
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:62
 #: adoration/templates/adoration/maintainer/collection_detail.html:112
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:62
-#: adoration/templates/adoration/maintainer/period_list.html:36
+#: adoration/templates/adoration/maintainer/period_list.html:40
 msgid "Assignments"
 msgstr "Przydziały"
 
@@ -267,7 +331,7 @@ msgstr "Status"
 #: adoration/templates/adoration/maintainer/assignment_list.html:30
 #: adoration/templates/adoration/maintainer/collection_detail.html:113
 #: adoration/templates/adoration/maintainer/collection_list.html:38
-#: adoration/templates/adoration/maintainer/period_list.html:37
+#: adoration/templates/adoration/maintainer/period_list.html:41
 #: adoration/templates/adoration/maintainer/user_promotion.html:51
 msgid "Actions"
 msgstr "Akcje"
@@ -289,9 +353,6 @@ msgstr "Usuń Przydział"
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:10
 #: adoration/templates/adoration/maintainer/collection_list.html:96
 #: adoration/templates/adoration/maintainer/collection_list.html:98
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:10
-#: adoration/templates/adoration/maintainer/period_list.html:76
-#: adoration/templates/adoration/maintainer/period_list.html:78
 msgid "Delete"
 msgstr "Usuń"
 
@@ -310,7 +371,6 @@ msgstr "Zamknij"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:84
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:26
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:26
 msgid "Warning!"
 msgstr "Ostrzeżenie!"
 
@@ -320,7 +380,7 @@ msgstr "Czy na pewno chcesz usunąć ten przydział?"
 
 #: adoration/templates/adoration/maintainer/assignment_list.html:94
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:161
-#: adoration/templates/adoration/maintainer/collection_form.html:188
+#: adoration/templates/adoration/maintainer/collection_form.html:212
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:116
 #: adoration/templates/adoration/maintainer/period_form.html:112
 #: adoration/templates/adoration/maintainer/user_promotion.html:211
@@ -362,7 +422,7 @@ msgstr "Pulpit"
 #: adoration/templates/adoration/maintainer/collection_list.html:4
 #: adoration/templates/adoration/maintainer/collection_list.html:7
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:51
-#: adoration/templates/adoration/maintainer/period_list.html:35
+#: adoration/templates/adoration/maintainer/period_list.html:39
 msgid "Collections"
 msgstr "Kolekcje"
 
@@ -371,7 +431,6 @@ msgstr "Kolekcje"
 #: adoration/templates/adoration/maintainer/collection_list.html:36
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:8
 #: adoration/templates/adoration/maintainer/period_form.html:14
-#: adoration/templates/adoration/maintainer/period_list.html:4
 #: adoration/templates/adoration/maintainer/period_list.html:7
 msgid "Periods"
 msgstr "Okresy"
@@ -425,28 +484,25 @@ msgstr ""
 #: adoration/templates/adoration/maintainer/collection_list.html:34
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:38
 #: adoration/templates/adoration/maintainer/period_form.html:91
-#: adoration/templates/adoration/maintainer/period_list.html:34
+#: adoration/templates/adoration/maintainer/period_list.html:38
 msgid "Description"
 msgstr "Opis"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:73
 #: adoration/templates/adoration/maintainer/collection_detail.html:67
-#: adoration/templates/adoration/maintainer/collection_form.html:219
+#: adoration/templates/adoration/maintainer/collection_form.html:243
 msgid "Maintainers"
 msgstr "Opiekunowie"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:82
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:71
 msgid "Will be deleted"
 msgstr "Zostanie usunięte"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:84
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:73
 msgid "All data"
 msgstr "Wszystkie dane"
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:94
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:83
 msgid "Impact Warning!"
 msgstr "Ostrzeżenie o Wpływie!"
 
@@ -464,23 +520,23 @@ msgid_plural ""
 "                    "
 msgstr[0] ""
 "\n"
-"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
-"przydziału i wszystkich powiązanych danych.\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie "
+"%(counter)s przydziału i wszystkich powiązanych danych.\n"
 "                    "
 msgstr[1] ""
 "\n"
-"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie "
+"%(counter)s przydziałów i wszystkich powiązanych danych.\n"
 "                    "
 msgstr[2] ""
 "\n"
-"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie "
+"%(counter)s przydziałów i wszystkich powiązanych danych.\n"
 "                    "
 msgstr[3] ""
 "\n"
-"                    Usunięcie tej kolekcji spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Usunięcie tej kolekcji spowoduje również usunięcie "
+"%(counter)s przydziałów i wszystkich powiązanych danych.\n"
 "                    "
 
 #: adoration/templates/adoration/maintainer/collection_confirm_delete.html:105
@@ -511,6 +567,7 @@ msgstr "Edytuj Kolekcję"
 #: adoration/templates/adoration/maintainer/period_form.html:8
 #: adoration/templates/adoration/maintainer/period_form.html:119
 #: adoration/templates/adoration/maintainer/period_list.html:13
+#: adoration/templates/adoration/maintainer/period_list.html:147
 msgid "Create Period"
 msgstr "Utwórz Okres"
 
@@ -544,85 +601,87 @@ msgstr "Dostępne Języki:"
 msgid "periods"
 msgstr "okresy"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:126
+#: adoration/templates/adoration/maintainer/collection_detail.html:121
+msgid "Your period"
+msgstr "Twój okres"
+
+#: adoration/templates/adoration/maintainer/collection_detail.html:127
 #: adoration/templates/adoration/maintainer/collection_list.html:54
-#: adoration/templates/adoration/maintainer/period_list.html:53
+#: adoration/templates/adoration/maintainer/period_list.html:57
 msgid "No description"
 msgstr "Brak opisu"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:139
+#: adoration/templates/adoration/maintainer/collection_detail.html:140
 msgid "Remove from collection"
 msgstr "Usuń z kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:151
+#: adoration/templates/adoration/maintainer/collection_detail.html:152
 msgid "No periods assigned"
 msgstr "Brak przypisanych okresów"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:153
+#: adoration/templates/adoration/maintainer/collection_detail.html:154
 msgid ""
-"Assign periods from the list on the right to make this collection available "
-"for registration."
+"Assign your periods from the list on the right to make this collection "
+"available for registration."
 msgstr ""
-"Przypisz okresy z listy po prawej stronie, aby udostępnić tę kolekcję do "
-"rejestracji."
+"Przypisz swoje okresy z listy po prawej stronie, aby udostępnić tę kolekcję "
+"do rejestracji."
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:167
-#: adoration/templates/adoration/maintainer/dashboard.html:60
-#: adoration/templates/adoration/maintainer/period_list.html:24
-msgid "Available Periods"
-msgstr "Dostępne Okresy"
+#: adoration/templates/adoration/maintainer/collection_detail.html:168
+msgid "Your Available Periods"
+msgstr "Twoje Dostępne Okresy"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:186
+#: adoration/templates/adoration/maintainer/collection_detail.html:187
 msgid "Assign to collection"
 msgstr "Przypisz do kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:196
-msgid "All periods assigned"
-msgstr "Wszystkie okresy przypisane"
+#: adoration/templates/adoration/maintainer/collection_detail.html:197
+msgid "All your periods assigned"
+msgstr "Wszystkie Twoje okresy przypisane"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:198
-msgid "All available periods have been assigned to this collection."
-msgstr "Wszystkie dostępne okresy zostały przypisane do tej kolekcji."
+#: adoration/templates/adoration/maintainer/collection_detail.html:199
+msgid "All your available periods have been assigned to this collection."
+msgstr "Wszystkie Twoje dostępne okresy zostały przypisane do tej kolekcji."
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:202
+#: adoration/templates/adoration/maintainer/collection_detail.html:203
 #: adoration/templates/adoration/maintainer/period_form.html:35
 msgid "Create New Period"
 msgstr "Utwórz Nowy Okres"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:218
+#: adoration/templates/adoration/maintainer/collection_detail.html:219
 msgid "Collection Maintainers"
 msgstr "Opiekunowie Kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:238
+#: adoration/templates/adoration/maintainer/collection_detail.html:239
 msgid "No maintainers assigned."
 msgstr "Nie przypisano opiekunów."
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:255
+#: adoration/templates/adoration/maintainer/collection_detail.html:256
 msgid "Assign period"
 msgstr "Przypisz okres"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:255
+#: adoration/templates/adoration/maintainer/collection_detail.html:256
 msgid "to this collection"
 msgstr "do tej kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:267
+#: adoration/templates/adoration/maintainer/collection_detail.html:268
 msgid "Remove period"
 msgstr "Usuń okres"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:267
+#: adoration/templates/adoration/maintainer/collection_detail.html:268
 msgid "from this collection"
 msgstr "z tej kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:292
+#: adoration/templates/adoration/maintainer/collection_detail.html:293
 msgid "An error occurred while assigning the period."
 msgstr "Wystąpił błąd podczas przypisywania okresu."
 
-#: adoration/templates/adoration/maintainer/collection_detail.html:316
+#: adoration/templates/adoration/maintainer/collection_detail.html:317
 msgid "An error occurred while removing the period."
 msgstr "Wystąpił błąd podczas usuwania okresu."
 
 #: adoration/templates/adoration/maintainer/collection_form.html:8
-#: adoration/templates/adoration/maintainer/collection_form.html:195
+#: adoration/templates/adoration/maintainer/collection_form.html:219
 #: adoration/templates/adoration/maintainer/collection_list.html:13
 #: adoration/templates/adoration/maintainer/dashboard.html:123
 #: adoration/templates/adoration/maintainer/dashboard.html:246
@@ -634,8 +693,8 @@ msgstr "Utwórz Kolekcję"
 #: adoration/templates/adoration/maintainer/collection_list.html:92
 #: adoration/templates/adoration/maintainer/dashboard.html:227
 #: adoration/templates/adoration/maintainer/period_form.html:18
-#: adoration/templates/adoration/maintainer/period_list.html:70
-#: adoration/templates/adoration/maintainer/period_list.html:72
+#: adoration/templates/adoration/maintainer/period_list.html:74
+#: adoration/templates/adoration/maintainer/period_list.html:76
 msgid "Edit"
 msgstr "Edytuj"
 
@@ -677,33 +736,33 @@ msgstr "Kolekcja Włączona"
 msgid "Only enabled collections are visible to users"
 msgstr "Tylko włączone kolekcje są widoczne dla użytkowników"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:180
+#: adoration/templates/adoration/maintainer/collection_form.html:204
 msgid "Select the languages this collection should be available in"
 msgstr "Wybierz języki, w których ta kolekcja powinna być dostępna"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:193
+#: adoration/templates/adoration/maintainer/collection_form.html:217
 msgid "Update Collection"
 msgstr "Aktualizuj Kolekcję"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:209
+#: adoration/templates/adoration/maintainer/collection_form.html:233
 msgid "Collection Information"
 msgstr "Informacje o Kolekcji"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:215
+#: adoration/templates/adoration/maintainer/collection_form.html:239
 msgid "Periods assigned"
 msgstr "Przypisane okresy"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:226
+#: adoration/templates/adoration/maintainer/collection_form.html:250
 #: adoration/templates/adoration/maintainer/collection_list.html:84
 msgid "View Details"
 msgstr "Zobacz Szczegóły"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:240
+#: adoration/templates/adoration/maintainer/collection_form.html:264
 #: adoration/templates/adoration/maintainer/period_form.html:158
 msgid "Getting Started"
 msgstr "Wprowadzenie"
 
-#: adoration/templates/adoration/maintainer/collection_form.html:242
+#: adoration/templates/adoration/maintainer/collection_form.html:266
 msgid ""
 "After creating this collection, you'll be automatically assigned as its "
 "maintainer. You can then add periods to it from the collection detail page."
@@ -712,7 +771,7 @@ msgstr ""
 "opiekun. Następnie możesz dodać okresy do niej na stronie szczegółów "
 "kolekcji."
 
-#: adoration/templates/adoration/maintainer/collection_form.html:274
+#: adoration/templates/adoration/maintainer/collection_form.html:298
 msgid "Please select at least one language for this collection."
 msgstr "Proszę wybrać co najmniej jeden język dla tej kolekcji."
 
@@ -723,7 +782,7 @@ msgid "My Collections"
 msgstr "Moje Kolekcje"
 
 #: adoration/templates/adoration/maintainer/collection_list.html:33
-#: adoration/templates/adoration/maintainer/period_list.html:33
+#: adoration/templates/adoration/maintainer/period_list.html:37
 msgid "Name"
 msgstr "Nazwa"
 
@@ -765,6 +824,10 @@ msgstr ""
 "Witaj %(name)s! Masz dostęp do panelu opiekuna, gdzie możesz zarządzać "
 "kolekcjami, okresami i przydziałami."
 
+#: adoration/templates/adoration/maintainer/dashboard.html:60
+msgid "Available Periods"
+msgstr "Dostępne Okresy"
+
 #: adoration/templates/adoration/maintainer/dashboard.html:96
 msgid "Maintainer Status"
 msgstr "Status Opiekuna"
@@ -794,60 +857,98 @@ msgid "Create your first collection to get started."
 msgstr "Utwórz swoją pierwszą kolekcję, aby rozpocząć."
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:4
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:20
-#: adoration/templates/adoration/maintainer/period_confirm_delete.html:120
-msgid "Delete Period"
+msgid "Remove Period"
 msgstr "Usuń Okres"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:10
+#: adoration/templates/adoration/maintainer/period_list.html:82
+msgid "Remove"
+msgstr "Usuń"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:20
+msgid "Remove Period from Management"
+msgstr "Usuń Okres z Zarządzania"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:26
+msgid "Note:"
+msgstr "Uwaga:"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:27
+msgid ""
+"This will remove the period from your management only. The period itself "
+"will not be deleted."
+msgstr ""
+"To usunie okres tylko z Twojego zarządzania. Sam okres nie zostanie usunięty."
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:31
 #, python-format
 msgid ""
 "\n"
-"                    Are you sure you want to delete the period "
-"\"<strong>%(period_name)s</strong>\"?\n"
+"                    Are you sure you want to remove the period "
+"\"<strong>%(period_name)s</strong>\" from your management?\n"
 "                    "
 msgstr ""
 "\n"
 "                    Czy na pewno chcesz usunąć okres "
-"\"<strong>%(period_name)s</strong>\"?\n"
+"\"<strong>%(period_name)s</strong>\" ze swojego zarządzania?\n"
 "                    "
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:71
+msgid "Will be removed"
+msgstr "Zostanie usunięte"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:73
+msgid "From your management"
+msgstr "Z Twojego zarządzania"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:83
+msgid "Cannot Remove!"
+msgstr "Nie można usunąć!"
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:84
 #, python-format
 msgid ""
 "\n"
-"                    Deleting this period will also remove %(counter)s "
-"assignment and all associated data.\n"
+"                    Cannot remove this period - it has %(counter)s active "
+"assignment in your collections.\n"
 "                    "
 msgid_plural ""
 "\n"
-"                    Deleting this period will also remove %(counter)s "
-"assignments and all associated data.\n"
+"                    Cannot remove this period - it has %(counter)s active "
+"assignments in your collections.\n"
 "                    "
 msgstr[0] ""
 "\n"
-"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
-"przydziału i wszystkich powiązanych danych.\n"
+"                    Nie można usunąć tego okresu - ma %(counter)s aktywny "
+"przydział w Twoich kolekcjach.\n"
 "                    "
 msgstr[1] ""
 "\n"
-"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Nie można usunąć tego okresu - ma %(counter)s aktywne "
+"przydziały w Twoich kolekcjach.\n"
 "                    "
 msgstr[2] ""
 "\n"
-"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Nie można usunąć tego okresu - ma %(counter)s aktywnych "
+"przydziałów w Twoich kolekcjach.\n"
 "                    "
 msgstr[3] ""
 "\n"
-"                    Usunięcie tego okresu spowoduje również usunięcie %(counter)s "
-"przydziałów i wszystkich powiązanych danych.\n"
+"                    Nie można usunąć tego okresu - ma %(counter)s aktywnych "
+"przydziałów w Twoich kolekcjach.\n"
 "                    "
 
 #: adoration/templates/adoration/maintainer/period_confirm_delete.html:94
-msgid "This period is used in the following collections:"
-msgstr "Ten okres jest używany w następujących kolekcjach:"
+msgid "This period is used in your following collections:"
+msgstr "Ten okres jest używany w następujących Twoich kolekcjach:"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:121
+msgid "Remove from Management"
+msgstr "Usuń z Zarządzania"
+
+#: adoration/templates/adoration/maintainer/period_confirm_delete.html:126
+msgid "Cannot Remove"
+msgstr "Nie można usunąć"
 
 #: adoration/templates/adoration/maintainer/period_form.html:6
 #: adoration/templates/adoration/maintainer/period_form.html:33
@@ -902,33 +1003,53 @@ msgstr ""
 "Po utworzeniu tego okresu możesz przypisać go do kolekcji ze stron "
 "szczegółów kolekcji."
 
-#: adoration/templates/adoration/maintainer/period_list.html:90
+#: adoration/templates/adoration/maintainer/period_list.html:4
+#: adoration/templates/adoration/maintainer/period_list.html:28
+#: adoration/templates/adoration/maintainer/period_list.html:164
+msgid "My Periods"
+msgstr "Moje Okresy"
+
+#: adoration/templates/adoration/maintainer/period_list.html:17
+msgid "Assign 24-Hour Periods"
+msgstr "Przypisz 24-godzinne Okresy"
+
+#: adoration/templates/adoration/maintainer/period_list.html:80
+msgid "Remove from my management"
+msgstr "Usuń z mojego zarządzania"
+
+#: adoration/templates/adoration/maintainer/period_list.html:94
 msgid "Periods pagination"
 msgstr "Paginacja okresów"
 
-#: adoration/templates/adoration/maintainer/period_list.html:137
-msgid "No periods found"
-msgstr "Nie znaleziono okresów"
-
-#: adoration/templates/adoration/maintainer/period_list.html:139
-msgid ""
-"Create periods to organize adoration time slots. Periods can be assigned to "
-"multiple collections."
-msgstr ""
-"Utwórz okresy, aby zorganizować przedziały czasowe adoracji. Okresy mogą być "
-"przypisane do wielu kolekcji."
+#: adoration/templates/adoration/maintainer/period_list.html:141
+msgid "No periods assigned to you"
+msgstr "Brak okresów przypisanych do Ciebie"
 
 #: adoration/templates/adoration/maintainer/period_list.html:143
-msgid "Create Your First Period"
-msgstr "Utwórz Swój Pierwszy Okres"
+msgid "Create periods to organize adoration time slots for your collections."
+msgstr ""
+"Utwórz okresy, aby zorganizować przedziały czasowe adoracji dla Twoich "
+"kolekcji."
 
-#: adoration/templates/adoration/maintainer/period_list.html:160
-msgid "Total Periods"
-msgstr "Łączne Okresy"
+#: adoration/templates/adoration/maintainer/period_list.html:175
+msgid "Ready for Collections"
+msgstr "Gotowe dla Kolekcji"
 
-#: adoration/templates/adoration/maintainer/period_list.html:171
-msgid "Available for Assignment"
-msgstr "Dostępne do Przydziału"
+#: adoration/templates/adoration/maintainer/period_list.html:191
+msgid ""
+"This will assign all 24 standard hour periods (00:00-01:00, 01:00-02:00, "
+"etc.) to you. Continue?"
+msgstr ""
+"To przypisze wszystkie 24 standardowe okresy godzinowe (00:00-01:00, "
+"01:00-02:00, itd.) do Ciebie. Kontynuować?"
+
+#: adoration/templates/adoration/maintainer/period_list.html:203
+msgid "Assigning..."
+msgstr "Przypisywanie..."
+
+#: adoration/templates/adoration/maintainer/period_list.html:223
+msgid "An error occurred while assigning standard periods."
+msgstr "Wystąpił błąd podczas przypisywania standardowych okresów."
 
 #: adoration/templates/adoration/maintainer/user_promotion.html:17
 msgid "Promote Users to Maintainers"
@@ -1292,3 +1413,21 @@ msgstr ""
 #: adoration/views.py:286
 msgid "Registration cancelled successfully."
 msgstr "Rejestracja anulowana pomyślnie."
+
+#~ msgid "Period '{}' deleted successfully."
+#~ msgstr "Okres '{}' został usunięty pomyślnie."
+
+#~ msgid "Delete Period"
+#~ msgstr "Usuń Okres"
+
+#~ msgid "No periods found"
+#~ msgstr "Nie znaleziono okresów"
+
+#~ msgid "Create Your First Period"
+#~ msgstr "Utwórz Swój Pierwszy Okres"
+
+#~ msgid "Total Periods"
+#~ msgstr "Łączne Okresy"
+
+#~ msgid "Available for Assignment"
+#~ msgstr "Dostępne do Przydziału"
