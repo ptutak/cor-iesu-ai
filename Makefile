@@ -13,6 +13,10 @@ install-dev:
 	@echo "Installing pre-commit hooks..."
 	@pre-commit install
 
+.PHONY: update
+update:
+	@pdm update --update-all --prod
+
 .PHONY: check-hooks
 check-hooks:
 	@echo "Checking pre-commit hooks..."

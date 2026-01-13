@@ -1,0 +1,7 @@
+recursive-include src/adoration/static *
+recursive-include src/adoration/templates *
+recursive-include src/locale *.po
+recursive-exclude src/locale *.mo
+recursive-include src/staticfiles *
+include src/manage.py
+include Makefile

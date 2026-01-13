@@ -1,9 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "cor-iesu-ai"
 version = "0.1.0"
 description = "Package for managing adoration of Most Holy Sacrament"
-requires-python = ">=3.13"
-dependencies = ["django>=6.0", "polib>=1.2.0", "gunicorn>=23.0.0"]
+requires-python = ">=3.12"
+dependencies = ["django>=6.0", "polib>=1.2.0", "gunicorn>=23.0.0", "mysqlclient>=2.2.7", "django-stubs-ext>=5.2.8"]
 
 [tool.black]
 line-length = 120
@@ -42,10 +46,6 @@ branch = true
 [tool.coverage.report]
 fail_under = 85
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 [tool.mypy]
 packages = ["src"]
 exclude = [
@@ -75,7 +75,6 @@ dev = [
     "flake8",
     "flake8-black",
     "django-stubs[compatible-mypy]",
-    "django-stubs-ext",
     "django-test>=0.4030",
     "pytest-django>=4.11.1",
 ]
