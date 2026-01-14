@@ -58,8 +58,7 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                         "link": request.build_absolute_uri("/delete/" + str(assignment.deletion_token) + "/"),
                     }
                 ),
-                from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL)
-                or settings.DEFAULT_FROM_EMAIL,
+                from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL),
                 recipient_list=[attendant_email],
                 fail_silently=True,
             )
@@ -78,9 +77,6 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                     if m.maintainer.user.email and m.maintainer.user.email.strip()
                 ]
                 phone_info = f"\nPhone: {attendant_phone}" if attendant_phone else ""
-
-                # Try to use user email as sender, fallback to system email
-                from_email = attendant_email
 
                 # Create email message with reply-to functionality
                 email_message = EmailMessage(
@@ -108,7 +104,7 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                             "token": assignment.deletion_token,
                         }
                     ),
-                    from_email=from_email,
+                    from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL),
                     to=maintainer_emails,
                     reply_to=[attendant_email],
                 )
@@ -276,7 +272,7 @@ def delete_assignment(request: HttpRequest, token: str) -> HttpResponse:
                             "period": assignment.period_collection.period.name,
                         }
                     ),
-                    from_email=user_email,
+                    from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL),
                     to=maintainer_emails,
                     reply_to=[user_email],
                 )
