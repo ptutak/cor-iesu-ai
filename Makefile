@@ -97,8 +97,8 @@ compile-messages:
 update-translations: make-messages compile-messages
 	@echo "🌐 Translation update complete!"
 
-.PHONY: fix-permissions
-fix-permissions:
-	@echo "🔧 Fixing maintainer permissions..."
-	cd src && python manage.py fix_maintainer_permissions
-	@echo "✅ Maintainer permissions fixed!"
+.PHONY: static
+static:
+	@echo "🔨 Compiling static files..."
+	cd src && python manage.py collectstatic --noinput
+	@echo "✅ Static files compiled!"
