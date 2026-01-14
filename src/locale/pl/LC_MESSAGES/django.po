@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cor Iesu Adoration 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 10:16+0000\n"
+"POT-Creation-Date: 2026-01-14 07:03+0000\n"
 "PO-Revision-Date: 2026-01-12 09:30+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Polish\n"
@@ -1297,12 +1297,12 @@ msgstr "Hasło"
 msgid "Back to Main Site"
 msgstr "Powrót do Strony Głównej"
 
-#: adoration/views.py:42
+#: adoration/views.py:43
 #, python-format
 msgid "Registration Confirmation - %(collection)s"
 msgstr "Potwierdzenie rejestracji - %(collection)s"
 
-#: adoration/views.py:46
+#: adoration/views.py:47
 #, python-format
 msgid ""
 "Dear %(name)s,\n"
@@ -1332,12 +1332,12 @@ msgstr ""
 "\n"
 "Z poważaniem"
 
-#: adoration/views.py:87
+#: adoration/views.py:89
 #, python-format
 msgid "New Registration - %(collection)s"
 msgstr "Nowa rejestracja - %(collection)s"
 
-#: adoration/views.py:91
+#: adoration/views.py:93
 #, python-format
 msgid ""
 "New participant registered:\n"
@@ -1367,30 +1367,30 @@ msgstr ""
 "prywatność. Ten e-mail jest wysyłany bezpośrednio z adresu e-mail "
 "użytkownika."
 
-#: adoration/views.py:121
+#: adoration/views.py:123
 msgid "Registration successful! Check your email for confirmation."
 msgstr ""
 "Rejestracja zakończona sukcesem! Sprawdź swoją pocztę e-mail w celu "
 "potwierdzenia."
 
-#: adoration/views.py:152 adoration/views.py:199
+#: adoration/views.py:154 adoration/views.py:201
 msgid "Collection not found"
 msgstr "Kolekcja nie znaleziona"
 
-#: adoration/views.py:174
+#: adoration/views.py:176
 msgid "Failed to load periods"
 msgstr "Nie udało się załadować okresów"
 
-#: adoration/views.py:226
+#: adoration/views.py:228
 msgid "Failed to load maintainer information"
 msgstr "Nie udało się załadować informacji o opiekunie"
 
-#: adoration/views.py:263
+#: adoration/views.py:265
 #, python-format
 msgid "Registration Cancelled - %(collection)s"
 msgstr "Rejestracja anulowana - %(collection)s"
 
-#: adoration/views.py:267
+#: adoration/views.py:269
 #, python-format
 msgid ""
 "A participant has cancelled their registration:\n"
@@ -1410,7 +1410,7 @@ msgstr ""
 "\n"
 "Uczestnik dobrowolnie anulował swoją rejestrację używając linku do usunięcia."
 
-#: adoration/views.py:288
+#: adoration/views.py:290
 msgid "Registration cancelled successfully."
 msgstr "Rejestracja anulowana pomyślnie."
 

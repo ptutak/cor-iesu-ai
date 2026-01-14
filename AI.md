@@ -15,7 +15,7 @@
 - keep the code coverage on the required level
 - don't leave any test as failed
 - never create test scripts, always create unit tests and integration tests instead
-- don't reformat the code which was already formatted by the linters
+- don't reformat the code focus on new features
 - don't add any new features or scripts if not asked for, add only things you are directly asked for
 - if it's necessary or useful to add something additional ask before adding it
 - if you want to add a new command or management script add it to the makefile

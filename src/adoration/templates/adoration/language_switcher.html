@@ -10,7 +10,7 @@
         <input
             name="next"
             type="hidden"
-            value="{% if language.code == 'en' %}/{% else %}/{{ language.code }}/{% endif %}"
+            value="{{ language.next_url }}"
         />
         <input name="language" type="hidden" value="{{ language.code }}" />
         <button

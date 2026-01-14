@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
@@ -55,7 +56,12 @@ def registration_view(request: HttpRequest) -> HttpResponse:
                         "name": attendant_name,
                         "collection": assignment.period_collection.collection.name,
                         "period": assignment.period_collection.period.name,
-                        "link": request.build_absolute_uri("/delete/" + str(assignment.deletion_token) + "/"),
+                        "link": request.build_absolute_uri(
+                            reverse(
+                                "delete_assignment",
+                                kwargs={"token": str(assignment.deletion_token)},
+                            )
+                        ),
                     }
                 ),
                 from_email=get_email_config("DEFAULT_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL),
